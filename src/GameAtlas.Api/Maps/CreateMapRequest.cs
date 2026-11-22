@@ -4,7 +4,7 @@ using GameAtlas.Domain;
 namespace GameAtlas.Api.Maps;
 
 [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
-public sealed record CreateMapRequest(string? Name, string? Slug)
+public sealed record CreateMapRequest(string? Name, string? Slug, string? Description = null)
 {
 	public Optional<PublicationStatus?> Status { get; init; }
 }

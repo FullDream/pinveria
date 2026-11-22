@@ -1,15 +1,13 @@
 import { Component, inject } from '@angular/core'
 import { RouterLink, RouterOutlet } from '@angular/router'
-import { PageLoading, PageProgress, ThemeSwitcher } from '@game-atlas/shared/ui'
-import { NgIcon, provideIcons } from '@ng-icons/core'
-import { matMapRound } from '@ng-icons/material-symbols/round'
+import { BrandLogo, PageLoading, PageProgress, ThemeSwitcher } from '@game-atlas/shared/ui'
 import { ThemeSettings } from './theme-settings'
 
 @Component({
 	selector: 'app-root',
-	imports: [RouterLink, RouterOutlet, NgIcon, ThemeSwitcher, PageProgress],
+	imports: [RouterLink, RouterOutlet, BrandLogo, ThemeSwitcher, PageProgress],
 	templateUrl: './app.html',
-	providers: [PageLoading, provideIcons({ matMapRound })],
+	providers: [PageLoading],
 	host: { class: 'flex min-h-dvh flex-col bg-background text-foreground' },
 })
 export class App {

@@ -106,3 +106,8 @@ Map metadata includes a required string slug. Existing creation forms require ma
 ## Public Games
 
 The web catalog uses PublicGamesQueryOptions from shared Games data access and published-only card contracts. The web-scoped games/feature-detail library owns `/games/:slug`; the former application placeholder is removed. Public and management query keys remain independent. Web defaults queries to infinite stale time and transfers complete public reads from isolated SSR QueryClients. Shared UI owns lifecycle-scoped loading declarations and the progress component used by both headers.
+
+## Public SEO and social previews
+
+Shared UI owns reactive page title and SEO primitives: PageTitleStrategy exposes a reactive 	itle signal, and PageSeo with PageSeoDirective (
+g-container[uiPageSeo]) declaratively manages meta description, canonical links, obots, Open Graph, Twitter Cards, safely escaped JSON-LD scripts, and SSR HTTP status codes (RESPONSE_INIT). shared/util exports deterministic content-hashed OG image path builders (uildHomeOgImagePath, uildGameOgImagePath, uildMapOgImagePath) shared between Angular components and the Hono SSR server. Hono serves /robots.txt, /sitemap.xml (backed by GET /public/index), and dynamic 1200×630 PNG OG previews ahead of the Angular request handler.

@@ -1,5 +1,14 @@
 <div class="bg-background relative h-[calc(100dvh-4rem)] w-full overflow-hidden">
 	@if (mapDetail.data(); as map) {
+		<ng-container
+			uiPageSeo
+			[title]="seoTitle()"
+			[description]="seoDescription()"
+			[image]="seoImage()"
+			[canonical]="'/games/' + slug() + '/maps/' + map.slug"
+			[jsonLd]="seoJsonLd()"
+		/>
+		<h1 class="sr-only">{{ map.name }} — {{ resolvedGameName() }} Interactive Map</h1>
 		<maps-public-map-viewer
 			[data]="map"
 			[slug]="slug()"
@@ -15,17 +24,43 @@
 			</div>
 		</div>
 	} @else if (mapDetail.isError()) {
-		<div class="inset-0 p-4 absolute flex items-center justify-center">
-			<div hlmEmpty>
-				<div hlmEmptyHeader>
-					<h2 hlmEmptyTitle>Could not load map</h2>
-					<p hlmEmptyDescription>This map may have been deleted or unpublished.</p>
-				</div>
-				<div hlmEmptyContent>
-					<button ui-button (click)="mapDetail.refetch()">Retry</button>
-					<a ui-button variant="outline" [routerLink]="['/games', slug()]">Back to game</a>
+		@if (mapDetail.error().status === httpStatusCode.NotFound) {
+			<ng-container
+				uiPageSeo
+				title="Map unavailable"
+				description="This map could not be found or is no longer published."
+				[noindex]="true"
+				[statusCode]="404"
+			/>
+			<div class="inset-0 p-4 absolute flex items-center justify-center">
+				<div hlmEmpty class="border">
+					<div hlmEmptyHeader>
+						<h1 hlmEmptyTitle>Map unavailable</h1>
+						<p hlmEmptyDescription>This map could not be found or is no longer published.</p>
+					</div>
+					<div hlmEmptyContent>
+						@if (game()) {
+							<a ui-button variant="outline" [routerLink]="['/games', slug()]">Back to game</a>
+						} @else {
+							<a ui-button variant="outline" routerLink="/">Back to games</a>
+						}
+					</div>
 				</div>
 			</div>
-		</div>
+		} @else {
+			<ng-container uiPageSeo title="Could not load map" [noindex]="true" />
+			<div class="inset-0 p-4 absolute flex items-center justify-center">
+				<div hlmEmpty>
+					<div hlmEmptyHeader>
+						<h1 hlmEmptyTitle>Could not load map</h1>
+						<p hlmEmptyDescription>Please check your connection and try again.</p>
+					</div>
+					<div hlmEmptyContent>
+						<button ui-button (click)="mapDetail.refetch()">Retry</button>
+						<a ui-button variant="outline" [routerLink]="['/games', slug()]">Back to game</a>
+					</div>
+				</div>
+			</div>
+		}
 	}
 </div>

@@ -13,6 +13,8 @@ export type Map = {
 	name: string
 	slug: string
 	/** @nullable */
+	description: string | null
+	/** @nullable */
 	width: number | null
 	/** @nullable */
 	height: number | null

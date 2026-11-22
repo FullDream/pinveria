@@ -1,3 +1,4 @@
+using GameAtlas.Domain;
 using GameAtlas.Domain.ValueObjects;
 using GameAtlas.Domain.Maps;
 
@@ -33,6 +34,25 @@ public class MapRenameTests
 		Assert.True(map.Rename("world").Value);
 		Assert.Equal("world", map.Name);
 		Assert.Equal("WORLD", map.NormalizedName);
+	}
+
+	[Fact]
+	public void CreateAndUpdateNormalizeOptionalDescription()
+	{
+		var slug = Slug.Create("map-" + Guid.NewGuid().ToString("N")).Value!;
+		var empty = Map.Create(Guid.CreateVersion7(), "World", slug, description: "").Value!;
+
+		Assert.Null(empty.Description);
+		var map = Map.Create(Guid.CreateVersion7(), "World", slug, description: "Main overworld").Value!;
+
+		Assert.Equal("Main overworld", map.Description);
+		var updatedAt = map.UpdatedAt;
+
+		Assert.False(map.Update(description: "Main overworld").Value);
+		Assert.Equal(updatedAt, map.UpdatedAt);
+
+		Assert.True(map.Update(description: "").Value);
+		Assert.Null(map.Description);
 	}
 
 	[Theory]

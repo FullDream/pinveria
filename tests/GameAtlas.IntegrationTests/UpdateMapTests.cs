@@ -30,7 +30,12 @@ public class UpdateMapTests
 		Assert.Equal(before.Height, after.Height);
 		Assert.Equal(before.Styles, after.Styles);
 		Assert.True(after.UpdatedAt >= before.UpdatedAt);
-		using var noOp = await client.PatchAsJsonAsync(MapTestData.PathFor(game.Id), new { name = " Renamed " });
+		using var descPatch = await client.PatchAsJsonAsync(MapTestData.PathFor(game.Id), new { description = "Overworld map" });
+		Assert.Equal("Overworld map", (await MapTestData.ReadAsync(descPatch)).Description);
+		using var clearDesc = await client.PatchAsJsonAsync(MapTestData.PathFor(game.Id), new { description = (string?)null });
+		after = await MapTestData.ReadAsync(clearDesc);
+		Assert.Null(after.Description);
+		using var noOp = await client.PatchAsJsonAsync(MapTestData.PathFor(game.Id), new { name = " Renamed ", description = (string?)null });
 
 		Assert.Equal(after.UpdatedAt, (await MapTestData.ReadAsync(noOp)).UpdatedAt);
 		using var groupRead = await client.GetAsync($"{MapTestData.PathFor(game.Id)}/category-groups");

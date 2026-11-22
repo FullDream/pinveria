@@ -1,5 +1,5 @@
 import { HttpStatusCode } from '@angular/common/http'
-import { Component, computed, effect, inject, input } from '@angular/core'
+import { Component, computed, inject, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { PublicGamesQueryOptions } from '@game-atlas/games/data-access'
 import {
@@ -8,9 +8,10 @@ import {
 	ImagePreview,
 	MediaThumbnail,
 	PageLoadingSource,
-	PageTitleStrategy,
+	PageSeo,
+	PageSeoDirective,
 } from '@game-atlas/shared/ui'
-import { formatCount } from '@game-atlas/shared/util'
+import { buildGameOgImagePath, formatCount } from '@game-atlas/shared/util'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matArrowBackRound,
@@ -37,6 +38,7 @@ import { injectQuery } from '@tanstack/angular-query'
 		ImagePreview,
 		MediaThumbnail,
 		PageLoadingSource,
+		PageSeoDirective,
 		NgIcon,
 		HlmBreadcrumbImports,
 		HlmCardImports,
@@ -62,7 +64,7 @@ export class GamesFeatureDetail {
 	readonly slug = input.required<string>()
 
 	readonly #options = inject(PublicGamesQueryOptions)
-	readonly #title = inject(PageTitleStrategy)
+	readonly #pageSeo = inject(PageSeo)
 
 	protected readonly detail = injectQuery(() => this.#options.getDetail(this.slug()))
 
@@ -75,7 +77,81 @@ export class GamesFeatureDetail {
 		Array.from({ length: this.game()?.mapsCount ?? 2 }, (value, index) => index),
 	)
 
-	constructor() {
-		effect(() => this.#title.setPageTitle(this.game()?.name ?? 'Game'))
-	}
+	protected readonly seoDescription = computed(() => {
+		const current = this.game()
+
+		if (!current) return null
+
+		if (current.description?.trim()) return current.description.trim()
+
+		return `Explore interactive maps for ${current.name} with ${formatCount(current.mapsCount, 'map')} and ${formatCount(current.markersCount, 'marker')} on GameAtlas.`
+	})
+
+	protected readonly seoImage = computed(() => {
+		const current = this.game()
+
+		if (!current) return null
+
+		return buildGameOgImagePath(current.slug, {
+			name: current.name,
+			developer: current.developer ?? null,
+			mapsCount: current.mapsCount,
+			markersCount: current.markersCount,
+			coverUrl: current.cover.url,
+			bannerUrl: current.banner?.url ?? null,
+		})
+	})
+
+	protected readonly seoJsonLd = computed(() => {
+		const current = this.game()
+
+		if (!current) return null
+
+		const gameUrl = this.#pageSeo.resolveAbsoluteUrl(`/games/${current.slug}`)
+		const homeUrl = this.#pageSeo.resolveAbsoluteUrl('/')
+		const imageAsset = current.banner ?? current.cover
+		const imageUrl = this.#pageSeo.resolveAbsoluteUrl(imageAsset.url)
+		const description = this.seoDescription()
+
+		const videoGame: Record<string, unknown> = {
+			'@context': 'https://schema.org',
+			'@type': 'VideoGame',
+			name: current.name,
+			url: gameUrl,
+			image: imageUrl,
+		}
+
+		if (description) {
+			videoGame['description'] = description
+		}
+
+		if (current.developer) {
+			videoGame['author'] = { '@type': 'Organization', name: current.developer }
+		}
+
+		if (current.releaseDate) {
+			videoGame['datePublished'] = current.releaseDate
+		}
+
+		const breadcrumb = {
+			'@context': 'https://schema.org',
+			'@type': 'BreadcrumbList',
+			itemListElement: [
+				{
+					'@type': 'ListItem',
+					position: 1,
+					name: 'Games',
+					item: homeUrl,
+				},
+				{
+					'@type': 'ListItem',
+					position: 2,
+					name: current.name,
+					item: gameUrl,
+				},
+			],
+		}
+
+		return [videoGame, breadcrumb]
+	})
 }

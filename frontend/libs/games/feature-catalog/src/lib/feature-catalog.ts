@@ -11,8 +11,8 @@ import {
 	type ListPublicGamesSortDirection as SortDirection,
 	parseGameSort,
 } from '@game-atlas/games/data-access'
-import { Button, ErrorState, PageLoadingSource } from '@game-atlas/shared/ui'
-import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from '@game-atlas/shared/util'
+import { Button, ErrorState, PageLoadingSource, PageSeo, PageSeoDirective } from '@game-atlas/shared/ui'
+import { buildHomeOgImagePath, DEFAULT_PAGE_SIZE, PAGE_SIZES } from '@game-atlas/shared/util'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matCloseRound,
@@ -34,10 +34,13 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs'
 import { GameCard } from './game-card/game-card'
 import { HERO_ATLAS_IMAGE_SRC, HERO_ATLAS_PLACEHOLDER } from './hero-atlas'
 
+const CATALOG_DESCRIPTION = 'Explore detailed game worlds with collectibles, quests, bosses, and hidden locations.'
+
 @Component({
 	selector: 'games-catalog',
 	imports: [
 		PageLoadingSource,
+		PageSeoDirective,
 		NgOptimizedImage,
 		FormsModule,
 		NgIcon,
@@ -70,6 +73,7 @@ export class FeatureCatalog {
 	readonly #options = inject(PublicGamesQueryOptions)
 	readonly #router = inject(Router)
 	readonly #platformId = inject(PLATFORM_ID)
+	readonly #pageSeo = inject(PageSeo)
 
 	protected readonly search = linkedQueryParam('search', {
 		parse: value => value ?? '',
@@ -116,6 +120,8 @@ export class FeatureCatalog {
 	protected readonly heroPlaceholder = HERO_ATLAS_PLACEHOLDER
 	protected readonly pageSizes = PAGE_SIZES
 	protected readonly sortOptions = GAME_SORT_OPTIONS
+	protected readonly seoDescription = CATALOG_DESCRIPTION
+	protected readonly seoImage = buildHomeOgImagePath()
 
 	protected readonly features = [
 		{ icon: 'matLocationOnRound', label: 'Unlimited markers' },
@@ -130,6 +136,51 @@ export class FeatureCatalog {
 	protected readonly skeletons = computed(() => Array.from({ length: this.limit() }, (value, index) => index))
 	protected readonly sortSelection = computed(() => `${this.sortBy()}:${this.sortDirection()}`)
 	protected readonly total = computed(() => this.listing.data()?.total ?? 0)
+
+	protected readonly hasFilterOrCustomSort = computed(
+		() =>
+			this.search().trim() !== '' ||
+			this.sortBy() !== 'name' ||
+			this.sortDirection() !== 'asc' ||
+			this.limit() !== DEFAULT_PAGE_SIZE,
+	)
+
+	protected readonly isCleanPaginatedPage = computed(() => !this.hasFilterOrCustomSort() && this.offset() > 0)
+
+	protected readonly seoTitle = computed(() => {
+		if (!this.isCleanPaginatedPage()) return 'Interactive Game Maps'
+
+		const pageNumber = Math.floor(this.offset() / this.limit()) + 1
+
+		return `Interactive Game Maps — Page ${pageNumber}`
+	})
+
+	protected readonly seoCanonical = computed(() => (this.isCleanPaginatedPage() ? `/?offset=${this.offset()}` : '/'))
+
+	protected readonly seoJsonLd = computed(() => {
+		const siteUrl = this.#pageSeo.resolveAbsoluteUrl('/')
+
+		return [
+			{
+				'@context': 'https://schema.org',
+				'@type': 'WebSite',
+				name: 'GameAtlas',
+				url: siteUrl,
+				description: CATALOG_DESCRIPTION,
+				potentialAction: {
+					'@type': 'SearchAction',
+					target: `${siteUrl}?search={search_term_string}`,
+					'query-input': 'required name=search_term_string',
+				},
+			},
+			{
+				'@context': 'https://schema.org',
+				'@type': 'Organization',
+				name: 'GameAtlas',
+				url: siteUrl,
+			},
+		]
+	})
 
 	constructor() {
 		this.#searchInput$.pipe(debounceTime(250), distinctUntilChanged(), takeUntilDestroyed()).subscribe(value => {

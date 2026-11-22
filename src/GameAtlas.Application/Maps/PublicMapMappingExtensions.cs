@@ -31,7 +31,7 @@ internal static class PublicMapMappingExtensions
 		var publicStyles = styles.Select(style => style.ToPublicDto()).ToArray();
 		var defaultId = publicStyles.Any(style => style.Id == map.DefaultStyleId) ? map.DefaultStyleId : null;
 
-		return new PublicMapDetailsDto(map.Id, map.GameId, map.Name, map.Slug, map.Width, map.Height,
+		return new PublicMapDetailsDto(map.Id, map.GameId, map.Name, map.Slug, map.Description, map.Width, map.Height,
 			map.Geometry?.Extent, map.Geometry?.TileOrigin, map.Geometry is null ? null : MapGeometry.TileSize,
 			map.Geometry?.MinZoom, map.Geometry?.MaxZoom, map.Geometry?.Resolutions, defaultId, publicStyles, tree, publicMarkers);
 	}

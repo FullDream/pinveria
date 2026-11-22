@@ -6,6 +6,8 @@ import { Hono } from 'hono'
 import { existsSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { handleGameOgImage, handleHomeOgImage, handleMapOgImage } from './server/og-routes'
+import { handleRobotsTxt, handleSitemapXml } from './server/seo-routes'
 
 const HASHED_ASSET_PATTERN = /-[A-Za-z0-9_-]{8}\.[^/]+$/
 
@@ -23,6 +25,12 @@ const angularApp = new AngularAppEngine({
 })
 
 const app = new Hono()
+
+app.get('/robots.txt', c => handleRobotsTxt(c))
+app.get('/sitemap.xml', c => handleSitemapXml(c))
+app.get('/og/home/:hashPng', c => handleHomeOgImage(c, browserDistFolder))
+app.get('/og/games/:slug/:hashPng', c => handleGameOgImage(c))
+app.get('/og/games/:slug/maps/:mapSlug/:hashPng', c => handleMapOgImage(c))
 
 if (existsSync(browserDistFolder)) {
 	const staticHandler = serveStatic({

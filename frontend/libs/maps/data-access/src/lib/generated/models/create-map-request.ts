@@ -18,5 +18,7 @@ export type CreateMapRequest = {
 	 * @pattern \A[a-z0-9]+(-[a-z0-9]+)*\z
 	 */
 	slug: string
+	/** @nullable */
+	description?: string | null
 	status?: PublicationStatus
 }

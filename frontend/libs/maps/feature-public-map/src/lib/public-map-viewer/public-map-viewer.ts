@@ -135,6 +135,10 @@ export class PublicMapViewer {
 		return this.game()?.name ?? this.gameTitle() ?? this.slug()
 	})
 
+	protected readonly resolvedGameCover = computed(() => {
+		return this.game()?.coverUrl ?? this.gameCover()
+	})
+
 	protected readonly mapGeometry = computed<MapGeometry | null>(() => {
 		const data = this.data()
 

@@ -47,7 +47,8 @@ public sealed class UpdateMapHandler(IApplicationDbContext context, IMapProgress
 			: default;
 
 		var result = map.Update(command.Name, command.DefaultStyleId, order,
-			command.Slug.IsSpecified ? Optional<Slug?>.From(slug.Value) : default, command.Status);
+			command.Slug.IsSpecified ? Optional<Slug?>.From(slug.Value) : default,
+			command.Status, command.Description);
 
 		if (result.IsFailure)
 			return result.Errors;

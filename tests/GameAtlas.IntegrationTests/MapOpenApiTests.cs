@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace GameAtlas.IntegrationTests;
 
@@ -33,7 +33,7 @@ public class MapOpenApiTests
 			.GetProperty("application/json").GetProperty("schema"));
 
 		Assert.True(create.GetProperty("requestBody").GetProperty("required").GetBoolean());
-		Assert.Equal(new[] { "name", "slug", "status" },
+		Assert.Equal(new[] { "description", "name", "slug", "status" },
 			form.GetProperty("properties").EnumerateObject().Select(property => property.Name).Order());
 
 		Assert.Equal(new[] { "name", "slug" },
@@ -75,7 +75,7 @@ public class MapOpenApiTests
 		var map = Resolve(root, responses.GetProperty("200").GetProperty("content").GetProperty("application/json")
 			.GetProperty("schema"));
 
-		Assert.Equal(17, map.GetProperty("properties").EnumerateObject().Count());
+		Assert.Equal(18, map.GetProperty("properties").EnumerateObject().Count());
 		Assert.Contains(map.GetProperty("required").EnumerateArray(), field => field.GetString() == "slug");
 		Assert.Contains(map.GetProperty("required").EnumerateArray(), field => field.GetString() == "status");
 		Assert.Equal("string", map.GetProperty("properties").GetProperty("slug").GetProperty("type").GetString());

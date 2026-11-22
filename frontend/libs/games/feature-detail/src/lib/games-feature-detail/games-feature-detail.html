@@ -22,6 +22,13 @@
 
 @if (detail.isError()) {
 	@if (detail.error().status === httpStatusCode.NotFound) {
+		<ng-container
+			uiPageSeo
+			title="Game unavailable"
+			description="This game could not be found or is no longer published."
+			[noindex]="true"
+			[statusCode]="404"
+		/>
 		<div hlmEmpty class="my-12 border">
 			<div hlmEmptyHeader>
 				<div hlmEmptyMedia variant="icon"><ng-icon name="matMapRound" aria-hidden="true" /></div>
@@ -33,6 +40,7 @@
 			</div>
 		</div>
 	} @else {
+		<ng-container uiPageSeo title="Unable to load game" [noindex]="true" />
 		<ui-error-state icon="matCloudOffRound">
 			<ng-container uiErrorStateHeading>Unable to load game</ng-container>
 			<ng-container uiErrorStateDescription>Please try again.</ng-container>
@@ -50,6 +58,16 @@
 		</ui-error-state>
 	}
 } @else {
+	@if (game(); as current) {
+		<ng-container
+			uiPageSeo
+			[title]="current.name"
+			[description]="seoDescription()"
+			[image]="seoImage()"
+			[canonical]="'/games/' + current.slug"
+			[jsonLd]="seoJsonLd()"
+		/>
+	}
 	<section
 		class="bg-muted rounded-2xl relative isolate overflow-hidden"
 		[attr.aria-busy]="partial()"

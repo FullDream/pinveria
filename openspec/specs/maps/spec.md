@@ -38,17 +38,22 @@ A game SHALL own zero or more independent maps. Map operations SHALL use /games/
 
 ### Requirement: Create a named coordinate space without an image
 
-POST /games/{gameId}/maps SHALL accept application/json with required name and slug and optional status (`draft` or `published`, defaulting to `draft` when omitted) and return 200 with a persisted map, UUID v7, UTC timestamps, string status, styles=[] and defaultStyleId=null. Logical dimensions and geometry SHALL remain null until first successful style attachment. No file or processing work SHALL be created.
+POST /games/{gameId}/maps SHALL accept application/json with required name and slug, optional nullable description (defaulting to null when omitted or empty), and optional status (`draft` or `published`, defaulting to `draft` when omitted) and return 200 with a persisted map, UUID v7, UTC timestamps, string status, nullable description, styles=[] and defaultStyleId=null. Logical dimensions and geometry SHALL remain null until first successful style attachment. No file or processing work SHALL be created.
 
 #### Scenario: Create a blank map
 
-- **WHEN** valid JSON contains name=World and slug=world and omits status
-- **THEN** the map is persisted and returned with status `draft` and survives restart with no geometry, styles, files or processing work
+- **WHEN** valid JSON contains name=World and slug=world and omits description and status
+- **THEN** the map is persisted and returned with description=null and status `draft` and survives restart with no geometry, styles, files or processing work
 
 #### Scenario: Create a map with explicit status
 
 - **WHEN** valid JSON contains name=World, slug=world, and status=`published` (or `draft`)
-- **THEN** the map is persisted and returned with the supplied status
+- **THEN** the map is persisted and returned with the supplied status and description=null
+
+#### Scenario: Create a map with optional description
+
+- **WHEN** valid JSON contains name=World, slug=world, and description="Main overworld"
+- **THEN** the map is persisted and returned with the supplied description
 
 #### Scenario: Reject invalid creation
 
@@ -216,12 +221,12 @@ Each style SHALL require backgroundColor in #RGB or #RRGGBB notation with ASCII 
 
 ### Requirement: Return complete map metadata
 
-GET /games/{gameId}/maps/{mapId} SHALL include the required string slug and string status (`draft` or `published`), retain other map metadata fields and return styles in persisted display order. Width, height, extent, tileOrigin, tileSize, minZoom, maxZoom and resolutions SHALL be null before initialization and populated afterward. Style representations SHALL additionally expose their own tile geometry. defaultStyleId SHALL identify the effective ready default or be null. IDs SHALL use UUID v7; internal paths SHALL remain private.
+GET /games/{gameId}/maps/{mapId} SHALL include the required string slug, nullable string description, and string status (`draft` or `published`), retain other map metadata fields and return styles in persisted display order. Width, height, extent, tileOrigin, tileSize, minZoom, maxZoom and resolutions SHALL be null before initialization and populated afterward. Style representations SHALL additionally expose their own tile geometry. defaultStyleId SHALL identify the effective ready default or be null. IDs SHALL use UUID v7; internal paths SHALL remain private.
 
 #### Scenario: Read a blank or styled map
 
 - **WHEN** a client reads a map before or after initialization
-- **THEN** the complete representation includes its current status (`draft` or `published`) and distinguishes absent geometry from initialized geometry, including after all styles are deleted
+- **THEN** the complete representation includes its nullable description and current status (`draft` or `published`) and distinguishes absent geometry from initialized geometry, including after all styles are deleted
 
 #### Scenario: Read ordered styles
 
@@ -591,13 +596,22 @@ GET /games/{gameId}/maps SHALL return HTTP 200 with a plain array of complete ma
 
 ### Requirement: Patch map name without resizing
 
-PATCH /games/{gameId}/maps/{mapId} SHALL accept optional name, slug, status, defaultStyleId and styleOrder with shared merge-patch semantics and return 200 with the complete map. Name SHALL be non-null when supplied, trimmed, 1..200 characters and unique within the game excluding the current map. Status SHALL be non-null (`draft` or `published`) when supplied and SHALL update only the map itself without cascading to owned category groups, categories, or markers. Dimensions and geometry SHALL remain immutable. No PUT route SHALL be introduced.
+PATCH /games/{gameId}/maps/{mapId} SHALL accept optional name, slug, nullable description, status, defaultStyleId and styleOrder with shared merge-patch semantics and return 200 with the complete map. Name SHALL be non-null when supplied, trimmed, 1..200 characters and unique within the game excluding the current map. Description omission SHALL preserve the existing value, while explicit null or empty string SHALL clear it to null. Status SHALL be non-null (`draft` or `published`) when supplied and SHALL update only the map itself without cascading to owned category groups, categories, or markers. Dimensions and geometry SHALL remain immutable. No PUT route SHALL be introduced.
 
 #### Scenario: Rename a scoped map
 
 - **WHEN** a valid patch changes the name of a map belonging to the route game
 - **THEN** the name and normalized name are persisted with a new updatedAt
-- **AND** createdAt, game timestamps, dimensions, geometry, styles, status, and owned content remain unchanged; default and order remain unchanged when omitted
+- **AND** createdAt, game timestamps, dimensions, geometry, styles, description, status, and owned content remain unchanged; default and order remain unchanged when omitted
+
+#### Scenario: Update and clear map description
+
+- **WHEN** a valid patch supplies a non-empty description
+- **THEN** the description is persisted and updatedAt advances
+- **WHEN** a subsequent patch supplies `description: null` or `description: ""`
+- **THEN** the description clears to `null` and updatedAt advances
+- **WHEN** a patch omits `description`
+- **THEN** the existing description is preserved
 
 #### Scenario: Toggle map publication status without cascading to children
 
@@ -624,14 +638,14 @@ PATCH /games/{gameId}/maps/{mapId} SHALL accept optional name, slug, status, def
 
 #### Scenario: Preserve no-op timestamps
 
-- **WHEN** a nonempty patch supplies the existing name after trimming and/or the existing status
+- **WHEN** a nonempty patch supplies the existing name after trimming, the existing description, and/or the existing status
 - **THEN** HTTP 200 returns the unchanged complete map without changing updatedAt
 - **AND** changing display casing alone is allowed without conflicting with the same map
 
 #### Scenario: Patch slug with other metadata
 
-- **WHEN** a patch supplies a valid unique slug with optional name, status, defaultStyleId or styleOrder changes
-- **THEN** all supplied changes commit atomically and the complete response includes the new slug and status
+- **WHEN** a patch supplies a valid unique slug with optional name, description, status, defaultStyleId or styleOrder changes
+- **THEN** all supplied changes commit atomically and the complete response includes the new slug, description, and status
 - **AND** omitted fields remain unchanged, actual changes update only the map timestamp, and a patch containing only its current trimmed slug preserves updatedAt
 - **AND** renaming a map without supplying slug preserves its slug
 
@@ -718,3 +732,12 @@ An explicit upgrade SHALL assign every preexisting map the slug map-{id:N}, wher
 
 - **WHEN** all migrations are explicitly applied to an empty database
 - **THEN** map creation requires a valid client-supplied slug and equal slugs remain allowed across games
+
+### Requirement: Persist optional map description via explicit migration
+
+An explicit EF Core migration SHALL add a nullable `Description` column to `Maps`, initializing preexisting rows to `null` without altering existing map identities, slugs, geometry, styles, statuses, or timestamps. Applied migrations SHALL NOT be rewritten or run automatically at startup.
+
+#### Scenario: Upgrade a populated store with map descriptions
+
+- **WHEN** the map description migration is applied to a database with existing maps
+- **THEN** preexisting maps receive `description: null` and retain all existing metadata, styles, content, and timestamps

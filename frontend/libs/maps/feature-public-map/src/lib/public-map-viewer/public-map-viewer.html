@@ -47,7 +47,7 @@
 				[mobile]="isMobile()"
 				[gameSlug]="slug()"
 				[gameName]="gameName()"
-				[gameCover]="game()?.coverUrl ?? gameCover()"
+				[gameCover]="resolvedGameCover()"
 				[gameBanner]="game()?.bannerUrl ?? null"
 				[maps]="game()?.maps ?? []"
 				[mapSlug]="map.slug"

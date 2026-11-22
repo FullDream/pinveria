@@ -1,4 +1,13 @@
 <ng-container [uiPageLoading]="listing.isFetching()" />
+<ng-container
+	uiPageSeo
+	[title]="seoTitle()"
+	[description]="seoDescription"
+	[image]="seoImage"
+	[canonical]="seoCanonical()"
+	[noindex]="hasFilterOrCustomSort()"
+	[jsonLd]="seoJsonLd()"
+/>
 <section aria-labelledby="hero-heading" class="relative overflow-hidden border-b">
 	<img
 		[ngSrc]="heroImage"

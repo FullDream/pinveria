@@ -1,7 +1,8 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using System.Text.Json;
 using GameAtlas.Application.Games;
 using GameAtlas.Application.Maps;
+using GameAtlas.Application.PublicIndex;
 using GameAtlas.Domain;
 using GameAtlas.Domain.Categories;
 using GameAtlas.Domain.Maps;
@@ -29,7 +30,8 @@ public class PublicReadContractTests
 		{
 			("/public/games", "ListPublicGames", "Public Games"),
 			("/public/games/{gameSlug}", "GetPublicGame", "Public Games"),
-			("/public/games/{gameSlug}/maps/{mapSlug}", "GetPublicMap", "Public Maps")
+			("/public/games/{gameSlug}/maps/{mapSlug}", "GetPublicMap", "Public Maps"),
+			("/public/index", "GetPublicIndex", "Public Index")
 		})
 		{
 			var operation = paths.GetProperty(path).GetProperty("get");
@@ -37,8 +39,12 @@ public class PublicReadContractTests
 			Assert.Equal(id, operation.GetProperty("operationId").GetString());
 			Assert.Equal(tag, operation.GetProperty("tags")[0].GetString());
 			Assert.True(operation.GetProperty("responses").TryGetProperty("200", out _));
-			Assert.DoesNotContain(operation.GetProperty("parameters").EnumerateArray(), parameter =>
-				parameter.GetProperty("name").GetString() is "visibility" or "includeDrafts");
+
+			if (operation.TryGetProperty("parameters", out var parameters))
+			{
+				Assert.DoesNotContain(parameters.EnumerateArray(), parameter =>
+					parameter.GetProperty("name").GetString() is "visibility" or "includeDrafts");
+			}
 		}
 
 		foreach (var name in new[] { "PublicGameCard", "PublicGame", "PublicMapDetails", "PublicMapStyle",
@@ -51,12 +57,26 @@ public class PublicReadContractTests
 			Assert.False(properties.TryGetProperty("updatedAt", out _));
 		}
 
+		foreach (var name in new[] { "PublicIndexGame", "PublicIndexMap" })
+		{
+			var properties = schemas.GetProperty(name).GetProperty("properties");
+
+			Assert.True(properties.TryGetProperty("slug", out _));
+			Assert.True(properties.TryGetProperty("updatedAt", out _));
+			Assert.False(properties.TryGetProperty("status", out _));
+			Assert.False(properties.TryGetProperty("createdAt", out _));
+			Assert.False(properties.TryGetProperty("id", out _));
+		}
+
+		Assert.True(schemas.GetProperty("PublicIndex").GetProperty("properties").TryGetProperty("games", out _));
+
 		Assert.Equal("#/components/schemas/ImageAsset", schemas.GetProperty("PublicGame")
 			.GetProperty("properties").GetProperty("cover").GetProperty("$ref").GetString());
 
 		var map = schemas.GetProperty("PublicMapDetails").GetProperty("properties");
 		var summary = schemas.GetProperty("PublicGameMap").GetProperty("properties");
 
+		Assert.True(map.TryGetProperty("description", out _));
 		Assert.Equal("integer", summary.GetProperty("markersCount").GetProperty("type").GetString());
 		Assert.Equal("integer", summary.GetProperty("categoriesCount").GetProperty("type").GetString());
 
@@ -80,10 +100,13 @@ public class PublicReadContractTests
 		await factory.MigrateAsync();
 		await MediaTestData.EnsureMarkerAssetsAsync(factory);
 		var game = await DeleteGameHandlerTests.SeedAsync(factory, "styled", PublicationStatus.Published);
+		var draftGame = await DeleteGameHandlerTests.SeedAsync(factory, "draft-game");
 		await using var scope = factory.Services.CreateAsyncScope();
 		var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 		var image = await db.MediaAssets.OfType<ImageAsset>().AsTracking().SingleAsync(asset => asset.Id == MediaTestData.ImageId);
-		var map = Map.Create(game.Id, "World", Slug.Create("world").Value!, PublicationStatus.Published).Value!;
+		var map = Map.Create(game.Id, "World", Slug.Create("world").Value!, PublicationStatus.Published, "Explore the world").Value!;
+		var draftMap = Map.Create(game.Id, "Draft Map", Slug.Create("draft-map").Value!).Value!;
+		var draftParentMap = Map.Create(draftGame.Id, "Hidden World", Slug.Create("hidden-world").Value!, PublicationStatus.Published).Value!;
 		var first = map.AddStyle(new MapStyleInput("First", "#123456", image)).Value!;
 		var unfinished = map.AddStyle(new MapStyleInput("Pending", "#654321", image)).Value!;
 		var second = map.AddStyle(new MapStyleInput("Second", "#abcdef", image)).Value!;
@@ -93,7 +116,7 @@ public class PublicReadContractTests
 		Assert.True(second.Claim(second.AttemptId).IsSuccess);
 		Assert.True(second.Publish(second.AttemptId).IsSuccess);
 		map.ReconcileDefaultStyle();
-		db.Maps.Add(map);
+		db.Maps.AddRange(map, draftMap, draftParentMap);
 		var group = CategoryGroup.Create(map.Id, "Group", 1, image.Id, status: PublicationStatus.Published).Value!;
 		var category = Category.Create(group.Id, "Category", image.Id, "#123456", 1, PublicationStatus.Published).Value!;
 
@@ -109,6 +132,7 @@ public class PublicReadContractTests
 		Assert.Equal(image.Id, Assert.Single(detail.Maps).Preview!.Id);
 		var result = (await client.GetFromJsonAsync<PublicMapDetailsDto>("/public/games/styled/maps/world"))!;
 
+		Assert.Equal("Explore the world", result.Description);
 		Assert.Equal(new[] { first.Id, second.Id }, result.Styles.Select(style => style.Id));
 		Assert.DoesNotContain(result.Styles, style => style.Id == unfinished.Id);
 		Assert.Equal(first.Id, result.DefaultStyleId);
@@ -121,5 +145,15 @@ public class PublicReadContractTests
 		Assert.Equal("image", json.GetProperty("markers")[0].GetProperty("media")[0].GetProperty("preview").GetProperty("type").GetString());
 		Assert.False(json.GetProperty("styles")[0].TryGetProperty("status", out _));
 		Assert.False(json.GetProperty("markers")[0].TryGetProperty("status", out _));
+
+		var publicIndex = (await client.GetFromJsonAsync<PublicIndexDto>("/public/index"))!;
+		var indexedGame = Assert.Single(publicIndex.Games);
+
+		Assert.Equal("styled", indexedGame.Slug);
+		Assert.Equal(game.UpdatedAt, indexedGame.UpdatedAt);
+		var indexedMap = Assert.Single(indexedGame.Maps);
+
+		Assert.Equal("world", indexedMap.Slug);
+		Assert.Equal(map.UpdatedAt, indexedMap.UpdatedAt);
 	}
 }

@@ -7,6 +7,7 @@ using GameAtlas.Api.Maps;
 using GameAtlas.Api.Maps.Events;
 using GameAtlas.Api.Markers;
 using GameAtlas.Api.Media;
+using GameAtlas.Api.PublicIndex;
 using GameAtlas.Api.Results;
 using GameAtlas.Application;
 using GameAtlas.Infrastructure;
@@ -59,6 +60,7 @@ api.MapCategories();
 api.MapMarkers();
 api.MapMaps();
 api.MapPublicMaps();
+api.MapPublicIndex();
 api.MapMedia();
 app.MapHub<MapHub>("/hubs/map", options => options.CloseOnAuthenticationExpiration = true).RequireAuthorization();
 

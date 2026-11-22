@@ -6,7 +6,7 @@ namespace GameAtlas.Application.Tests;
 public class UpdateMapValidationTests
 {
 	[Fact]
-	public async Task PatchRequiresSpecifiedNonNullTrimmedName()
+	public async Task PatchRequiresSpecifiedNonNullTrimmedNameOrOtherMutableField()
 	{
 		var validator = new UpdateMapValidation();
 		var gameId = Guid.CreateVersion7();
@@ -17,5 +17,7 @@ public class UpdateMapValidationTests
 		Assert.False((await validator.ValidateAsync(new UpdateMap(gameId, mapId, "  "))).IsValid);
 		Assert.False((await validator.ValidateAsync(new UpdateMap(gameId, mapId, new string('n', 201)))).IsValid);
 		Assert.True((await validator.ValidateAsync(new UpdateMap(gameId, mapId, " " + new string('n', 200) + " "))).IsValid);
+		Assert.True((await validator.ValidateAsync(new UpdateMap(gameId, mapId, Description: "Overworld"))).IsValid);
+		Assert.True((await validator.ValidateAsync(new UpdateMap(gameId, mapId, Description: Optional<string?>.From(null)))).IsValid);
 	}
 }

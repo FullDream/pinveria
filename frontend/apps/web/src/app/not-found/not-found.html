@@ -1,0 +1,20 @@
+<ng-container
+	uiPageSeo
+	title="Page not found"
+	description="The page you are looking for does not exist or has been moved."
+	[noindex]="true"
+	[statusCode]="404"
+/>
+
+<div hlmEmpty class="border">
+	<div hlmEmptyHeader>
+		<div hlmEmptyMedia variant="icon">
+			<ng-icon name="matExploreOffRound" aria-hidden="true" />
+		</div>
+		<h1 hlmEmptyTitle>Page not found</h1>
+		<p hlmEmptyDescription>The page you’re looking for doesn’t exist or has been moved.</p>
+	</div>
+	<div hlmEmptyContent>
+		<a ui-button routerLink="/" variant="outline" icon="matArrowBackRound">Back to games</a>
+	</div>
+</div>

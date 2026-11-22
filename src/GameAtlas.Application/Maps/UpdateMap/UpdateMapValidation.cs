@@ -10,7 +10,7 @@ public sealed class UpdateMapValidation : AbstractValidator<UpdateMap>
 	{
 		RuleFor(command => command).Must(command =>
 				command.Name.IsSpecified || command.Slug.IsSpecified || command.DefaultStyleId.IsSpecified ||
-				command.StyleOrder.IsSpecified || command.Status.IsSpecified)
+				command.StyleOrder.IsSpecified || command.Status.IsSpecified || command.Description.IsSpecified)
 			.WithErrorCode(MapOperationErrors.EmptyPatch.Code).WithMessage(MapOperationErrors.EmptyPatch.Message)
 			.OverridePropertyName(string.Empty);
 

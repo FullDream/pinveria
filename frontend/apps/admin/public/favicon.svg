@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+	<style>
+		.mark {
+			fill: #09090b;
+		}
+		@media (prefers-color-scheme: dark) {
+			.mark {
+				fill: #fafafa;
+			}
+		}
+	</style>
+	<g class="mark">
+		<polygon points="256,12 294,114 396,152 294,190 256,292 218,190 116,152 218,114" />
+		<path
+			d="M 20 132 C 10 129, 6 138, 12 148 L 220 478 C 236 502, 276 502, 292 478 L 500 148 C 506 138, 502 129, 492 132 L 394 160 C 384 163, 377 170, 371 180 L 256 368 L 141 180 C 135 170, 128 163, 118 160 Z"
+		/>
+	</g>
+</svg>

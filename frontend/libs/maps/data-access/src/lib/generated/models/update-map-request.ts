@@ -7,7 +7,7 @@
 import type { PublicationStatus } from './publication-status'
 
 /**
- * Supply name, slug, defaultStyleId, styleOrder, or status. Null is invalid; geometry is immutable.
+ * Supply name, slug, description, defaultStyleId, styleOrder, or status. Null is invalid for required fields; geometry is immutable.
  */
 export type UpdateMapRequest = {
 	/**
@@ -21,6 +21,8 @@ export type UpdateMapRequest = {
 	 * @pattern \A[a-z0-9]+(-[a-z0-9]+)*\z
 	 */
 	slug?: string
+	/** @nullable */
+	description?: string | null
 	/** @nullable */
 	defaultStyleId?: string | null
 	/** @nullable */

@@ -5,11 +5,17 @@ import { CdkPortalOutlet } from '@angular/cdk/portal'
 import { Component, inject } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
-import { PageHeaderOutlet, PageLoading, PageProgress, ThemeSwitcher, WorkspaceBreadcrumbs } from '@game-atlas/shared/ui'
+import {
+	BrandLogo,
+	PageHeaderOutlet,
+	PageLoading,
+	PageProgress,
+	ThemeSwitcher,
+	WorkspaceBreadcrumbs,
+} from '@game-atlas/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matLogoutRound,
-	matMapRound,
 	matPhotoLibraryRound,
 	matSportsEsportsRound,
 } from '@ng-icons/material-symbols/round'
@@ -43,6 +49,7 @@ import { ThemeSettings } from '../theme-settings'
 		RouterLinkActive,
 		RouterOutlet,
 		NgIcon,
+		BrandLogo,
 		ThemeSwitcher,
 		WorkspaceBreadcrumbs,
 		PageHeaderOutlet,
@@ -66,7 +73,7 @@ import { ThemeSettings } from '../theme-settings'
 	templateUrl: './layout.html',
 	providers: [
 		PageLoading,
-		provideIcons({ matLogoutRound, matMapRound, matPhotoLibraryRound, matSportsEsportsRound }),
+		provideIcons({ matLogoutRound, matPhotoLibraryRound, matSportsEsportsRound }),
 	],
 	host: { class: 'block h-dvh overflow-hidden' },
 })

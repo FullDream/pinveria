@@ -27,12 +27,13 @@ public sealed class CreateMapHandler(IApplicationDbContext context) : ICommandHa
 			return MapErrors.StatusRequired;
 
 		var created = Map.Create(command.GameId, command.Name, slug.Value,
-			command.Status.GetValueOrDefault(PublicationStatus.Draft)!.Value);
+			command.Status.GetValueOrDefault(PublicationStatus.Draft)!.Value, command.Description);
 
 		if (created.IsFailure)
 			return created.Errors;
 
 		var map = created.Value;
+
 		var nameExists = await context.Maps.ForGame(command.GameId)
 			.AnyAsync(other => other.NormalizedName == map.NormalizedName, cancellationToken);
 

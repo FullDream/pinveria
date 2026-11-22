@@ -1,10 +1,13 @@
-import { inject, Injectable } from '@angular/core'
+import { inject, Injectable, signal } from '@angular/core'
 import { Title } from '@angular/platform-browser'
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router'
 
 @Injectable()
 export abstract class PageTitleStrategy extends TitleStrategy {
 	readonly #title = inject(Title)
+	readonly #currentTitle = signal(this.#title.getTitle())
+
+	readonly title = this.#currentTitle.asReadonly()
 
 	protected abstract readonly applicationTitle: string
 
@@ -13,6 +16,9 @@ export abstract class PageTitleStrategy extends TitleStrategy {
 	}
 
 	setPageTitle(pageTitle?: string): void {
-		this.#title.setTitle(pageTitle ? `${pageTitle} | ${this.applicationTitle}` : this.applicationTitle)
+		const formatted = pageTitle ? `${pageTitle} | ${this.applicationTitle}` : this.applicationTitle
+
+		this.#title.setTitle(formatted)
+		this.#currentTitle.set(formatted)
 	}
 }

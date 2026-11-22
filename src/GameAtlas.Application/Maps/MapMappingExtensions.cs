@@ -14,6 +14,7 @@ public static class MapMappingExtensions
 		map.GameId,
 		map.Name,
 		map.Slug,
+		map.Description,
 		map.Width,
 		map.Height,
 		map.Geometry?.Extent,
