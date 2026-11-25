@@ -10,9 +10,9 @@ import {
 	type ListPublicGamesSortBy as GameSortBy,
 	type ListPublicGamesSortDirection as SortDirection,
 	parseGameSort,
-} from '@game-atlas/games/data-access'
-import { Button, ErrorState, PageLoadingSource, PageSeo, PageSeoDirective } from '@game-atlas/shared/ui'
-import { buildHomeOgImagePath, DEFAULT_PAGE_SIZE, PAGE_SIZES } from '@game-atlas/shared/util'
+} from '@pinveria/games/data-access'
+import { Button, ErrorState, PageLoadingSource, PageSeo, PageSeoDirective } from '@pinveria/shared/ui'
+import { buildHomeOgImagePath, DEFAULT_PAGE_SIZE, PAGE_SIZES } from '@pinveria/shared/util'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matCloseRound,
@@ -164,7 +164,7 @@ export class FeatureCatalog {
 			{
 				'@context': 'https://schema.org',
 				'@type': 'WebSite',
-				name: 'GameAtlas',
+				name: 'Pinveria',
 				url: siteUrl,
 				description: CATALOG_DESCRIPTION,
 				potentialAction: {
@@ -176,7 +176,7 @@ export class FeatureCatalog {
 			{
 				'@context': 'https://schema.org',
 				'@type': 'Organization',
-				name: 'GameAtlas',
+				name: 'Pinveria',
 				url: siteUrl,
 			},
 		]

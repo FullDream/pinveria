@@ -7,7 +7,7 @@ import {
 	computeMapOgHash,
 	formatCount,
 	isValidOgHash,
-} from '@game-atlas/shared/util'
+} from '@pinveria/shared/util'
 import { Resvg } from '@resvg/resvg-js'
 import type { Context } from 'hono'
 import { existsSync, readFileSync } from 'node:fs'
@@ -245,7 +245,7 @@ function buildBrandHeaderHtml(subtitle?: string): string {
 		<div style="display: flex; align-items: center;">
 			<img src="${BRAND_LOGO_DATA_URI}" width="64" height="64" style="width: 64px; height: 64px;" />
 			<div style="display: flex; align-items: center; margin-left: 18px;">
-				<span style="color: #fafafa; font-size: 36px; font-weight: 700; line-height: 1; letter-spacing: -0.02em;">GameAtlas</span>
+				<span style="color: #fafafa; font-size: 36px; font-weight: 700; line-height: 1; letter-spacing: -0.02em;">Pinveria</span>
 				${subtitleMarkup}
 			</div>
 		</div>
@@ -373,7 +373,7 @@ export async function handleGameOgImage(context: Context): Promise<Response> {
 				${backdropImg}
 				<div style="display: flex; position: absolute; top: 0; left: 0; width: 1200px; height: 630px; background-image: linear-gradient(90deg, rgba(9,9,11,0.95) 0%, rgba(9,9,11,0.85) 62%, rgba(9,9,11,0.45) 100%);"></div>
 				<div style="display: flex; flex-direction: column; justify-content: space-between; position: relative; width: 1200px; height: 630px; padding: 60px 72px;">
-					${buildBrandHeaderHtml('Interactive Game Atlas')}
+					${buildBrandHeaderHtml('Interactive Game Maps')}
 					<div style="display: flex; align-items: center;">
 						${coverBlock}
 						<div style="display: flex; flex-direction: column; max-width: 780px;">

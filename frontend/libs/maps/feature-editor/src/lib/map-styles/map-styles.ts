@@ -22,8 +22,8 @@ import {
 	getMapErrorMessage,
 	type MapStyle,
 	type Map as GameMap,
-} from '@game-atlas/maps/data-access'
-import { Button, ConfirmationDialog, MediaThumbnail, TooltipOnOverflow } from '@game-atlas/shared/ui'
+} from '@pinveria/maps/data-access'
+import { Button, ConfirmationDialog, MediaThumbnail, TooltipOnOverflow } from '@pinveria/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matAddRound,

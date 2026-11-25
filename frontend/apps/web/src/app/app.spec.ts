@@ -16,7 +16,7 @@ describe('App', () => {
 
 		const root = fixture.nativeElement as HTMLElement
 
-		expect(root.querySelector('header a')?.textContent).toContain('GameAtlas')
+		expect(root.querySelector('header a')?.textContent).toContain('Pinveria')
 		expect(root.querySelector('header ui-theme-switcher')).not.toBeNull()
 		expect(root.querySelector('main#main-content router-outlet')).not.toBeNull()
 	})

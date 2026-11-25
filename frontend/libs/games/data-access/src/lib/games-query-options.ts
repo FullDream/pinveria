@@ -9,7 +9,7 @@ import {
 	queryOptions,
 } from '@tanstack/angular-query'
 import { omit } from 'remeda'
-import { toPromise } from '@game-atlas/shared/util'
+import { toPromise } from '@pinveria/shared/util'
 import { GamesService } from './generated/games/games.service'
 import type {
 	CreateGameRequest,

@@ -1,0 +1,12 @@
+namespace Pinveria.Application.Abstractions.Persistence;
+
+public interface IPersistenceFailureClassifier
+{
+	bool IsGameSlugConflict(Exception exception);
+	bool IsCategoryGroupNameConflict(Exception exception);
+	bool IsCategoryNameConflict(Exception exception);
+	bool IsMapSlugConflict(Exception exception);
+	bool IsMapNameConflict(Exception exception);
+	bool IsMapStyleNameConflict(Exception exception);
+	bool IsMediaFolderNameConflict(Exception exception);
+}

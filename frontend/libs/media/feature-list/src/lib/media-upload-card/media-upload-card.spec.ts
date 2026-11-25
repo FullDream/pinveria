@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-import type { MediaUploadMutation } from '@game-atlas/media/data-access'
+import type { MediaUploadMutation } from '@pinveria/media/data-access'
 import { provideSpartanHlm } from '@spartan-ng/helm/utils'
 import { getTestElement } from '../media-test-elements'
 import { MediaUploadCard } from './media-upload-card'

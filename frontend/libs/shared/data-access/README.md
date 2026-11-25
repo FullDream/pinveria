@@ -1,6 +1,6 @@
 # Shared data access
 
-Non-buildable Angular transport library tagged type:data-access, scope:shared and platform:shared. Import through @game-atlas/shared/data-access. Nx generates its source alias; this integrated workspace does not create separate npm workspace packages.
+Non-buildable Angular transport library tagged type:data-access, scope:shared and platform:shared. Import through @pinveria/shared/data-access. Nx generates its source alias; this integrated workspace does not create separate npm workspace packages.
 
 SignalR lives in src/lib/signalr:
 

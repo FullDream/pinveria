@@ -14,7 +14,7 @@ Creation and style-attachment responses update known map caches directly. `retry
 
 ## Category query options
 
-`CategoriesQueryOptions` exposes `getList(gameId, mapId)` for the complete group/category tree, category `create()`, `update()` and `delete()`, and group `createGroup()`, `updateGroup()` and `deleteGroup()`. Mutation variables include route IDs and generated request fields; update/delete also require `id`. Category mutations retain `groupId` for the current route. Import options, variable types, `getCategoryErrorMessage` and `getGroupsQueryKey` from `@game-atlas/maps/data-access`.
+`CategoriesQueryOptions` exposes `getList(gameId, mapId)` for the complete group/category tree, category `create()`, `update()` and `delete()`, and group `createGroup()`, `updateGroup()` and `deleteGroup()`. Mutation variables include route IDs and generated request fields; update/delete also require `id`. Category mutations retain `groupId` for the current route. Import options, variable types, `getCategoryErrorMessage` and `getGroupsQueryKey` from `@pinveria/maps/data-access`.
 
 Successful mutations await exact invalidation of that map's tree, refreshing membership, order, icons and marker counts without affecting other maps or style caches. Failed mutations do not change cached data. This stage intentionally uses invalidation only; optimistic updates remain deferred. Features own notifications and prevent conflicting submissions while pending. Placement uses generated `beforeId` inputs rather than numeric order.
 
@@ -35,7 +35,7 @@ npm exec nx -- run maps-data-access:lint
 npm exec nx -- build admin --configuration=production
 ```
 
-Generation is explicit and uncached; `GAME_ATLAS_OPENAPI_URL` overrides its input. Builds do not fetch OpenAPI. Maps, Categories and Markers tags are generated; group and category operations share CategoriesService. The server's SignalR Hub contract remains documented in the [API Maps README](../../../../src/GameAtlas.Api/Maps/README.md), separately from REST generation. No frontend unit/E2E suite is added or run under the current verification policy.
+Generation is explicit and uncached; `PINVERIA_OPENAPI_URL` overrides its input. Builds do not fetch OpenAPI. Maps, Categories and Markers tags are generated; group and category operations share CategoriesService. The server's SignalR Hub contract remains documented in the [API Maps README](../../../../src/Pinveria.Api/Maps/README.md), separately from REST generation. No frontend unit/E2E suite is added or run under the current verification policy.
 
 The admin development proxy retains `/api` prefix removal and `ws:true` for `/api/hubs/map`; production forwarding must be configured independently.
 

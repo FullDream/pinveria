@@ -1,5 +1,5 @@
 import { InjectionToken, inject, type Provider } from '@angular/core'
-import { ObservableHub, provideHub } from '@game-atlas/shared/data-access'
+import { ObservableHub, provideHub } from '@pinveria/shared/data-access'
 import type { MapStyle, MapProcessingStatus, MapProcessingError } from './generated/models'
 
 export type MapProcessingUpdate = {

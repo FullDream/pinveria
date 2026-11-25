@@ -1,11 +1,11 @@
 import { booleanAttribute, Component, computed, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { type PublicGameCard } from '@game-atlas/games/data-access'
-import { Button, MediaThumbnail, ImagePreview } from '@game-atlas/shared/ui'
+import { type PublicGameCard } from '@pinveria/games/data-access'
+import { Button, MediaThumbnail, ImagePreview } from '@pinveria/shared/ui'
 import { provideIcons } from '@ng-icons/core'
 import { matArrowForwardRound } from '@ng-icons/material-symbols/round'
 import { HlmCardImports } from '@spartan-ng/helm/card'
-import { formatCount } from '@game-atlas/shared/util'
+import { formatCount } from '@pinveria/shared/util'
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton'
 
 @Component({

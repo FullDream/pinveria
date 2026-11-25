@@ -1,0 +1,10 @@
+using Pinveria.Application.Categories.Groups;
+using Pinveria.Application.Markers;
+
+namespace Pinveria.Application.Maps;
+
+public sealed record PublicMapDetailsDto(Guid Id, Guid GameId, string Name, string Slug, string? Description,
+	int? Width, int? Height, IReadOnlyCollection<double>? Extent, IReadOnlyCollection<double>? TileOrigin,
+	int? TileSize, int? MinZoom, int? MaxZoom, IReadOnlyCollection<double>? Resolutions, Guid? DefaultStyleId,
+	IReadOnlyCollection<PublicMapStyleDto> Styles, IReadOnlyCollection<PublicCategoryGroupDto> CategoryGroups,
+	IReadOnlyCollection<PublicMarkerDto> Markers);

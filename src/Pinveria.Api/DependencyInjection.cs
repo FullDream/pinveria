@@ -1,0 +1,124 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+using FluentValidation;
+using Pinveria.Api.Categories;
+using Pinveria.Api.Categories.Groups;
+using Pinveria.Api.Errors;
+using Pinveria.Api.Games;
+using Pinveria.Api.Markers;
+using Pinveria.Api.OpenApi.Optional;
+using Pinveria.Api.OpenApi.Parameters;
+using Pinveria.Api.OpenApi.Schemas;
+using Pinveria.Api.OpenApi.Validation;
+using Pinveria.Api.Serialization;
+using Pinveria.Api.Serialization.Optional;
+using Pinveria.Application.Categories.CreateCategory;
+using Pinveria.Application.Categories.UpdateCategory;
+using Pinveria.Application.Categories.Groups.CreateCategoryGroup;
+using Pinveria.Application.Categories.Groups.UpdateCategoryGroup;
+using Pinveria.Application.Games.CreateGame;
+using Pinveria.Application.Games.ListGames;
+using Pinveria.Application.Games.UpdateGame;
+using Pinveria.Application.Markers;
+using Pinveria.Application.Markers.CreateMarker;
+using Pinveria.Application.Markers.UpdateMarker;
+using Microsoft.AspNetCore.Routing;
+
+namespace Pinveria.Api;
+
+public static class DependencyInjection
+{
+	public static IServiceCollection AddApi(this IServiceCollection services)
+	{
+		services.AddProblemDetails();
+		services.AddOpenApiValidationSource<Media.UpdateMediaAssetRequest,
+			Application.Media.Assets.UpdateMediaAsset.UpdateMediaAsset>();
+
+		services.AddOpenApiValidationSource<Media.ListMediaRequest, Application.Media.ListMedia.ListMedia>();
+		services.AddOpenApiValidationSource<Media.CreateMediaFolderRequest,
+			Application.Media.Folders.CreateMediaFolder.CreateMediaFolder>();
+
+		services.AddOpenApiValidationSource<Media.UpdateMediaFolderRequest,
+			Application.Media.Folders.UpdateMediaFolder.UpdateMediaFolder>();
+
+		services.AddExceptionHandler<MediaFolderConflictExceptionHandler>();
+		services.AddOpenApiValidationSource<Maps.CreateMapRequest, Application.Maps.CreateMap.CreateMap>();
+		services.AddOpenApiValidationSource<Maps.UpdateMapRequest, Application.Maps.UpdateMap.UpdateMap>();
+		services.AddOpenApiValidationSource<Maps.AddMapStyleRequest, Application.Maps.AddMapStyle.AddMapStyle>();
+		services.AddOpenApiValidationSource<Maps.UpdateMapStyleRequest,
+			Application.Maps.UpdateMapStyle.UpdateMapStyle>();
+
+		services.AddExceptionHandler<GameSlugConflictExceptionHandler>();
+		services.AddExceptionHandler<MapConflictExceptionHandler>();
+		services.AddExceptionHandler<CategoryGroupNameConflictExceptionHandler>();
+		services.AddExceptionHandler<CategoryNameConflictExceptionHandler>();
+		services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = false);
+		services.AddOpenApiValidationSource<CreateGameRequest, CreateGame>();
+		services.AddOpenApiValidationSource<ListGamesRequest, ListGames>();
+		services.AddOpenApiValidationSource<UpdateGameRequest, UpdateGame>();
+		services.AddOpenApiValidationSource<CreateCategoryGroupRequest, CreateCategoryGroup>();
+		services.AddOpenApiValidationSource<UpdateCategoryGroupRequest, UpdateCategoryGroup>();
+		services.AddOpenApiValidationSource<CreateCategoryRequest, CreateCategory>();
+		services.AddOpenApiValidationSource<UpdateCategoryRequest, UpdateCategory>();
+		services.AddOpenApiValidationSource<CreateMarkerRequest, CreateMarker>();
+		services.AddOpenApiValidationSource<UpdateMarkerRequest, UpdateMarker>();
+		services.AddOpenApiValidationSource<PositionRequest, PositionInput>();
+		services.AddOpenApiValidationSource<PositionPatchRequest, PositionPatch>();
+		services.ConfigureHttpJsonOptions(options =>
+		{
+			options.SerializerOptions.AddOptionalSupport();
+
+
+			options.SerializerOptions.AllowOutOfOrderMetadataProperties = true;
+			options.SerializerOptions.Converters.Add(
+				new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false));
+
+			options.SerializerOptions.DictionaryKeyPolicy = new SegmentedNamingPolicy(JsonNamingPolicy.CamelCase);
+			options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+		});
+
+		services.AddValidatorsFromAssemblyContaining<FluentValidationSchemaTransformer>(includeInternalTypes: true);
+		services.AddOpenApiValidation();
+		services.AddOpenApi(options =>
+		{
+			options.CreateSchemaReferenceId = PublicSchemaNames.CreateReferenceId;
+
+			options.AddOptionalSupport();
+			options.AddDocumentTransformer((document, _, _) =>
+			{
+				document.Components ??= new();
+				document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+				document.Components.SecuritySchemes["AdminCookie"] = new OpenApiSecurityScheme
+				{
+					Type = SecuritySchemeType.ApiKey,
+					In = ParameterLocation.Cookie,
+					Name = "__Host-Pinveria.Session"
+				};
+
+				return Task.CompletedTask;
+			});
+
+			options.AddOperationTransformer((operation, context, _) =>
+			{
+				var metadata = context.Description.ActionDescriptor.EndpointMetadata;
+
+				if (metadata.OfType<IAuthorizeData>().Any() && !metadata.OfType<IAllowAnonymous>().Any())
+					operation.Security = [new() { [new("AdminCookie", context.Document)] = [] }];
+
+				return Task.CompletedTask;
+			});
+
+			options.AddOperationTransformer<CamelCaseQueryParametersTransformer>();
+			options.AddSchemaTransformer<CamelCaseQueryEnumSchemaTransformer>();
+			options.AddSchemaTransformer<FluentValidationSchemaTransformer>();
+			options.AddDocumentTransformer<MediaSchemaTransformer>();
+			options.AddDocumentTransformer<CategorySchemaTransformer>();
+			options.AddDocumentTransformer<SharedEnumSchemaTransformer>();
+		});
+
+		return services;
+	}
+}

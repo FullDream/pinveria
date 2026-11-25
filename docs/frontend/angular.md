@@ -5,7 +5,7 @@ Applies to handwritten Angular code and owned Helm components. Read the [TypeScr
 ## Routing and component state
 
 - Initialize browser-only packages in browser render hooks. Do not introduce a production Node.js rendering server for admin.
-- Keep route titles limited to page names. Admin's `AdminTitleStrategy` appends `| GameAtlas Admin` centrally and uses the application name when no page title is available.
+- Keep route titles limited to page names. Admin's `AdminTitleStrategy` appends `| Pinveria Admin` centrally and uses the application name when no page title is available.
 - Use template `routerLink` and `queryParams` bindings for navigation controls rather than imperative navigation helpers. Keep programmatic router calls for actions such as guarded dismissal and URL correction.
 - Route-backed drawers use named router outlets and CanDeactivate. Pass existing page query data through routerOutletData rather than adding a state service or repeating the query. When changing listing query parameters and closing an outlet together, use one atomic router navigation; read URL state through linkedQueryParam.
 - For offset/limit APIs, keep `offset` and `limit` in URL state and pass them directly to transport. Let the pagination UI derive page numbers internally; do not introduce a page query parameter or convert pages in feature/data-access code.

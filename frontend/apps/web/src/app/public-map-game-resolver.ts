@@ -1,7 +1,7 @@
 import { inject } from '@angular/core'
 import type { ResolveFn } from '@angular/router'
-import { PublicGamesQueryOptions } from '@game-atlas/games/data-access'
-import type { PublicMapGame } from '@game-atlas/maps/feature-public-map'
+import { PublicGamesQueryOptions } from '@pinveria/games/data-access'
+import type { PublicMapGame } from '@pinveria/maps/feature-public-map'
 import { QueryClient } from '@tanstack/angular-query'
 
 export const publicMapGameResolver: ResolveFn<PublicMapGame | null> = route => {

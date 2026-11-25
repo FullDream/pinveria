@@ -1,6 +1,6 @@
 import { inject } from '@angular/core'
 import { Routes } from '@angular/router'
-import { PendingChanges } from '@game-atlas/shared/ui'
+import { PendingChanges } from '@pinveria/shared/ui'
 import type { MediaDetails } from './media-details/media-details'
 
 export const MEDIA_ROUTES: Routes = [

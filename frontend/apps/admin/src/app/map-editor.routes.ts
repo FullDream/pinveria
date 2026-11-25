@@ -1,8 +1,8 @@
-import type { FeatureEditor } from '@game-atlas/maps/feature-editor'
+import type { FeatureEditor } from '@pinveria/maps/feature-editor'
 import { inject } from '@angular/core'
 import type { ActivatedRouteSnapshot, Routes } from '@angular/router'
-import { GamesService } from '@game-atlas/games/data-access'
-import { MapsService, provideMapHubUrl, provideMapsBaseUrl } from '@game-atlas/maps/data-access'
+import { GamesService } from '@pinveria/games/data-access'
+import { MapsService, provideMapHubUrl, provideMapsBaseUrl } from '@pinveria/maps/data-access'
 import { catchError, map, of } from 'rxjs'
 
 export const MAP_EDITOR_ROUTES: Routes = [
@@ -21,6 +21,6 @@ export const MAP_EDITOR_ROUTES: Routes = [
 						catchError(() => of('Game')),
 					),
 		},
-		loadComponent: () => import('@game-atlas/maps/feature-editor').then(module => module.FeatureEditor),
+		loadComponent: () => import('@pinveria/maps/feature-editor').then(module => module.FeatureEditor),
 	},
 ]

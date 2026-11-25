@@ -2,7 +2,7 @@ import { Component, inject, type Signal } from '@angular/core'
 import { ROUTER_OUTLET_DATA } from '@angular/router'
 import { provideIcons } from '@ng-icons/core'
 import { matDeleteRound } from '@ng-icons/material-symbols/round'
-import { Button } from '@game-atlas/shared/ui'
+import { Button } from '@pinveria/shared/ui'
 import { type FeatureEditorContext } from '../feature-editor-context'
 
 @Component({

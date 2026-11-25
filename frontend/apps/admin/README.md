@@ -1,8 +1,8 @@
-# GameAtlas administration
+# Pinveria administration
 
 Browser-only Angular SPA with responsive Spartan navigation, Games listing and dedicated creation/editing pages with publication and confirmed deletion and a Media library for browsing folders, uploading files, editing metadata, moving items and confirmed deletion. Authentication is not implemented yet.
 
-The root `App` hosts routing and toasts. `layout/layout` owns the persistent sidebar and page header around child routes, following the frontend layout and IAM feature organization in [headless-cms](https://github.com/FullDream/headless-cms/tree/main/frontend). Features contribute breadcrumbs, actions and loading state through `PageHeaderPortal`; navigation loading is tracked in the layout. Media is lazy loaded from `@game-atlas/media/feature-list`.
+The root `App` hosts routing and toasts. `layout/layout` owns the persistent sidebar and page header around child routes, following the frontend layout and IAM feature organization in [headless-cms](https://github.com/FullDream/headless-cms/tree/main/frontend). Features contribute breadcrumbs, actions and loading state through `PageHeaderPortal`; navigation loading is tracked in the layout. Media is lazy loaded from `@pinveria/media/feature-list`.
 
 Run from `frontend`:
 
@@ -23,7 +23,7 @@ Production size budgets warn at 1.2 MB and fail at 1.5 MB for the initial bundle
 
 The sidebar collapses to icons on desktop and opens as a dismissible overlay on narrow screens. Menu selection closes the mobile overlay; Escape dismisses it and returns focus. Keyboard users can reach a skip-to-content link. Query caching is supplied once at the application root; no domain library owns a global QueryClient.
 
-The sidebar theme control offers Light, Default (system) and Dark. `ThemeSettings` uses ngxtension `injectLocalStorage` to persist the raw `game-atlas.theme` value and synchronize changes between tabs. The color-scheme meta tag is `light`, `light dark` or `dark`; CSS `light-dark()` tokens follow the active scheme, including live system changes. A synchronous script at the beginning of `<body>`, before `<app-root>`, reads the stored preference before Angular bootstraps. Unknown saved values fall back to system mode.
+The sidebar theme control offers Light, Default (system) and Dark. `ThemeSettings` uses ngxtension `injectLocalStorage` to persist the raw `pinveria.theme` value and synchronize changes between tabs. The color-scheme meta tag is `light`, `light dark` or `dark`; CSS `light-dark()` tokens follow the active scheme, including live system changes. A synchronous script at the beginning of `<body>`, before `<app-root>`, reads the stored preference before Angular bootstraps. Unknown saved values fall back to system mode.
 
 Matching `theme-color` hints suggest white or dark zinc for supporting browser toolbars. System mode uses media queries; explicit Light/Dark activates only the selected hint. Both the early startup script and runtime preference changes keep the hints synchronized. Browsers decide which surrounding UI, if any, uses the suggested color.
 

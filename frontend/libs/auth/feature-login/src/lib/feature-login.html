@@ -1,6 +1,6 @@
 <main class="bg-muted/40 p-4 grid min-h-dvh place-items-center">
 	<section hlmCard class="max-w-sm p-6 w-full">
-		<h1 class="text-xl font-semibold">Sign in to GameAtlas</h1>
+		<h1 class="text-xl font-semibold">Sign in to Pinveria</h1>
 		<form class="gap-4 grid" [formRoot]="fields">
 			<ui-field label="Username">
 				<input hlmInput id="username" autocomplete="username" [formField]="fields.login" />
@@ -19,7 +19,7 @@
 			@if (message(); as error) {
 				<hlm-field-error>{{ error }}</hlm-field-error>
 			} @else if (unavailable()) {
-				<hlm-field-error>Cannot reach GameAtlas. Try again.</hlm-field-error>
+				<hlm-field-error>Cannot reach Pinveria. Try again.</hlm-field-error>
 			}
 
 			<button ui-button type="submit" [loading]="fields().submitting()">Sign in</button>

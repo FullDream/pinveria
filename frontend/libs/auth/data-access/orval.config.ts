@@ -6,7 +6,7 @@ const generated = resolve('libs/auth/data-access/src/lib/generated')
 export default defineConfig({
 	auth: {
 		input: {
-			target: process.env['GAME_ATLAS_OPENAPI_URL'] ?? 'http://localhost:5041/openapi/v1.json',
+			target: process.env['PINVERIA_OPENAPI_URL'] ?? 'http://localhost:5041/openapi/v1.json',
 			filters: { tags: ['Auth'] },
 		},
 		output: {

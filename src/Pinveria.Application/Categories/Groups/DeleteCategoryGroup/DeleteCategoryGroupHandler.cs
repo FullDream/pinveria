@@ -1,0 +1,27 @@
+using Pinveria.Application.Abstractions.Persistence;
+using Pinveria.Domain.Result;
+using Mediator;
+using Microsoft.EntityFrameworkCore;
+
+namespace Pinveria.Application.Categories.Groups.DeleteCategoryGroup;
+
+public sealed class DeleteCategoryGroupHandler(IApplicationDbContext context)
+	: ICommandHandler<DeleteCategoryGroup, Result>
+{
+	public async ValueTask<Result> Handle(DeleteCategoryGroup command, CancellationToken cancellationToken)
+	{
+		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+
+		var group = await context.CategoryGroups.AsTracking().ForMap(context, command.GameId, command.MapId)
+			.SingleOrDefaultAsync(group => group.Id == command.Id, cancellationToken);
+
+		if (group is null)
+			return DeleteCategoryGroupErrors.NotFound;
+
+		context.CategoryGroups.Remove(group);
+		await context.SaveChangesAsync(cancellationToken);
+		await transaction.CommitAsync(cancellationToken);
+
+		return Result.Success();
+	}
+}

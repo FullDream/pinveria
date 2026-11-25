@@ -1,5 +1,5 @@
 import { injectMutation } from '@tanstack/angular-query'
-import { AuthQueryOptions, injectLoginRedirect } from '@game-atlas/auth/data-access'
+import { AuthQueryOptions, injectLoginRedirect } from '@pinveria/auth/data-access'
 import { CdkDropListGroup } from '@angular/cdk/drag-drop'
 import { CdkPortalOutlet } from '@angular/cdk/portal'
 import { Component, inject } from '@angular/core'
@@ -12,7 +12,7 @@ import {
 	PageProgress,
 	ThemeSwitcher,
 	WorkspaceBreadcrumbs,
-} from '@game-atlas/shared/ui'
+} from '@pinveria/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matLogoutRound,

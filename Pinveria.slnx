@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Pinveria.Api/Pinveria.Api.csproj" />
+    <Project Path="src/Pinveria.Application/Pinveria.Application.csproj" />
+    <Project Path="src/Pinveria.Domain/Pinveria.Domain.csproj" />
+    <Project Path="src/Pinveria.Infrastructure/Pinveria.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Pinveria.Domain.Tests/Pinveria.Domain.Tests.csproj" />
+    <Project Path="tests/Pinveria.Application.Tests/Pinveria.Application.Tests.csproj" />
+    <Project Path="tests/Pinveria.IntegrationTests/Pinveria.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path=".editorconfig" />
+    <File Path="AGENTS.md" />
+  </Folder>
+</Solution>

@@ -22,7 +22,7 @@ export type PageSeoConfig = {
 export const PAGE_SEO_CONFIG = new InjectionToken<PageSeoConfig>('PAGE_SEO_CONFIG', {
 	providedIn: 'root',
 	factory: (): PageSeoConfig => ({
-		siteName: 'GameAtlas',
+		siteName: 'Pinveria',
 		defaultDescription:
 			'Explore detailed interactive video game maps with collectibles, quests, bosses, and hidden locations.',
 		locale: 'en_US',
@@ -33,7 +33,7 @@ export function providePageSeo(config: Partial<PageSeoConfig>): Provider {
 	return {
 		provide: PAGE_SEO_CONFIG,
 		useValue: {
-			siteName: config.siteName ?? 'GameAtlas',
+			siteName: config.siteName ?? 'Pinveria',
 			defaultDescription:
 				config.defaultDescription ??
 				'Explore detailed interactive video game maps with collectibles, quests, bosses, and hidden locations.',

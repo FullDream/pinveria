@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Provide an independently runnable administration workspace whose navigation and layout can host future GameAtlas content-management features.
+Provide an independently runnable administration workspace whose navigation and layout can host future Pinveria content-management features.
 
 ## Requirements
 

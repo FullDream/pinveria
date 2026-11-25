@@ -3,8 +3,8 @@ import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http'
 import { Component, computed, effect, inject, input, linkedSignal } from '@angular/core'
 import { apply, disabled, form } from '@angular/forms/signals'
 import { ActivatedRoute, Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router'
-import { GamesQueryOptions, getGameErrorMessage, type Game } from '@game-atlas/games/data-access'
-import { GameFields, type GameForm, createGameFormModel, gameFormSchema } from '@game-atlas/games/ui'
+import { GamesQueryOptions, getGameErrorMessage, type Game } from '@pinveria/games/data-access'
+import { GameFields, type GameForm, createGameFormModel, gameFormSchema } from '@pinveria/games/ui'
 import {
 	Button,
 	ErrorState,
@@ -12,8 +12,8 @@ import {
 	ConfirmationDialog,
 	MediaPickerDialog,
 	MediaThumbnail,
-} from '@game-atlas/shared/ui'
-import { getDirtyValues, type PickerContext } from '@game-atlas/shared/util'
+} from '@pinveria/shared/ui'
+import { getDirtyValues, type PickerContext } from '@pinveria/shared/util'
 import { BrnDialogService } from '@spartan-ng/brain/dialog'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {

@@ -1,6 +1,6 @@
 # games-data-access
 
-Shared backend access for admin and web: `type:data-access`, `scope:games`, `platform:shared`. Import from `@game-atlas/games/data-access`.
+Shared backend access for admin and web: `type:data-access`, `scope:games`, `platform:shared`. Import from `@pinveria/games/data-access`.
 
 - `GamesService`: generated list/detail/create/update/delete transport.
 - Generated type aliases: `Game`, `ListGamesParams`, `UpdateGameRequest`, paginated responses and ProblemDetails contracts.
@@ -16,7 +16,7 @@ Start the backend, then run from `frontend`:
 npm exec nx -- run games-data-access:generate-api
 ```
 
-Orval reads `http://localhost:5041/openapi/v1.json`, selects the `Games` and `Public Games` tags and writes Angular HttpClient services plus referenced schemas to `src/lib/generated`. Other resource services are not generated. Override `GAME_ATLAS_OPENAPI_URL` when the development document is elsewhere; this is a generation input, not a runtime API origin.
+Orval reads `http://localhost:5041/openapi/v1.json`, selects the `Games` and `Public Games` tags and writes Angular HttpClient services plus referenced schemas to `src/lib/generated`. Other resource services are not generated. Override `PINVERIA_OPENAPI_URL` when the development document is elsewhere; this is a generation input, not a runtime API origin.
 
 Generation is deliberately uncached because the HTTP document can change without a local source-file change. The post-generation hook formats output with the repository Prettier configuration. Generated sources belong in version control; normal builds and tests do not fetch OpenAPI. An unchanged document and pinned tooling must regenerate without drift. Fetch/parse failures are errors, not a fallback to old catalog data. Orval cleans its generated directory before fetching; after a failed generation, rerun with an available document or restore the tracked generated files before building.
 

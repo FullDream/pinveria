@@ -6,7 +6,7 @@ import {
 	mutationOptions,
 	queryOptions,
 } from '@tanstack/angular-query'
-import { reorder, toPromise } from '@game-atlas/shared/util'
+import { reorder, toPromise } from '@pinveria/shared/util'
 import { CategoriesService } from '../generated'
 import type { Category, CategoryGroup } from '../generated/models'
 import { type GroupsQueryKey, getGroupsQueryKey } from './category-query-keys'

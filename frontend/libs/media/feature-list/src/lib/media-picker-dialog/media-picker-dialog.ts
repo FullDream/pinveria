@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
-import { MediaQueryOptions, getMediaErrorMessage, type MediaItem } from '@game-atlas/media/data-access'
-import { Button } from '@game-atlas/shared/ui'
+import { MediaQueryOptions, getMediaErrorMessage, type MediaItem } from '@pinveria/media/data-access'
+import { Button } from '@pinveria/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matFolderRound,

@@ -1,1 +1,1 @@
-export { MediaThumbnail } from '@game-atlas/shared/ui'
+export { MediaThumbnail } from '@pinveria/shared/ui'

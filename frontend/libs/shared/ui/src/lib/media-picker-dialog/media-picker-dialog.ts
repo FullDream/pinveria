@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
-import { MEDIA_PICKER_SOURCE, type LibraryImage, type LibraryFolder } from '@game-atlas/shared/util'
+import { MEDIA_PICKER_SOURCE, type LibraryImage, type LibraryFolder } from '@pinveria/shared/util'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matFolderRound,

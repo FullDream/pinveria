@@ -1,7 +1,7 @@
 schema: spec-driven
 
 context: |
-    GameAtlas is a platform for interactive video game maps.
+    Pinveria is a platform for interactive video game maps.
 
     Backend:
     - ASP.NET Core

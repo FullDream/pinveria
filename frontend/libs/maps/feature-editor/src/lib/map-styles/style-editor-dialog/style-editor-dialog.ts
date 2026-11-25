@@ -5,9 +5,9 @@ import {
 	getMapStyleErrorMessage,
 	type MapStyle,
 	type Map as GameMap,
-} from '@game-atlas/maps/data-access'
-import { Button, ColorPicker, Field, MediaPickerDialog, MediaThumbnail } from '@game-atlas/shared/ui'
-import { getDirtyValues, type LibraryImage, type PickerContext } from '@game-atlas/shared/util'
+} from '@pinveria/maps/data-access'
+import { Button, ColorPicker, Field, MediaPickerDialog, MediaThumbnail } from '@pinveria/shared/ui'
+import { getDirtyValues, type LibraryImage, type PickerContext } from '@pinveria/shared/util'
 import { BrnDialogRef, BrnDialogService, injectBrnDialogContext } from '@spartan-ng/brain/dialog'
 import { HlmFieldImports } from '@spartan-ng/helm/field'
 import { HlmInput } from '@spartan-ng/helm/input'

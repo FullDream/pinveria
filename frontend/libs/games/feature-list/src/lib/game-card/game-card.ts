@@ -1,7 +1,7 @@
 import { booleanAttribute, Component, computed, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { type Game } from '@game-atlas/games/data-access'
-import { Button, MediaThumbnail } from '@game-atlas/shared/ui'
+import { type Game } from '@pinveria/games/data-access'
+import { Button, MediaThumbnail } from '@pinveria/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matArrowForwardRound,

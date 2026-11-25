@@ -1,6 +1,6 @@
 # Maps UI
 
-Shared map presentation for administration and public consumers. Import `MapViewport`, `MapGeometry` and `MapViewStyle` from `@game-atlas/maps/ui`. This non-buildable library has no HTTP, route or data-access dependencies.
+Shared map presentation for administration and public consumers. Import `MapViewport`, `MapGeometry` and `MapViewStyle` from `@pinveria/maps/ui`. This non-buildable library has no HTTP, route or data-access dependencies.
 
 Bind authoritative pixel geometry to `geometry`, style presentation data to `styles`, and the selected ready style ID through `[(selectedStyleId)]`. The consumer initializes selection from `defaultStyleId` and reconciles it when styles disappear. Only ready styles with tile URLs appear in the selector. Switching source/background preserves the camera; a new map identity resets it. Geometry is absent before first attachment and immutable after initialization. The engine initializes only when geometry becomes available.
 

@@ -6,7 +6,7 @@ import {
 	mutationOptions,
 	queryOptions,
 } from '@tanstack/angular-query'
-import { toPromise } from '@game-atlas/shared/util'
+import { toPromise } from '@pinveria/shared/util'
 import { AuthService } from './generated/auth/auth.service'
 import type { AdminLogin, AdminSession } from './generated/models'
 

@@ -1,6 +1,6 @@
 # games-feature-list
 
-Admin-only Games listing, tagged type:feature, scope:games, platform:admin. Import GAMES_ROUTES from @game-atlas/games/feature-list. Admin mounts this library at /games and independently composes [creation](../feature-create/README.md) at /games/new and [editing](../feature-editor/README.md) at /games/:id; feature libraries do not import one another.
+Admin-only Games listing, tagged type:feature, scope:games, platform:admin. Import GAMES_ROUTES from @pinveria/games/feature-list. Admin mounts this library at /games and independently composes [creation](../feature-create/README.md) at /games/new and [editing](../feature-editor/README.md) at /games/:id; feature libraries do not import one another.
 
 - /games lists covers, names, slugs and statuses. Search, sorting and offset/limit pagination live in URL query parameters.
 - Image selection uses the ready-made shared MediaPickerDialog. Its shared port is bound to MediaPickerAdapter in the admin application; Games imports no Media libraries.

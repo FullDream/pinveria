@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpEventType } from '@angular/common/http'
 import { inject, Service, signal } from '@angular/core'
-import { toPromise } from '@game-atlas/shared/util'
+import { toPromise } from '@pinveria/shared/util'
 import {
 	hashKey,
 	keepPreviousData,

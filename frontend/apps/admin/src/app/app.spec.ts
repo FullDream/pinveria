@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { Title } from '@angular/platform-browser'
 import { Router, provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router'
-import { MediaService } from '@game-atlas/media/data-access'
+import { MediaService } from '@pinveria/media/data-access'
 import { HlmSidebarService } from '@spartan-ng/helm/sidebar'
 import { provideSpartanHlm } from '@spartan-ng/helm/utils'
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query'
@@ -84,7 +84,7 @@ describe('Administration shell', () => {
 		const element = fixture.nativeElement as HTMLElement
 
 		expect(TestBed.inject(Router).url).toBe('/games')
-		expect(TestBed.inject(Title).getTitle()).toBe('Games | GameAtlas Admin')
+		expect(TestBed.inject(Title).getTitle()).toBe('Games | Pinveria Admin')
 		expect(element.querySelector('h1')?.textContent).toBe('Games')
 		expect(element.textContent).toContain('Game management will be available here.')
 		expect(element.querySelector('a[aria-current="page"]')?.getAttribute('aria-label')).toBe('Games')
@@ -98,7 +98,7 @@ describe('Administration shell', () => {
 		const element = fixture.nativeElement as HTMLElement
 
 		expect(element.querySelector('h1')?.textContent).toBe('Media')
-		expect(TestBed.inject(Title).getTitle()).toBe('Media | GameAtlas Admin')
+		expect(TestBed.inject(Title).getTitle()).toBe('Media | Pinveria Admin')
 		expect(element.querySelector('nav[aria-label="Breadcrumb"]')?.textContent).toContain('Media')
 		expect(element.querySelector('a[aria-current="page"]')?.getAttribute('aria-label')).toBe('Media')
 	})
@@ -229,7 +229,7 @@ describe('Administration shell', () => {
 		['system', 'light dark', '(prefers-color-scheme: light)', '(prefers-color-scheme: dark)'],
 		['invalid', 'light dark', '(prefers-color-scheme: light)', '(prefers-color-scheme: dark)'],
 	])('restores stored preference %s as color-scheme %s', async (preference, scheme, lightMedia, darkMedia) => {
-		localStorage.setItem('game-atlas.theme', preference)
+		localStorage.setItem('pinveria.theme', preference)
 
 		await render()
 
@@ -245,7 +245,7 @@ describe('Administration shell', () => {
 		element.querySelector<HTMLInputElement>('ui-theme-switcher input[value="dark"]')?.click()
 		await fixture.whenStable()
 
-		expect(localStorage.getItem('game-atlas.theme')).toBe('dark')
+		expect(localStorage.getItem('pinveria.theme')).toBe('dark')
 		expect(document.head.querySelector('#theme-color-dark')?.getAttribute('media')).toBe('all')
 		expect(document.head.querySelector('meta[name="color-scheme"]')?.getAttribute('content')).toBe('dark')
 		expect(element.querySelector<HTMLInputElement>('ui-theme-switcher input[value="dark"]')?.checked).toBe(true)
@@ -253,7 +253,7 @@ describe('Administration shell', () => {
 		element.querySelector<HTMLInputElement>('ui-theme-switcher input[value="system"]')?.click()
 		await fixture.whenStable()
 
-		expect(localStorage.getItem('game-atlas.theme')).toBe('system')
+		expect(localStorage.getItem('pinveria.theme')).toBe('system')
 		expect(document.head.querySelector('#theme-color-dark')?.getAttribute('media')).toBe(
 			'(prefers-color-scheme: dark)',
 		)
@@ -263,10 +263,10 @@ describe('Administration shell', () => {
 	it('reflects theme changes from another tab', async () => {
 		const fixture = await render()
 
-		localStorage.setItem('game-atlas.theme', 'light')
+		localStorage.setItem('pinveria.theme', 'light')
 		window.dispatchEvent(
 			new StorageEvent('storage', {
-				key: 'game-atlas.theme',
+				key: 'pinveria.theme',
 				newValue: 'light',
 				storageArea: localStorage,
 			}),

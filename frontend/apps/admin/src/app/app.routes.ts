@@ -1,4 +1,4 @@
-import { authGuard } from '@game-atlas/auth/data-access'
+import { authGuard } from '@pinveria/auth/data-access'
 import { Route, Routes } from '@angular/router'
 
 const foundation: NonNullable<Route['loadComponent']> = () =>
@@ -8,7 +8,7 @@ export const APP_ROUTES: Routes = [
 	{
 		path: 'auth/login',
 		title: 'Sign in',
-		loadComponent: () => import('@game-atlas/auth/feature-login').then(m => m.FeatureLogin),
+		loadComponent: () => import('@pinveria/auth/feature-login').then(m => m.FeatureLogin),
 	},
 	{
 		path: '',
@@ -27,7 +27,7 @@ export const APP_ROUTES: Routes = [
 				path: 'media',
 				title: 'Media',
 				data: { section: 'Media' },
-				loadChildren: () => import('@game-atlas/media/feature-list').then(module => module.MEDIA_ROUTES),
+				loadChildren: () => import('@pinveria/media/feature-list').then(module => module.MEDIA_ROUTES),
 			},
 			{
 				path: '**',

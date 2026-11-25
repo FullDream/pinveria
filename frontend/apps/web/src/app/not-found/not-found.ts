@@ -1,6 +1,6 @@
 import { Component } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { Button, PageSeoDirective } from '@game-atlas/shared/ui'
+import { Button, PageSeoDirective } from '@pinveria/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import { matArrowBackRound, matExploreOffRound } from '@ng-icons/material-symbols/round'
 import { HlmEmptyImports } from '@spartan-ng/helm/empty'

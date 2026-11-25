@@ -14,7 +14,7 @@ import {
 	ViewEncapsulation,
 } from '@angular/core'
 import { FormsModule } from '@angular/forms'
-import { Button, MediaThumbnail } from '@game-atlas/shared/ui'
+import { Button, MediaThumbnail } from '@pinveria/shared/ui'
 import { HlmSelectImports } from '@spartan-ng/helm/select'
 import { HlmEmptyImports } from '@spartan-ng/helm/empty'
 import { HlmTooltip } from '@spartan-ng/helm/tooltip'

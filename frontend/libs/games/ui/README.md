@@ -1,6 +1,6 @@
 # games-ui
 
-Admin presentation shared by Games features (`type:ui`, `scope:games`, `platform:admin`). Import from `@game-atlas/games/ui`.
+Admin presentation shared by Games features (`type:ui`, `scope:games`, `platform:admin`). Import from `@pinveria/games/ui`.
 
 - `GameFields` renders the basic-information form from caller-owned Signal Forms fields and emits cover/banner/status actions. Its `skeleton` mode follows the same two-column field, cover and banner layout without requiring form data.
 - `GameForm`, `createGameFormModel` and `gameFormSchema` define the form contract, initial values and validation independently of generated API models.

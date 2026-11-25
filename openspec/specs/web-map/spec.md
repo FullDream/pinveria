@@ -118,7 +118,7 @@ Selecting a marker on mobile SHALL open a bottom drawer at 50dvh with a completi
 
 ### Requirement: Emit map SEO metadata and semantic heading
 
-The public map page (`/games/:slug/maps/:mapSlug`) SHALL render an accessible visually hidden `<h1>` identifying the map and game, and emit `<Map Name> - <Game Name> | GameAtlas` as its title, `map.description` (or a generated template incorporating the game name and map name when `map.description` is null) as its description, canonical `<origin>/games/:slug/maps/:mapSlug`, the hashed map OG image URL, and `Map` + `BreadcrumbList` JSON-LD.
+The public map page (`/games/:slug/maps/:mapSlug`) SHALL render an accessible visually hidden `<h1>` identifying the map and game, and emit `<Map Name> - <Game Name> | Pinveria` as its title, `map.description` (or a generated template incorporating the game name and map name when `map.description` is null) as its description, canonical `<origin>/games/:slug/maps/:mapSlug`, the hashed map OG image URL, and `Map` + `BreadcrumbList` JSON-LD.
 
 #### Scenario: Render map with custom description
 

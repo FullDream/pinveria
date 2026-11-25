@@ -41,10 +41,10 @@ import {
 	type Marker,
 	type MediaAsset,
 	type UpdateMarkerRequest,
-} from '@game-atlas/maps/data-access'
-import { CategoryIcon, type MapPoint } from '@game-atlas/maps/ui'
-import { Button, ConfirmationDialog, MediaPickerDialog, MediaThumbnail, Field } from '@game-atlas/shared/ui'
-import { getDirtyValues, type LibraryImage, type PickerContext } from '@game-atlas/shared/util'
+} from '@pinveria/maps/data-access'
+import { CategoryIcon, type MapPoint } from '@pinveria/maps/ui'
+import { Button, ConfirmationDialog, MediaPickerDialog, MediaThumbnail, Field } from '@pinveria/shared/ui'
+import { getDirtyValues, type LibraryImage, type PickerContext } from '@pinveria/shared/util'
 
 import { MarkerPanel } from './marker-panel'
 

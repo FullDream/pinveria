@@ -20,8 +20,8 @@ import {
 	type Map as GameMap,
 	type MapLiveState,
 	type MapStyle,
-} from '@game-atlas/maps/data-access'
-import { Button } from '@game-atlas/shared/ui'
+} from '@pinveria/maps/data-access'
+import { Button } from '@pinveria/shared/ui'
 import { provideIcons } from '@ng-icons/core'
 import { matChevronLeftRound, matRefreshRound } from '@ng-icons/material-symbols/round'
 import { HlmTooltip } from '@spartan-ng/helm/tooltip'

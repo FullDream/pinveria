@@ -10,8 +10,8 @@ import {
 	type ListMediaParams,
 	type MediaFolderDetails,
 	type PaginatedResultOfMediaItem,
-} from '@game-atlas/media/data-access'
-import { PageHeaderOutlet, WorkspaceBreadcrumbs } from '@game-atlas/shared/ui'
+} from '@pinveria/media/data-access'
+import { PageHeaderOutlet, WorkspaceBreadcrumbs } from '@pinveria/shared/ui'
 import { toast } from '@spartan-ng/brain/sonner'
 import { provideSpartanHlm } from '@spartan-ng/helm/utils'
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query'

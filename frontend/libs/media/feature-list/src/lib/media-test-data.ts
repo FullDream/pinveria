@@ -1,4 +1,4 @@
-import type { ImageAsset, MediaAsset, MediaFolder, PaginatedResultOfMediaItem } from '@game-atlas/media/data-access'
+import type { ImageAsset, MediaAsset, MediaFolder, PaginatedResultOfMediaItem } from '@pinveria/media/data-access'
 
 export const imageAsset: ImageAsset = {
 	type: 'image',

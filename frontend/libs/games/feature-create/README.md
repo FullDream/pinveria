@@ -1,6 +1,6 @@
 # games-feature-create
 
-Admin-only game creation (`type:feature`, `scope:games`, `platform:admin`). Import `GAME_CREATE_ROUTES` from `@game-atlas/games/feature-create`; admin mounts them at `/games/new`.
+Admin-only game creation (`type:feature`, `scope:games`, `platform:admin`). Import `GAME_CREATE_ROUTES` from `@pinveria/games/feature-create`; admin mounts them at `/games/new`.
 
 `FeatureCreate` owns its Signal Forms state, POST mutation and unsaved-change guard. It composes the reusable fields and schema from [games-ui](../ui/README.md) and formats API errors through [games-data-access](../data-access/README.md). Creation seeds the persisted detail cache and navigates to the new game's General page.
 

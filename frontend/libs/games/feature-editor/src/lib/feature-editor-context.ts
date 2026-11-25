@@ -1,7 +1,7 @@
 import { type FieldTree } from '@angular/forms/signals'
-import { type Game, type ImageAsset } from '@game-atlas/games/data-access'
+import { type Game, type ImageAsset } from '@pinveria/games/data-access'
 
-import { type GameForm } from '@game-atlas/games/ui'
+import { type GameForm } from '@pinveria/games/ui'
 
 export type FeatureEditorContext = {
 	fields: FieldTree<GameForm>

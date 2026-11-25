@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 
 export function resolveBackendApiUrl(): string {
-	const raw = process.env['GAME_ATLAS_API_URL']?.trim() || 'http://localhost:5041'
+	const raw = process.env['PINVERIA_API_URL']?.trim() || 'http://localhost:5041'
 
 	return raw.replace(/\/+$/, '')
 }

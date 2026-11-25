@@ -6,7 +6,7 @@ import {
 	type CreateMutationOptions,
 	type CreateQueryOptions,
 } from '@tanstack/angular-query'
-import { toPromise } from '@game-atlas/shared/util'
+import { toPromise } from '@pinveria/shared/util'
 import { MapsService } from './generated/maps/maps.service'
 import type {
 	AddMapStyleRequest,

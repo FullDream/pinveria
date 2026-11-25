@@ -1,0 +1,30 @@
+using Pinveria.Domain.Result;
+
+namespace Pinveria.Domain.Markers;
+
+public static class MarkerErrors
+{
+	public static readonly Error InvalidName = new(
+		"Marker.Name.Invalid", "Name must contain 1 through 200 characters after trimming.",
+		nameof(Marker.Name), ErrorType.Validation);
+
+	public static readonly Error InvalidDescription = new(
+		"Marker.Description.Invalid", "Description must not exceed 5000 characters after trimming.",
+		nameof(Marker.Description), ErrorType.Validation);
+
+	public static readonly Error PositionRequired = new(
+		"Marker.Position.Required", "Position must not be null.", nameof(Marker.Position), ErrorType.Validation);
+
+	public static readonly Error CategoryRequired = new(
+		"Marker.CategoryId.Required", "CategoryId must not be null.", nameof(Marker.CategoryId), ErrorType.Validation);
+
+	public static readonly Error InvalidMedia = new(
+		"Marker.Media.Invalid", "Media must be a non-null ordered list of distinct, nonempty asset IDs.",
+		nameof(Marker.Media), ErrorType.Validation);
+
+	public static readonly Error StatusRequired = new(
+		"Marker.Status.Required", "Status is required.", nameof(Marker.Status), ErrorType.Validation);
+
+	public static readonly Error InvalidStatus = new(
+		"Marker.Status.Invalid", "Status must be draft or published.", nameof(Marker.Status), ErrorType.Validation);
+}

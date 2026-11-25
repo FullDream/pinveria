@@ -1,4 +1,4 @@
-import { CategoryIcon } from '@game-atlas/maps/ui'
+import { CategoryIcon } from '@pinveria/maps/ui'
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { disabled, form, FormField, FormRoot, maxLength, pattern, required } from '@angular/forms/signals'
@@ -7,9 +7,9 @@ import {
 	type Category,
 	type CategoryGroup,
 	getCategoryErrorMessage,
-} from '@game-atlas/maps/data-access'
-import { Button, ColorPicker, MediaPickerDialog, MediaThumbnail, Field } from '@game-atlas/shared/ui'
-import { getDirtyValues, type LibraryImage, type PickerContext } from '@game-atlas/shared/util'
+} from '@pinveria/maps/data-access'
+import { Button, ColorPicker, MediaPickerDialog, MediaThumbnail, Field } from '@pinveria/shared/ui'
+import { getDirtyValues, type LibraryImage, type PickerContext } from '@pinveria/shared/util'
 import { BrnDialogRef, BrnDialogService, injectBrnDialogContext } from '@spartan-ng/brain/dialog'
 import { HlmBadge } from '@spartan-ng/helm/badge'
 import { HlmFieldImports } from '@spartan-ng/helm/field'

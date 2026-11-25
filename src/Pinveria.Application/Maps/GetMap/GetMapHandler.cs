@@ -1,0 +1,23 @@
+using Pinveria.Application.Maps.Processing;
+using Pinveria.Application.Abstractions.Persistence;
+using Pinveria.Domain.Result;
+using Mediator;
+using Microsoft.EntityFrameworkCore;
+
+namespace Pinveria.Application.Maps.GetMap;
+
+public sealed class GetMapHandler(IApplicationDbContext context, IMapProgress progress) : IQueryHandler<GetMap, Result<MapDto>>
+{
+	public async ValueTask<Result<MapDto>> Handle(GetMap query, CancellationToken cancellationToken)
+	{
+		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		var map = await context.Maps.ForMap(query.GameId,
+			query.MapId).WithStyles().SingleOrDefaultAsync(cancellationToken);
+
+		Result<MapDto> result = map is null ? MapOperationErrors.NotFound : map.ToDto(progress);
+
+		await transaction.CommitAsync(cancellationToken);
+
+		return result;
+	}
+}

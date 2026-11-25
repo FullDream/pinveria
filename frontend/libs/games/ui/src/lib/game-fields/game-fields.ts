@@ -16,8 +16,8 @@ import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group'
 import { HlmSeparator } from '@spartan-ng/helm/separator'
 import { HlmDatePicker, HlmDatePickerInput } from '@spartan-ng/helm/date-picker'
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton'
-import { Button, MediaThumbnail, Field } from '@game-atlas/shared/ui'
-import { type LibraryImage } from '@game-atlas/shared/util'
+import { Button, MediaThumbnail, Field } from '@pinveria/shared/ui'
+import { type LibraryImage } from '@pinveria/shared/util'
 import { type GameForm } from './game-form'
 
 @Component({

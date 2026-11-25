@@ -11,8 +11,8 @@ import {
 	type MediaFolder,
 	type MediaItem,
 	type MediaUploadMutation,
-} from '@game-atlas/media/data-access'
-import { Button, ErrorState, PageHeaderPortal, PendingChanges, type WorkspaceBreadcrumb } from '@game-atlas/shared/ui'
+} from '@pinveria/media/data-access'
+import { Button, ErrorState, PageHeaderPortal, PendingChanges, type WorkspaceBreadcrumb } from '@pinveria/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matArrowUpwardRound,

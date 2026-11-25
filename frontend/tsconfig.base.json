@@ -18,46 +18,46 @@
     "skipDefaultLibCheck": true,
     "strict": false,
     "paths": {
-      "@game-atlas/games/data-access": [
+      "@pinveria/games/data-access": [
         "./libs/games/data-access/src/index.ts"
       ],
-      "@game-atlas/shared/ui": [
+      "@pinveria/shared/ui": [
         "./libs/shared/ui/src/index.ts"
       ],
-      "@game-atlas/media/data-access": [
+      "@pinveria/media/data-access": [
         "./libs/media/data-access/src/index.ts"
       ],
-      "@game-atlas/media/feature-list": [
+      "@pinveria/media/feature-list": [
         "./libs/media/feature-list/src/index.ts"
       ],
-      "@game-atlas/shared/util": [
+      "@pinveria/shared/util": [
         "./libs/shared/util/src/index.ts"
       ],
-      "@game-atlas/maps/data-access": [
+      "@pinveria/maps/data-access": [
         "./libs/maps/data-access/src/index.ts"
       ],
-      "@game-atlas/games/feature-list": [
+      "@pinveria/games/feature-list": [
         "./libs/games/feature-list/src/index.ts"
       ],
-      "@game-atlas/games/feature-editor": [
+      "@pinveria/games/feature-editor": [
         "./libs/games/feature-editor/src/index.ts"
       ],
-      "@game-atlas/games/feature-create": [
+      "@pinveria/games/feature-create": [
         "./libs/games/feature-create/src/index.ts"
       ],
-      "@game-atlas/games/ui": [
+      "@pinveria/games/ui": [
         "./libs/games/ui/src/index.ts"
       ],
-      "@game-atlas/maps/feature-list": [
+      "@pinveria/maps/feature-list": [
         "./libs/maps/feature-list/src/index.ts"
       ],
-      "@game-atlas/maps/ui": [
+      "@pinveria/maps/ui": [
         "./libs/maps/ui/src/index.ts"
       ],
-      "@game-atlas/maps/feature-editor": [
+      "@pinveria/maps/feature-editor": [
         "./libs/maps/feature-editor/src/index.ts"
       ],
-      "@game-atlas/shared/data-access": [
+      "@pinveria/shared/data-access": [
         "./libs/shared/data-access/src/index.ts"
       ],
       "@spartan-ng/helm/accordion": [
@@ -171,13 +171,13 @@
       "@spartan-ng/helm/card": [
         "./libs/shared/ui-helm/card/src/index.ts"
       ],
-      "@game-atlas/games/feature-catalog": [
+      "@pinveria/games/feature-catalog": [
         "./libs/games/feature-catalog/src/index.ts"
       ],
-      "@game-atlas/games/feature-detail": [
+      "@pinveria/games/feature-detail": [
         "./libs/games/feature-detail/src/index.ts"
       ],
-      "@game-atlas/maps/feature-public-map": [
+      "@pinveria/maps/feature-public-map": [
         "./libs/maps/feature-public-map/src/index.ts"
       ],
       "@spartan-ng/helm/checkbox": [
@@ -186,10 +186,10 @@
       "@spartan-ng/helm/aspect-ratio": [
         "./libs/shared/ui-helm/aspect-ratio/src/index.ts"
       ],
-      "@game-atlas/auth/data-access": [
+      "@pinveria/auth/data-access": [
         "./libs/auth/data-access/src/index.ts"
       ],
-      "@game-atlas/auth/feature-login": [
+      "@pinveria/auth/feature-login": [
         "./libs/auth/feature-login/src/index.ts"
       ],
       "@spartan-ng/helm/alert-dialog": [

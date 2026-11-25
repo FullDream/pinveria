@@ -8,8 +8,8 @@ import type { Game, UpdateGameRequest } from './generated/models'
 
 const game: Game = {
 	id: '019a0000-0000-7000-8000-000000000001',
-	name: 'GameAtlas',
-	slug: 'game-atlas',
+	name: 'Pinveria',
+	slug: 'pinveria',
 	image: {
 		type: 'image',
 		id: '019a0000-0000-7000-8000-000000000112',

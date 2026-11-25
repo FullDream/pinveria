@@ -9,7 +9,7 @@ import {
 	type ImageAsset,
 	type PublicCategory,
 	type PublicCategoryGroup,
-} from '@game-atlas/maps/data-access'
+} from '@pinveria/maps/data-access'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matHomeRound,
@@ -20,7 +20,7 @@ import {
 	matKeyboardArrowDownRound,
 	matMapRound,
 } from '@ng-icons/material-symbols/round'
-import { Button, MediaThumbnail } from '@game-atlas/shared/ui'
+import { Button, MediaThumbnail } from '@pinveria/shared/ui'
 import { HlmAccordionImports } from '@spartan-ng/helm/accordion'
 import { HlmBreadcrumbImports } from '@spartan-ng/helm/breadcrumb'
 import { HlmInputGroupImports } from '@spartan-ng/helm/input-group'

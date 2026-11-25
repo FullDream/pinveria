@@ -1,0 +1,124 @@
+using System.Text.Json;
+
+namespace Pinveria.IntegrationTests;
+
+public class MapOpenApiTests
+{
+	[Fact]
+	public async Task DocumentsNineOperationsAndStaticTileContractWithoutChangingMarkerUnions()
+	{
+		await using var factory = new GameApiFactory("Development");
+		using var client = await factory.CreateHttpsClientAsync();
+		using var document = JsonDocument.Parse(await client.GetStringAsync("/openapi/v1.json"));
+		var root = document.RootElement;
+		var paths = root.GetProperty("paths");
+
+		var mapPaths = paths.EnumerateObject().Where(path => path.Name.StartsWith("/games/{gameId}/maps"))
+			.Where(path => !path.Name.Contains("/markers") && !path.Name.Contains("/category-groups")).ToArray();
+
+		var operations = mapPaths.SelectMany(path => path.Value.EnumerateObject())
+			.Where(property => new[] { "get", "post", "patch", "delete", "put" }.Contains(property.Name)).ToArray();
+
+		Assert.Equal(10, operations.Length);
+		Assert.DoesNotContain(operations, operation => operation.Name == "put");
+		Assert.Equal(new[]
+		{
+			"AddMapStyle", "CreateMap", "DeleteMap", "DeleteMapStyle", "GetMap", "ListMaps",
+			"PublishMap", "RetryMapStyle", "UpdateMap", "UpdateMapStyle"
+		}, operations.Select(operation => operation.Value.GetProperty("operationId").GetString()).Order());
+
+		var create = paths.GetProperty("/games/{gameId}/maps").GetProperty("post");
+
+		var form = Resolve(root, create.GetProperty("requestBody").GetProperty("content")
+			.GetProperty("application/json").GetProperty("schema"));
+
+		Assert.True(create.GetProperty("requestBody").GetProperty("required").GetBoolean());
+		Assert.Equal(new[] { "description", "name", "slug", "status" },
+			form.GetProperty("properties").EnumerateObject().Select(property => property.Name).Order());
+
+		Assert.Equal(new[] { "name", "slug" },
+			form.GetProperty("required").EnumerateArray().Select(item => item.GetString()).Order());
+
+		var creationSlug = form.GetProperty("properties").GetProperty("slug");
+
+		Assert.Equal("string", creationSlug.GetProperty("type").GetString());
+		Assert.Equal(1, creationSlug.GetProperty("minLength").GetInt32());
+		Assert.Equal(200, creationSlug.GetProperty("maxLength").GetInt32());
+		Assert.Equal(Pinveria.Domain.ValueObjects.Slug.Pattern, creationSlug.GetProperty("pattern").GetString());
+
+		var mapPatch = Resolve(root, paths.GetProperty("/games/{gameId}/maps/{mapId}").GetProperty("patch")
+			.GetProperty("requestBody").GetProperty("content").GetProperty("application/json").GetProperty("schema"));
+
+		Assert.False(mapPatch.TryGetProperty("required", out _));
+		Assert.Equal("string", mapPatch.GetProperty("properties").GetProperty("slug").GetProperty("type").GetString());
+		Assert.Equal(200, mapPatch.GetProperty("properties").GetProperty("slug").GetProperty("maxLength").GetInt32());
+		var add = paths.GetProperty("/games/{gameId}/maps/{mapId}/styles").GetProperty("post");
+
+		var addSchema = Resolve(root, add.GetProperty("requestBody").GetProperty("content")
+			.GetProperty("application/json").GetProperty("schema"));
+
+		var addProperties = addSchema.GetProperty("properties");
+
+		Assert.Equal(new[] { "backgroundColor", "name", "sourceAssetId" },
+			addProperties.EnumerateObject().Select(property => property.Name).Order());
+
+		Assert.Equal("uuid", Resolve(root, addProperties.GetProperty("sourceAssetId")).GetProperty("format").GetString());
+		Assert.Equal(200, addProperties.GetProperty("name").GetProperty("maxLength").GetInt32());
+		Assert.Equal(new[] { "backgroundColor", "name", "sourceAssetId" },
+			addSchema.GetProperty("required").EnumerateArray().Select(item => item.GetString()).Order());
+
+		var responses = create.GetProperty("responses");
+
+		foreach (var status in new[] { "200", "400", "404", "409", "413", "415", "422", "500" })
+			Assert.True(responses.TryGetProperty(status, out _));
+
+		var map = Resolve(root, responses.GetProperty("200").GetProperty("content").GetProperty("application/json")
+			.GetProperty("schema"));
+
+		Assert.Equal(18, map.GetProperty("properties").EnumerateObject().Count());
+		Assert.Contains(map.GetProperty("required").EnumerateArray(), field => field.GetString() == "slug");
+		Assert.Contains(map.GetProperty("required").EnumerateArray(), field => field.GetString() == "status");
+		Assert.Equal("string", map.GetProperty("properties").GetProperty("slug").GetProperty("type").GetString());
+		var style = Resolve(root, map.GetProperty("properties").GetProperty("styles").GetProperty("items"));
+
+		Assert.Equal(new[]
+		{
+			"backgroundColor", "createdAt", "error", "id", "name", "progress",
+			"source", "status", "tileGeometry", "tilesUrlTemplate", "updatedAt"
+		}, style.GetProperty("properties").EnumerateObject().Select(property => property.Name).Order());
+
+		Assert.Equal(new[] { "queued", "processing", "ready", "failed" },
+			Resolve(root, style.GetProperty("properties").GetProperty("status")).GetProperty("enum")
+				.EnumerateArray().Select(item => item.GetString()));
+
+		Assert.False(paths.TryGetProperty("/games/{gameId}/maps/{mapId}/events", out _));
+		Assert.DoesNotContain(paths.EnumerateObject(), path => path.Name.Contains("/tiles/"));
+		Assert.Contains("without database checks", style.GetProperty("properties").GetProperty("tilesUrlTemplate")
+			.GetProperty("description").GetString());
+
+		var patch = paths.GetProperty("/games/{gameId}/maps/{mapId}/styles/{styleId}").GetProperty("patch");
+		var patchContent = patch.GetProperty("requestBody").GetProperty("content");
+
+		Assert.True(patchContent.TryGetProperty("application/json", out _));
+		Assert.True(patchContent.TryGetProperty("application/merge-patch+json", out _));
+		var patchSchema = Resolve(root, patchContent.GetProperty("application/json").GetProperty("schema"));
+
+		Assert.Equal(2, patchSchema.GetProperty("properties").EnumerateObject().Count());
+		Assert.Equal(200,
+			patchSchema.GetProperty("properties").GetProperty("name").GetProperty("maxLength").GetInt32());
+
+		foreach (var operation in operations.Where(operation => operation.Name == "delete"))
+			Assert.False(operation.Value.GetProperty("responses").GetProperty("204").TryGetProperty("content", out _));
+
+		Assert.False(root.GetProperty("components").GetProperty("schemas").TryGetProperty("MarkerMediaRequest", out _));
+	}
+
+	private static JsonElement Resolve(JsonElement root, JsonElement schema)
+	{
+		while (schema.TryGetProperty("$ref", out var reference))
+			schema = root.GetProperty("components").GetProperty("schemas")
+				.GetProperty(reference.GetString()!.Split('/')[^1]);
+
+		return schema;
+	}
+}

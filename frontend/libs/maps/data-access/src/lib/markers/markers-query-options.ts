@@ -7,7 +7,7 @@ import {
 	mutationOptions,
 	queryOptions,
 } from '@tanstack/angular-query'
-import { toPromise } from '@game-atlas/shared/util'
+import { toPromise } from '@pinveria/shared/util'
 import { MarkersService } from '../generated/markers/markers.service'
 import type { Marker } from '../generated/models'
 import { getGroupsQueryKey } from '../categories/category-query-keys'

@@ -1,6 +1,6 @@
 # Shared UI
 
-Reusable GameAtlas components and UI-specific helpers in the non-buildable Nx project `shared-ui`, with `type:ui`, `scope:shared`, `platform:shared`.
+Reusable Pinveria components and UI-specific helpers in the non-buildable Nx project `shared-ui`, with `type:ui`, `scope:shared`, `platform:shared`.
 
 Helm components use Spartan's Maia style. `components.json` selects `maia` for future CLI additions; existing components contain the copied Maia classes, retaining Material Symbols Rounded and project-specific behavior. The shared semantic color tokens and light/system/dark theme selection apply to both applications.
 
@@ -14,9 +14,9 @@ Use `@spartan-ng/helm/empty` for empty states: compose HlmEmpty, HlmEmptyHeader,
 
 Our component selectors use `ui-` (for example, `<ui-theme-switcher>`); copied Spartan selectors retain `hlm-`. TypeScript class names remain unprefixed.
 
-`ErrorState` (`ui-error-state`) renders a shared error alert with an optional registered icon and default/compact variants. Project heading and description through the `[uiErrorStateHeading]` and `[uiErrorStateDescription]` ng-content slots, using ng-container to retain the component's heading and paragraph semantics. The default slot accepts action buttons and links; consumers own error formatting, loading state and action handlers. Import it from `@game-atlas/shared/ui`.
+`ErrorState` (`ui-error-state`) renders a shared error alert with an optional registered icon and default/compact variants. Project heading and description through the `[uiErrorStateHeading]` and `[uiErrorStateDescription]` ng-content slots, using ng-container to retain the component's heading and paragraph semantics. The default slot accepts action buttons and links; consumers own error formatting, loading state and action handlers. Import it from `@pinveria/shared/ui`.
 
-Group related reusable files under functional folders within `src/lib` (theme, button, page-header and navigation), without a `components` directory. Export their public API from `src/index.ts`, imported as `@game-atlas/shared/ui`. Spartan libraries live in the sibling [ui-helm directory](../ui-helm/README.md), under `<component>/src/lib`.
+Group related reusable files under functional folders within `src/lib` (theme, button, page-header and navigation), without a `components` directory. Export their public API from `src/index.ts`, imported as `@pinveria/shared/ui`. Spartan libraries live in the sibling [ui-helm directory](../ui-helm/README.md), under `<component>/src/lib`.
 
 Theme tokens live in `src/theme/styles.css`; applications register that stylesheet before their own CSS in the `project.json` build `styles` array. Use Material Symbols Rounded icons and preserve project conventions when adapting copied components.
 

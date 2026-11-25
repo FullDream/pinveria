@@ -1,0 +1,15 @@
+using System.Text.Json.Serialization;
+using Pinveria.Domain;
+
+namespace Pinveria.Api.Categories;
+
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+public sealed record UpdateCategoryRequest
+{
+	public Optional<string?> Name { get; init; }
+	public Optional<Guid?> IconAssetId { get; init; }
+	public Optional<string?> Color { get; init; }
+	public Optional<Guid?> BeforeId { get; init; }
+	public Optional<Guid?> CategoryGroupId { get; init; }
+	public Optional<PublicationStatus?> Status { get; init; }
+}

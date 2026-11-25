@@ -1,5 +1,5 @@
-import type { GroupConfig, PublicCategoryGroup, PublicMarker } from '@game-atlas/maps/data-access'
-import type { MapMarker, MapPoint } from '@game-atlas/maps/ui'
+import type { GroupConfig, PublicCategoryGroup, PublicMarker } from '@pinveria/maps/data-access'
+import type { MapMarker, MapPoint } from '@pinveria/maps/ui'
 
 export type PublicMarkerPresentationParams = {
 	markers: readonly PublicMarker[]

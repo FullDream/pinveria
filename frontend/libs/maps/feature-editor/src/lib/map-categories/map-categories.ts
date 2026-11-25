@@ -1,4 +1,4 @@
-import { CategoryIcon } from '@game-atlas/maps/ui'
+import { CategoryIcon } from '@pinveria/maps/ui'
 import { CdkScrollable } from '@angular/cdk/scrolling'
 import { HlmAccordionImports } from '@spartan-ng/helm/accordion'
 import {
@@ -27,8 +27,8 @@ import {
 	getCategoryErrorMessage,
 	type Category,
 	type CategoryGroup,
-} from '@game-atlas/maps/data-access'
-import { MediaThumbnail, Button, ConfirmationDialog, ErrorState } from '@game-atlas/shared/ui'
+} from '@pinveria/maps/data-access'
+import { MediaThumbnail, Button, ConfirmationDialog, ErrorState } from '@pinveria/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matAddRound,

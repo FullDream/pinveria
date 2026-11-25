@@ -1,7 +1,7 @@
 import { HttpStatusCode } from '@angular/common/http'
 import { Component, computed, inject, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { PublicGamesQueryOptions } from '@game-atlas/games/data-access'
+import { PublicGamesQueryOptions } from '@pinveria/games/data-access'
 import {
 	Button,
 	ErrorState,
@@ -10,8 +10,8 @@ import {
 	PageLoadingSource,
 	PageSeo,
 	PageSeoDirective,
-} from '@game-atlas/shared/ui'
-import { buildGameOgImagePath, formatCount } from '@game-atlas/shared/util'
+} from '@pinveria/shared/ui'
+import { buildGameOgImagePath, formatCount } from '@pinveria/shared/util'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matArrowBackRound,
@@ -84,7 +84,7 @@ export class GamesFeatureDetail {
 
 		if (current.description?.trim()) return current.description.trim()
 
-		return `Explore interactive maps for ${current.name} with ${formatCount(current.mapsCount, 'map')} and ${formatCount(current.markersCount, 'marker')} on GameAtlas.`
+		return `Explore interactive maps for ${current.name} with ${formatCount(current.mapsCount, 'map')} and ${formatCount(current.markersCount, 'marker')} on Pinveria.`
 	})
 
 	protected readonly seoImage = computed(() => {

@@ -1,4 +1,4 @@
-# GameAtlas frontend
+# Pinveria frontend
 
 Angular/Nx workspace for a separate administration SPA and public website. Run commands from this directory with npm and a Node.js version supported by the installed Angular toolchain.
 
@@ -13,7 +13,7 @@ Admin development runs on port 4201; `/api/**` and `/media/files/**` are proxied
 
 Both applications use `@nx/angular:application` with `buildLibsFromSource: false` in development and production. Nx builds or restores the required Helm libraries before application builds and before starting `serve`; other internal libraries remain source dependencies. Helm libraries are not rebuilt while the dev-server is running. Restart `serve` after changing Helm to rebuild changed dependencies or restore them from cache.
 
-Admin provides a Media library for folder browsing, file uploads, metadata editing, cover selection, moving items and confirmed deletion. Media is lazy loaded from `@game-atlas/media/feature-list`; API transport and query/mutation options live in `@game-atlas/media/data-access`. Games provides a searchable, sortable list and dedicated creation/editing pages, with library covers, publication controls and confirmed deletion. Authentication is not implemented yet.
+Admin provides a Media library for folder browsing, file uploads, metadata editing, cover selection, moving items and confirmed deletion. Media is lazy loaded from `@pinveria/media/feature-list`; API transport and query/mutation options live in `@pinveria/media/data-access`. Games provides a searchable, sortable list and dedicated creation/editing pages, with library covers, publication controls and confirmed deletion. Authentication is not implemented yet.
 
 - [Administration setup and hosting](apps/admin/README.md)
 - [Shared Games API and generation](libs/games/data-access/README.md)

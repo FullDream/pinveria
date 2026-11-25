@@ -3,7 +3,7 @@
 Shared Angular HttpClient transport and TanStack query options for admin and future web consumers.
 
 Run `npm exec nx -- run media-data-access:generate-api` from `frontend` with the backend available at
-`http://localhost:5041/openapi/v1.json`. `GAME_ATLAS_OPENAPI_URL` overrides the input. Generation selects
+`http://localhost:5041/openapi/v1.json`. `PINVERIA_OPENAPI_URL` overrides the input. Generation selects
 only the Media tag, writes kebab-case files under `src/lib/generated` and commits those sources.
 Builds do not fetch OpenAPI. Never edit generated sources by hand. Generation cleans its output;
 after a failed fetch, rerun against an available backend or restore the committed generated files.

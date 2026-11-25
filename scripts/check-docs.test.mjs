@@ -7,7 +7,7 @@ import { test } from 'node:test'
 import { checkDocumentation, markdown } from './check-docs.mjs'
 
 function fixture(t, files) {
-	const root = mkdtempSync(join(tmpdir(), 'game-atlas-docs-'))
+	const root = mkdtempSync(join(tmpdir(), 'pinveria-docs-'))
 	t.after(() => rmSync(root, { recursive: true, force: true }))
 
 	for (const [file, text] of Object.entries(files)) {

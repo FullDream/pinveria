@@ -1,5 +1,5 @@
-import type { CategoryGroup, CreateMarkerVariables, Marker, PublicationStatus } from '@game-atlas/maps/data-access'
-import type { MapMarker, MapPoint, MarkerDraftState } from '@game-atlas/maps/ui'
+import type { CategoryGroup, CreateMarkerVariables, Marker, PublicationStatus } from '@pinveria/maps/data-access'
+import type { MapMarker, MapPoint, MarkerDraftState } from '@pinveria/maps/ui'
 
 export type MarkerMovementVariables = { id: string; mapId: string; position?: MapPoint }
 

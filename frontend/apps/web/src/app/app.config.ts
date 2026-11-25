@@ -2,10 +2,10 @@ import { provideHttpClient } from '@angular/common/http'
 import { ApplicationConfig, inject, PLATFORM_ID, provideBrowserGlobalErrorListeners } from '@angular/core'
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser'
 import { provideRouter, TitleStrategy, withComponentInputBinding, withRouterConfig } from '@angular/router'
-import { provideGamesBaseUrl } from '@game-atlas/games/data-access'
-import { provideMapsBaseUrl } from '@game-atlas/maps/data-access'
-import { PageTitleStrategy, providePageSeo } from '@game-atlas/shared/ui'
-import { buildHomeOgImagePath } from '@game-atlas/shared/util'
+import { provideGamesBaseUrl } from '@pinveria/games/data-access'
+import { provideMapsBaseUrl } from '@pinveria/maps/data-access'
+import { PageTitleStrategy, providePageSeo } from '@pinveria/shared/ui'
+import { buildHomeOgImagePath } from '@pinveria/shared/util'
 import { provideSpartanHlm } from '@spartan-ng/helm/utils'
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query'
 import { APP_ROUTES } from './app.routes'
@@ -32,7 +32,7 @@ export const appConfig: ApplicationConfig = {
 		{ provide: PageTitleStrategy, useClass: WebTitleStrategy },
 		{ provide: TitleStrategy, useExisting: PageTitleStrategy },
 		providePageSeo({
-			siteName: 'GameAtlas',
+			siteName: 'Pinveria',
 			defaultDescription: 'Explore detailed game worlds with collectibles, quests, bosses, and hidden locations.',
 			defaultImage: buildHomeOgImagePath(),
 		}),

@@ -1,1 +1,1 @@
-export { getMediaErrorMessage } from '@game-atlas/media/data-access'
+export { getMediaErrorMessage } from '@pinveria/media/data-access'

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core'
 import { RouterLink, RouterOutlet } from '@angular/router'
-import { BrandLogo, PageLoading, PageProgress, ThemeSwitcher } from '@game-atlas/shared/ui'
+import { BrandLogo, PageLoading, PageProgress, ThemeSwitcher } from '@pinveria/shared/ui'
 import { ThemeSettings } from './theme-settings'
 
 @Component({

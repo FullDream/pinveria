@@ -22,9 +22,9 @@ import {
 	type ListGamesSortBy as GameSortBy,
 	type ListGamesSortDirection as SortDirection,
 	parseGameSort,
-} from '@game-atlas/games/data-access'
-import { Button, ErrorState, PageHeaderPortal } from '@game-atlas/shared/ui'
-import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from '@game-atlas/shared/util'
+} from '@pinveria/games/data-access'
+import { Button, ErrorState, PageHeaderPortal } from '@pinveria/shared/ui'
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from '@pinveria/shared/util'
 import { HlmInput } from '@spartan-ng/helm/input'
 import { HlmNumberedPaginationQueryParams } from '@spartan-ng/helm/pagination'
 import { injectQuery } from '@tanstack/angular-query'

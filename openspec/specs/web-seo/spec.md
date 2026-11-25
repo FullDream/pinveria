@@ -8,12 +8,12 @@ Provide declarative page SEO metadata management, server-rendered crawling endpo
 
 ### Requirement: Synchronize page title reactively with social metadata
 
-The shared UI title strategy SHALL expose the active formatted page title reactively so social metadata (`og:title` and `twitter:title`) stays synchronized automatically whenever the title changes from route configuration or imperative page updates. Page titles in `web` SHALL follow the common `<Page Title> | GameAtlas` pattern.
+The shared UI title strategy SHALL expose the active formatted page title reactively so social metadata (`og:title` and `twitter:title`) stays synchronized automatically whenever the title changes from route configuration or imperative page updates. Page titles in `web` SHALL follow the common `<Page Title> | Pinveria` pattern.
 
 #### Scenario: Title resolved by route configuration
 
 - **WHEN** a route resolves a page title without overriding `title` on the page SEO declaration
-- **THEN** `<title>`, `og:title`, and `twitter:title` all reflect the formatted `<Page Title> | GameAtlas` title
+- **THEN** `<title>`, `og:title`, and `twitter:title` all reflect the formatted `<Page Title> | Pinveria` title
 
 #### Scenario: Title supplied reactively by the page
 
@@ -45,8 +45,8 @@ The public `web` application SHALL resolve its canonical site origin from `PUBLI
 
 #### Scenario: Normalize relative paths with configured public origin
 
-- **WHEN** `PUBLIC_SITE_URL` is set to `https://gameatlas.example` and a page declares canonical `/games/elden-ring` and a relative image path
-- **THEN** rendered `canonical`, `og:url`, and `og:image` use `https://gameatlas.example/...` without duplicate slashes
+- **WHEN** `PUBLIC_SITE_URL` is set to `https://pinveria.example` and a page declares canonical `/games/elden-ring` and a relative image path
+- **THEN** rendered `canonical`, `og:url`, and `og:image` use `https://pinveria.example/...` without duplicate slashes
 
 #### Scenario: Fall back to proxy request origin during SSR
 
@@ -117,4 +117,4 @@ The `web` application SHALL serve `/manifest.webmanifest`, a vector favicon (`fa
 #### Scenario: Inspect document head and manifest
 
 - **WHEN** a browser loads `/`
-- **THEN** `index.html` links `manifest.webmanifest`, `favicon.svg`, `favicon.ico`, and `apple-touch-icon.png`, and `GET /manifest.webmanifest` returns valid web manifest JSON for GameAtlas
+- **THEN** `index.html` links `manifest.webmanifest`, `favicon.svg`, `favicon.ico`, and `apple-touch-icon.png`, and `GET /manifest.webmanifest` returns valid web manifest JSON for Pinveria

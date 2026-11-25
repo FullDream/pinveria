@@ -1,9 +1,9 @@
 import { isPlatformBrowser } from '@angular/common'
 import { DOCUMENT, effect, inject, PLATFORM_ID, REQUEST, Service, signal } from '@angular/core'
 import { Meta } from '@angular/platform-browser'
-import type { ThemePreference } from '@game-atlas/shared/ui'
+import type { ThemePreference } from '@pinveria/shared/ui'
 
-const THEME_COOKIE_NAME = 'game-atlas.theme'
+const THEME_COOKIE_NAME = 'pinveria.theme'
 const THEME_COOKIE_MAX_AGE = 31_536_000
 
 function parseThemePreference(raw: string | null | undefined): ThemePreference {

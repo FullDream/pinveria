@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Provide an authentication-free, server-side rendered public `web` application shell using Hono, per-request data and cookie-based theme hydration, and shared GameAtlas navigation chrome.
+Provide an authentication-free, server-side rendered public `web` application shell using Hono, per-request data and cookie-based theme hydration, and shared Pinveria navigation chrome.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ The `web` application SHALL run with `outputMode: "server"` and `RenderMode.Serv
 
 ### Requirement: Transfer per-request TanStack Query state from SSR to browser
 
-Each SSR request SHALL create an isolated `QueryClient` instance rather than sharing a process-global cache. SSR requests SHALL resolve both `GAMES_BASE_URL` and `MAPS_BASE_URL` to the backend origin (`GAME_ATLAS_API_URL` or `GAMES_SERVER_URL`), while browser requests resolve `/api`, dehydrating and rehydrating `QueryClient` via `TransferState`.
+Each SSR request SHALL create an isolated `QueryClient` instance rather than sharing a process-global cache. SSR requests SHALL resolve both `GAMES_BASE_URL` and `MAPS_BASE_URL` to the backend origin (`PINVERIA_API_URL` or `GAMES_SERVER_URL`), while browser requests resolve `/api`, dehydrating and rehydrating `QueryClient` via `TransferState`.
 
 #### Scenario: Hydrate initial catalog without duplicate API fetch
 
@@ -38,27 +38,27 @@ Each SSR request SHALL create an isolated `QueryClient` instance rather than sha
 
 ### Requirement: Apply cookie-persisted theme before HTML flush
 
-The `web` shell SHALL place the compact `ThemeSwitcher` (`[compact]="true"`) in the header and persist `light`, `dark`, or `system` in the `game-atlas.theme` cookie (`Path=/; SameSite=Lax`). During SSR, `ThemeSettings` SHALL read that cookie from `REQUEST` and update `color-scheme` and `theme-color` meta tags before HTML serialization.
+The `web` shell SHALL place the compact `ThemeSwitcher` (`[compact]="true"`) in the header and persist `light`, `dark`, or `system` in the `pinveria.theme` cookie (`Path=/; SameSite=Lax`). During SSR, `ThemeSettings` SHALL read that cookie from `REQUEST` and update `color-scheme` and `theme-color` meta tags before HTML serialization.
 
 #### Scenario: Render saved dark preference on SSR
 
-- **WHEN** a visitor with `Cookie: game-atlas.theme=dark` requests `/`
+- **WHEN** a visitor with `Cookie: pinveria.theme=dark` requests `/`
 - **THEN** the server-rendered HTML `<head>` already contains `<meta name="color-scheme" content="dark">` and updated `theme-color` media attributes
 - **AND** the header theme toggle renders in its dark state during SSR without hydration flicker
 
 #### Scenario: Default to system theme without cookie
 
-- **WHEN** a visitor requests `/` without a valid `game-atlas.theme` cookie
+- **WHEN** a visitor requests `/` without a valid `pinveria.theme` cookie
 - **THEN** `ThemeSettings` defaults to `'system'` with `<meta name="color-scheme" content="light dark">` so `light-dark()` tokens follow the browser's color scheme on first paint
 
 #### Scenario: Switch theme on the client
 
 - **WHEN** a visitor activates the compact theme switcher in the header
-- **THEN** `ThemeSettings` updates the `game-atlas.theme` cookie and updates the document's `color-scheme` and `theme-color` meta tags immediately
+- **THEN** `ThemeSettings` updates the `pinveria.theme` cookie and updates the document's `color-scheme` and `theme-color` meta tags immediately
 
 ### Requirement: Display public header and reserve /games/:slug route
 
-The `web` shell SHALL render a semantic header landmark with the GameAtlas brand link navigating to `/`, the compact `ThemeSwitcher` on the trailing edge, a skip-to-content link, and a `<router-outlet>` inside `<main>`. The router SHALL define `/` for the home catalog and a `/games/:slug` game detail route rendered with `RenderMode.Server` for published game reads.
+The `web` shell SHALL render a semantic header landmark with the Pinveria brand link navigating to `/`, the compact `ThemeSwitcher` on the trailing edge, a skip-to-content link, and a `<router-outlet>` inside `<main>`. The router SHALL define `/` for the home catalog and a `/games/:slug` game detail route rendered with `RenderMode.Server` for published game reads.
 
 #### Scenario: Navigate to placeholder game route
 

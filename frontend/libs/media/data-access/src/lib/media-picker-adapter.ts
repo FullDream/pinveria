@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core'
-import type { MediaPickerSource, LibraryParams, LibraryEntry } from '@game-atlas/shared/util'
-import { toPromise } from '@game-atlas/shared/util'
+import type { MediaPickerSource, LibraryParams, LibraryEntry } from '@pinveria/shared/util'
+import { toPromise } from '@pinveria/shared/util'
 import { MediaService } from './generated/media/media.service'
 import { getMediaErrorMessage } from './get-media-error-message'
 @Service()

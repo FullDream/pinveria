@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Give the administrator secure access to GameAtlas management tools while preserving anonymous access for map readers.
+Give the administrator secure access to Pinveria management tools while preserving anonymous access for map readers.
 
 ## Requirements
 

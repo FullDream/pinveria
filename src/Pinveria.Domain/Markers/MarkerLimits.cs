@@ -1,0 +1,7 @@
+namespace Pinveria.Domain.Markers;
+
+public static class MarkerLimits
+{
+	public const int NameMaxLength = 200;
+	public const int DescriptionMaxLength = 5000;
+}

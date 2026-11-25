@@ -1,0 +1,93 @@
+using Pinveria.Api.Http;
+using Pinveria.Api.Results;
+using Pinveria.Application.Maps;
+using Pinveria.Application.Maps.CreateMap;
+using Pinveria.Application.Maps.DeleteMap;
+using Pinveria.Application.Maps.DeleteMapStyle;
+using Pinveria.Application.Maps.GetMap;
+using Pinveria.Application.Maps.ListMaps;
+using Pinveria.Application.Maps.PublishMap;
+using Pinveria.Application.Maps.RetryMapStyle;
+using Mediator;
+
+namespace Pinveria.Api.Maps;
+
+public static class Endpoints
+{
+	public static RouteGroupBuilder MapMaps(this RouteGroupBuilder group)
+	{
+		var maps = group.MapGroup("/games/{gameId}/maps").WithTags("Maps").RequireAuthorization();
+
+		maps.MapGet("", ListMapsAsync).WithName("ListMaps").WithSummary("List maps");
+
+		maps.MapGet("/{mapId}", GetMapAsync).WithName("GetMap").WithSummary("Get map");
+
+		maps.MapPost("", CreateMapAsync).WithName("CreateMap").WithSummary("Create map")
+			.Accepts<CreateMapRequest>("application/json")
+			.Produces<MapDto>().ProducesProblem(400).ProducesProblem(404).ProducesProblem(409)
+			.ProducesProblem(413).ProducesProblem(415).ProducesProblem(422).ProducesProblem(500);
+
+		maps.MapPost("/{mapId}/styles", AddMapStyleAsync).WithName("AddMapStyle").WithSummary("Add map style")
+			.Accepts<AddMapStyleRequest>("application/json")
+			.Produces<MapDto>().ProducesProblem(400).ProducesProblem(404).ProducesProblem(409)
+			.ProducesProblem(413).ProducesProblem(415).ProducesProblem(422).ProducesProblem(500);
+
+		maps.MapPost("/{mapId}/styles/{styleId}/retry", RetryMapStyleAsync)
+			.WithName("RetryMapStyle").WithSummary("Retry map style");
+
+		maps.MapPatch("/{mapId}/styles/{styleId}", UpdateMapStyleAsync)
+			.WithName("UpdateMapStyle").WithSummary("Update map style")
+			.WithMergePatch<UpdateMapStyleRequest>();
+
+		maps.MapDelete("/{mapId}/styles/{styleId}", DeleteMapStyleAsync)
+			.WithName("DeleteMapStyle").WithSummary("Delete map style");
+
+		maps.MapPost("/{mapId}/publish", PublishMapAsync).WithName("PublishMap").WithSummary("Publish map");
+
+		maps.MapPatch("/{mapId}", UpdateMapAsync).WithName("UpdateMap").WithSummary("Update map")
+			.WithMergePatch<UpdateMapRequest>();
+
+		maps.MapDelete("/{mapId}", DeleteMapAsync).WithName("DeleteMap").WithSummary("Delete map");
+
+		return maps;
+	}
+
+	private static async Task<OutcomeResult<IReadOnlyCollection<MapDto>>> ListMapsAsync(Guid gameId,
+		IMediator mediator, CancellationToken cancellationToken) =>
+		await mediator.Send(new ListMaps(gameId), cancellationToken);
+
+	private static async Task<OutcomeResult<MapDto>> GetMapAsync(Guid gameId, Guid mapId, IMediator mediator,
+		CancellationToken cancellationToken) => await mediator.Send(new GetMap(gameId, mapId), cancellationToken);
+
+	private static async Task<OutcomeResult<MapDto>> CreateMapAsync(Guid gameId, CreateMapRequest request,
+		IMediator mediator, CancellationToken cancellationToken) =>
+		await mediator.Send(request.ToCommand(gameId), cancellationToken);
+
+	private static async Task<OutcomeResult<MapDto>> AddMapStyleAsync(Guid gameId, Guid mapId, AddMapStyleRequest request,
+		IMediator mediator, CancellationToken cancellationToken) =>
+		await mediator.Send(request.ToCommand(gameId, mapId), cancellationToken);
+
+	private static async Task<OutcomeResult<MapStyleDto>> RetryMapStyleAsync(Guid gameId, Guid mapId, Guid styleId,
+		IMediator mediator, CancellationToken cancellationToken) =>
+		await mediator.Send(new RetryMapStyle(gameId, mapId, styleId), cancellationToken);
+
+	private static async Task<OutcomeResult<MapStyleDto>> UpdateMapStyleAsync(Guid gameId, Guid mapId, Guid styleId,
+		UpdateMapStyleRequest request, IMediator mediator, CancellationToken cancellationToken) =>
+		await mediator.Send(request.ToCommand(gameId, mapId, styleId), cancellationToken);
+
+	private static async Task<OutcomeResult> DeleteMapStyleAsync(Guid gameId, Guid mapId, Guid styleId,
+		IMediator mediator,
+		CancellationToken cancellationToken) =>
+		await mediator.Send(new DeleteMapStyle(gameId, mapId, styleId), cancellationToken);
+
+	private static async Task<OutcomeResult<MapDto>> PublishMapAsync(Guid gameId, Guid mapId, IMediator mediator,
+		CancellationToken cancellationToken) =>
+		await mediator.Send(new PublishMap(gameId, mapId), cancellationToken);
+
+	private static async Task<OutcomeResult<MapDto>> UpdateMapAsync(Guid gameId, Guid mapId, UpdateMapRequest request,
+		IMediator mediator, CancellationToken cancellationToken) =>
+		await mediator.Send(request.ToCommand(gameId, mapId), cancellationToken);
+
+	private static async Task<OutcomeResult> DeleteMapAsync(Guid gameId, Guid mapId, IMediator mediator,
+		CancellationToken cancellationToken) => await mediator.Send(new DeleteMap(gameId, mapId), cancellationToken);
+}

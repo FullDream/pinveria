@@ -1,9 +1,9 @@
 import { HttpStatusCode } from '@angular/common/http'
 import { Component, computed, inject, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { PublicMapsQueryOptions } from '@game-atlas/maps/data-access'
-import { Button, PageSeo, PageSeoDirective } from '@game-atlas/shared/ui'
-import { buildMapOgImagePath } from '@game-atlas/shared/util'
+import { PublicMapsQueryOptions } from '@pinveria/maps/data-access'
+import { Button, PageSeo, PageSeoDirective } from '@pinveria/shared/ui'
+import { buildMapOgImagePath } from '@pinveria/shared/util'
 import { HlmEmptyImports } from '@spartan-ng/helm/empty'
 import { HlmSpinner } from '@spartan-ng/helm/spinner'
 import { injectQuery } from '@tanstack/angular-query'
@@ -59,7 +59,7 @@ export class FeaturePublicMap {
 
 		const gameName = this.resolvedGameName()
 
-		return `Interactive map of ${map.name} for ${gameName} on GameAtlas. Explore locations, collectibles, quests, and markers.`
+		return `Interactive map of ${map.name} for ${gameName} on Pinveria. Explore locations, collectibles, quests, and markers.`
 	})
 
 	protected readonly seoImage = computed(() => {

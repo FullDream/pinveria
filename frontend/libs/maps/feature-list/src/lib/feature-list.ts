@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, signal } from '@angular/core'
 import { DatePipe, DOCUMENT } from '@angular/common'
 import { RouterLink } from '@angular/router'
-import { MapsQueryOptions, getMapErrorMessage, type Map as GameMap } from '@game-atlas/maps/data-access'
+import { MapsQueryOptions, getMapErrorMessage, type Map as GameMap } from '@pinveria/maps/data-access'
 import {
 	Button,
 	ConfirmationDialog,
@@ -9,7 +9,7 @@ import {
 	MediaThumbnail,
 	PageHeaderPortal,
 	TooltipOnOverflow,
-} from '@game-atlas/shared/ui'
+} from '@pinveria/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matAddRound,

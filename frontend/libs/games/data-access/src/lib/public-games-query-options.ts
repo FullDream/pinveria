@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http'
 import { inject, Service } from '@angular/core'
 import { CreateQueryOptions, keepPreviousData, QueryClient, queryOptions } from '@tanstack/angular-query'
-import { toPromise } from '@game-atlas/shared/util'
+import { toPromise } from '@pinveria/shared/util'
 import { PublicGamesService } from './generated/public-games/public-games.service'
 import type {
 	ListPublicGamesParams,

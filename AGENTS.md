@@ -1,6 +1,6 @@
-# GameAtlas agent instructions
+# Pinveria agent instructions
 
-GameAtlas is a platform for interactive video game maps, with a layered .NET backend and an Angular/Nx frontend.
+Pinveria is a platform for interactive video game maps, with a layered .NET backend and an Angular/Nx frontend.
 
 ## Read the applicable guidance
 

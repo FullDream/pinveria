@@ -13,9 +13,9 @@ import {
 	type CreateMarkerRequest,
 	type CreateMarkerVariables,
 	type Marker,
-} from '@game-atlas/maps/data-access'
-import { MapViewport, type MapPoint, type MapTool, type MarkerMove } from '@game-atlas/maps/ui'
-import { Button, ErrorState, PageHeaderPortal } from '@game-atlas/shared/ui'
+} from '@pinveria/maps/data-access'
+import { MapViewport, type MapPoint, type MapTool, type MarkerMove } from '@pinveria/maps/ui'
+import { Button, ErrorState, PageHeaderPortal } from '@pinveria/shared/ui'
 import { NgIcon, NgIconStack, provideIcons } from '@ng-icons/core'
 import {
 	matAddLocationAltRound,

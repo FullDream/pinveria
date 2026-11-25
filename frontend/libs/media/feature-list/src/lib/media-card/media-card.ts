@@ -1,7 +1,7 @@
 import { booleanAttribute, Component, computed, input, output } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import type { MediaItem } from '@game-atlas/media/data-access'
-import { Button, TooltipOnOverflow } from '@game-atlas/shared/ui'
+import type { MediaItem } from '@pinveria/media/data-access'
+import { Button, TooltipOnOverflow } from '@pinveria/shared/ui'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matDeleteRound,

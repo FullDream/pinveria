@@ -2,7 +2,7 @@ import { Overlay } from '@angular/cdk/overlay'
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer'
 import { BrnPopover } from '@spartan-ng/brain/popover'
 import { HlmPopoverImports } from '@spartan-ng/helm/popover'
-import { Button } from '@game-atlas/shared/ui'
+import { Button } from '@pinveria/shared/ui'
 import {
 	Component,
 	ElementRef,
@@ -21,8 +21,8 @@ import {
 	type PublicMapDetails,
 	type PublicCategory,
 	type PublicMarker,
-} from '@game-atlas/maps/data-access'
-import { MapViewport, type MapGeometry, type MapMarker, type MapViewStyle } from '@game-atlas/maps/ui'
+} from '@pinveria/maps/data-access'
+import { MapViewport, type MapGeometry, type MapMarker, type MapViewStyle } from '@pinveria/maps/ui'
 import { provideIcons } from '@ng-icons/core'
 import { matMenuRound } from '@ng-icons/material-symbols/round'
 import { CategoryFilterPanel } from '../category-filter-panel/category-filter-panel'

@@ -1,13 +1,13 @@
 import { afterRenderEffect, inject, Service } from '@angular/core'
 import { Meta } from '@angular/platform-browser'
-import type { ThemePreference } from '@game-atlas/shared/ui'
+import type { ThemePreference } from '@pinveria/shared/ui'
 import { injectLocalStorage } from 'ngxtension/inject-local-storage'
 
 @Service()
 export class ThemeSettings {
 	readonly #meta = inject(Meta)
 
-	readonly preference = injectLocalStorage<ThemePreference>('game-atlas.theme', {
+	readonly preference = injectLocalStorage<ThemePreference>('pinveria.theme', {
 		defaultValue: 'system',
 		parse: value => (value === 'light' || value === 'dark' ? value : 'system'),
 		stringify: value => value,

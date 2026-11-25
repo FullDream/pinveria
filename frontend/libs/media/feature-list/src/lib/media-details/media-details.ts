@@ -8,9 +8,9 @@ import {
 	type ImageAsset,
 	type MediaAsset,
 	type PaginatedResultOfMediaItem,
-} from '@game-atlas/media/data-access'
-import { Button, PendingChanges, Field } from '@game-atlas/shared/ui'
-import { getDirtyValues } from '@game-atlas/shared/util'
+} from '@pinveria/media/data-access'
+import { Button, PendingChanges, Field } from '@pinveria/shared/ui'
+import { getDirtyValues } from '@pinveria/shared/util'
 import { BrnDialogService } from '@spartan-ng/brain/dialog'
 import { toast } from '@spartan-ng/brain/sonner'
 import { HlmFieldImports } from '@spartan-ng/helm/field'
@@ -21,7 +21,7 @@ import { injectMutation } from '@tanstack/angular-query'
 import { defaultIfEmpty, finalize, map, Observable, of, shareReplay, take, tap } from 'rxjs'
 import { ConfirmationDialog } from '../confirmation-dialog/confirmation-dialog'
 import { getMediaErrorMessage } from '../get-media-error-message'
-import { MediaPickerDialog } from '@game-atlas/shared/ui'
+import { MediaPickerDialog } from '@pinveria/shared/ui'
 import { MediaThumbnail } from '../media-thumbnail/media-thumbnail'
 import { MediaDetailsDismiss } from './media-details-dismiss'
 

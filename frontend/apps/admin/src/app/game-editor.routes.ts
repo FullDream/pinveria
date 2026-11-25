@@ -1,15 +1,15 @@
 import type { Routes } from '@angular/router'
-import type { FeatureEditor } from '@game-atlas/games/feature-editor'
+import type { FeatureEditor } from '@pinveria/games/feature-editor'
 
 export const GAME_EDITOR_ROUTES: Routes = [
 	{
 		path: '',
-		loadComponent: () => import('@game-atlas/games/feature-editor').then(module => module.FeatureEditor),
+		loadComponent: () => import('@pinveria/games/feature-editor').then(module => module.FeatureEditor),
 		canDeactivate: [(component: FeatureEditor) => component.canLeave()],
 		children: [
 			{
 				path: '',
-				loadComponent: () => import('@game-atlas/games/feature-editor').then(module => module.GameGeneral),
+				loadComponent: () => import('@pinveria/games/feature-editor').then(module => module.GameGeneral),
 			},
 			{
 				path: 'maps',
@@ -17,11 +17,11 @@ export const GAME_EDITOR_ROUTES: Routes = [
 			},
 			{
 				path: 'seo',
-				loadComponent: () => import('@game-atlas/games/feature-editor').then(module => module.GameSeo),
+				loadComponent: () => import('@pinveria/games/feature-editor').then(module => module.GameSeo),
 			},
 			{
 				path: 'danger-zone',
-				loadComponent: () => import('@game-atlas/games/feature-editor').then(module => module.GameDangerZone),
+				loadComponent: () => import('@pinveria/games/feature-editor').then(module => module.GameDangerZone),
 			},
 		],
 	},

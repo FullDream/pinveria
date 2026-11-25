@@ -1,1 +1,1 @@
-export { ConfirmationDialog, type Confirmation } from '@game-atlas/shared/ui'
+export { ConfirmationDialog, type Confirmation } from '@pinveria/shared/ui'
