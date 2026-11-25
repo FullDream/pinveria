@@ -1,0 +1,166 @@
+name: pinveria
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pinveria}
+      POSTGRES_USER: ${POSTGRES_USER:-pinveria}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pinveria_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-pinveria} -d $${POSTGRES_DB:-pinveria}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  migrator:
+    image: pinveria-api:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: infra/docker/api.Dockerfile
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Pinveria: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-pinveria};Username=${POSTGRES_USER:-pinveria};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
+    entrypoint: ["/app/efbundle"]
+    networks:
+      - pinveria_net
+    security_opt:
+      - no-new-privileges:true
+
+  api:
+    image: pinveria-api:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: infra/docker/api.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      AllowedHosts: "${DOMAIN:?DOMAIN is required};api;localhost;127.0.0.1"
+      ConnectionStrings__Pinveria: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-pinveria};Username=${POSTGRES_USER:-pinveria};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
+      Maps__StorageRoot: /var/lib/pinveria/maps
+      Media__StorageRoot: /var/lib/pinveria/media
+      Hosting__DataProtectionKeysPath: /var/lib/pinveria/dpkeys
+      Hosting__UseHttpsRedirection: "false"
+      Hosting__KnownNetworks__0: 172.28.0.0/24
+      Admin__Login: ${ADMIN_BOOTSTRAP_LOGIN:-}
+      Admin__Password: ${ADMIN_BOOTSTRAP_PASSWORD:-}
+    volumes:
+      - maps_storage:/var/lib/pinveria/maps
+      - media_storage:/var/lib/pinveria/media
+      - dpkeys_storage:/var/lib/pinveria/dpkeys
+    networks:
+      - pinveria_net
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  web:
+    image: pinveria-web:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: infra/docker/frontend.Dockerfile
+      target: web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      PINVERIA_API_URL: http://api:8080
+      PUBLIC_SITE_URL: https://${DOMAIN:?DOMAIN is required}
+      NG_ALLOWED_HOSTS: "${DOMAIN:?DOMAIN is required},localhost,127.0.0.1"
+    networks:
+      - pinveria_net
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/healthz').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  caddy:
+    image: pinveria-caddy:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: infra/docker/frontend.Dockerfile
+      target: caddy
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN is required}
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - pinveria_net
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+networks:
+  pinveria_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
+
+volumes:
+  postgres_data:
+  maps_storage:
+  media_storage:
+  dpkeys_storage:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,163 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      bootstrap_admin:
+        description: "Include one-time ADMIN_BOOTSTRAP_LOGIN and ADMIN_BOOTSTRAP_PASSWORD from secrets (first deploy only)"
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & Deploy to VDS
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Validate required deployment configuration
+        env:
+          DOMAIN: ${{ vars.DOMAIN }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          BOOTSTRAP_ADMIN: ${{ inputs.bootstrap_admin == true && 'true' || 'false' }}
+          ADMIN_BOOTSTRAP_LOGIN: ${{ secrets.ADMIN_BOOTSTRAP_LOGIN }}
+          ADMIN_BOOTSTRAP_PASSWORD: ${{ secrets.ADMIN_BOOTSTRAP_PASSWORD }}
+        run: |
+          missing=0
+          for name in DOMAIN DEPLOY_HOST DEPLOY_SSH_KEY DEPLOY_KNOWN_HOSTS POSTGRES_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing required production variable or secret: ${name}"
+              missing=1
+            fi
+          done
+
+          if [ "${BOOTSTRAP_ADMIN}" = "true" ]; then
+            for name in ADMIN_BOOTSTRAP_LOGIN ADMIN_BOOTSTRAP_PASSWORD; do
+              if [ -z "${!name}" ]; then
+                echo "::error::bootstrap_admin=true requires secret: ${name}"
+                missing=1
+              fi
+            done
+          fi
+
+          exit "${missing}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compute image tag
+        id: meta
+        run: |
+          SHORT_SHA="${GITHUB_SHA::12}"
+          echo "tag=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Build production Docker images
+        env:
+          IMAGE_TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          docker buildx build \
+            --load \
+            --cache-from type=gha,scope=api \
+            --cache-to type=gha,mode=max,scope=api \
+            -f infra/docker/api.Dockerfile \
+            -t "pinveria-api:${IMAGE_TAG}" \
+            .
+
+          docker buildx build \
+            --load \
+            --cache-from type=gha,scope=frontend \
+            --cache-to type=gha,mode=max,scope=frontend \
+            --target web \
+            -f infra/docker/frontend.Dockerfile \
+            -t "pinveria-web:${IMAGE_TAG}" \
+            .
+
+          docker buildx build \
+            --load \
+            --cache-from type=gha,scope=frontend \
+            --cache-to type=gha,mode=max,scope=frontend \
+            --target caddy \
+            -f infra/docker/frontend.Dockerfile \
+            -t "pinveria-caddy:${IMAGE_TAG}" \
+            .
+
+      - name: Configure SSH client
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 0700 ~/.ssh
+          printf '%s\n' "${DEPLOY_SSH_KEY}" > ~/.ssh/id_deploy
+          chmod 0600 ~/.ssh/id_deploy
+          printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          chmod 0600 ~/.ssh/known_hosts
+
+      - name: Stream Docker images and compose configuration to VDS
+        env:
+          IMAGE_TAG: ${{ steps.meta.outputs.tag }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DOMAIN: ${{ vars.DOMAIN }}
+          POSTGRES_DB: ${{ vars.POSTGRES_DB || 'pinveria' }}
+          POSTGRES_USER: ${{ vars.POSTGRES_USER || 'pinveria' }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          BOOTSTRAP_ADMIN: ${{ inputs.bootstrap_admin == true && 'true' || 'false' }}
+          ADMIN_BOOTSTRAP_LOGIN: ${{ secrets.ADMIN_BOOTSTRAP_LOGIN }}
+          ADMIN_BOOTSTRAP_PASSWORD: ${{ secrets.ADMIN_BOOTSTRAP_PASSWORD }}
+        run: |
+          PORT="${DEPLOY_PORT:-22}"
+          USER_NAME="${DEPLOY_USER:-deploy}"
+          REMOTE="${USER_NAME}@${DEPLOY_HOST}"
+          SSH_OPTS="-i ~/.ssh/id_deploy -p ${PORT} -o StrictHostKeyChecking=yes"
+
+          docker save \
+            "pinveria-api:${IMAGE_TAG}" \
+            "pinveria-web:${IMAGE_TAG}" \
+            "pinveria-caddy:${IMAGE_TAG}" \
+            | zstd -T0 -3 \
+            | ssh ${SSH_OPTS} "${REMOTE}" "zstd -d | docker load"
+
+          scp -i ~/.ssh/id_deploy -P "${PORT}" -o StrictHostKeyChecking=yes \
+            compose.yml "${REMOTE}:/opt/pinveria/compose.yml"
+
+          {
+            printf 'DOMAIN=%s\n' "${DOMAIN}"
+            printf 'IMAGE_TAG=%s\n' "${IMAGE_TAG}"
+            printf 'POSTGRES_DB=%s\n' "${POSTGRES_DB}"
+            printf 'POSTGRES_USER=%s\n' "${POSTGRES_USER}"
+            printf 'POSTGRES_PASSWORD=%s\n' "${POSTGRES_PASSWORD}"
+            if [ "${BOOTSTRAP_ADMIN}" = "true" ]; then
+              printf 'ADMIN_BOOTSTRAP_LOGIN=%s\n' "${ADMIN_BOOTSTRAP_LOGIN}"
+              printf 'ADMIN_BOOTSTRAP_PASSWORD=%s\n' "${ADMIN_BOOTSTRAP_PASSWORD}"
+            else
+              printf 'ADMIN_BOOTSTRAP_LOGIN=\n'
+              printf 'ADMIN_BOOTSTRAP_PASSWORD=\n'
+            fi
+          } | ssh ${SSH_OPTS} "${REMOTE}" "umask 077 && cat > /opt/pinveria/.env"
+
+          ssh ${SSH_OPTS} "${REMOTE}" "
+            set -euo pipefail
+            cd /opt/pinveria
+            docker compose up -d --remove-orphans
+            if [ '${BOOTSTRAP_ADMIN}' = 'true' ]; then
+              sed -i 's/^ADMIN_BOOTSTRAP_LOGIN=.*/ADMIN_BOOTSTRAP_LOGIN=/; s/^ADMIN_BOOTSTRAP_PASSWORD=.*/ADMIN_BOOTSTRAP_PASSWORD=/' /opt/pinveria/.env
+            fi
+            docker image prune -f
+          "

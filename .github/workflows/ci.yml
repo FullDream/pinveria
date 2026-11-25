@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: Documentation Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install documentation checker dependencies
+        run: npm ci --prefix scripts
+
+      - name: Run documentation checker and tests
+        run: |
+          node scripts/check-docs.mjs
+          node --test scripts/check-docs.test.mjs
+          git diff --check
+
+  backend:
+    name: Backend Build & Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: pinveria
+          POSTGRES_USER: pinveria
+          POSTGRES_PASSWORD: pinveria
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U pinveria -d pinveria"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 11 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "11.0.x"
+          dotnet-quality: preview
+
+      - name: Restore dependencies
+        run: dotnet restore Pinveria.slnx
+
+      - name: Build solution
+        run: dotnet build Pinveria.slnx --configuration Release --no-restore
+
+      - name: Run unit and integration tests
+        run: dotnet test Pinveria.slnx --configuration Release --no-build
+
+  frontend:
+    name: Frontend Lint & Production Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint all frontend projects
+        run: npm exec nx -- run-many -t lint
+
+      - name: Build web and admin production bundles
+        run: |
+          npm exec nx -- build web --configuration=production
+          npm exec nx -- build admin --configuration=production

@@ -1,0 +1,75 @@
+name: Bootstrap VDS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    name: Provision & Harden VDS via Ansible
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Validate required bootstrap secrets
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          BOOTSTRAP_SSH_KEY: ${{ secrets.BOOTSTRAP_SSH_KEY || secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_SSH_PUBLIC_KEY: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
+        run: |
+          missing=0
+          for name in DEPLOY_HOST BOOTSTRAP_SSH_KEY DEPLOY_SSH_PUBLIC_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing required bootstrap secret: ${name}"
+              missing=1
+            fi
+          done
+          exit "${missing}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Ansible and required collections
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ansible
+          ansible-galaxy collection install -r infra/ansible/requirements.yml
+
+      - name: Configure SSH client
+        env:
+          BOOTSTRAP_SSH_KEY: ${{ secrets.BOOTSTRAP_SSH_KEY || secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 0700 ~/.ssh
+          printf '%s\n' "${BOOTSTRAP_SSH_KEY}" > ~/.ssh/id_bootstrap
+          chmod 0600 ~/.ssh/id_bootstrap
+
+          PORT="${DEPLOY_PORT:-22}"
+          if [ -n "${DEPLOY_KNOWN_HOSTS}" ]; then
+            printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -p "${PORT}" -H "${DEPLOY_HOST}" >> ~/.ssh/known_hosts
+          fi
+          chmod 0600 ~/.ssh/known_hosts
+
+      - name: Run Ansible bootstrap playbook
+        working-directory: infra/ansible
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER || 'deploy' }}
+          DEPLOY_SSH_PUBLIC_KEY: ${{ secrets.DEPLOY_SSH_PUBLIC_KEY }}
+          BOOTSTRAP_USER: ${{ secrets.BOOTSTRAP_USER || 'root' }}
+        run: |
+          ansible-playbook \
+            -i inventory.example.yml \
+            playbooks/bootstrap.yml \
+            --user "${BOOTSTRAP_USER}" \
+            --private-key ~/.ssh/id_bootstrap

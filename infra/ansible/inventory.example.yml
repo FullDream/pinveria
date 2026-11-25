@@ -1,0 +1,8 @@
+all:
+  hosts:
+    pinveria_prod:
+      ansible_host: "{{ lookup('env', 'DEPLOY_HOST') }}"
+      ansible_port: "{{ lookup('env', 'DEPLOY_PORT') | default('22', true) }}"
+      ansible_user: "{{ lookup('env', 'DEPLOY_USER') | default('deploy', true) }}"
+      app_dir: /opt/pinveria
+      swap_size_mb: 2048

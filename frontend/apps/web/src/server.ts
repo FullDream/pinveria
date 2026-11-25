@@ -26,6 +26,7 @@ const angularApp = new AngularAppEngine({
 
 const app = new Hono()
 
+app.get('/healthz', c => c.json({ status: 'ok' }))
 app.get('/robots.txt', c => handleRobotsTxt(c))
 app.get('/sitemap.xml', c => handleSitemapXml(c))
 app.get('/og/home/:hashPng', c => handleHomeOgImage(c, browserDistFolder))

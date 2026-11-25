@@ -1,7 +1,9 @@
+using Microsoft.Extensions.Options;
 using Pinveria.Api.Auth;
 using Pinveria.Api;
 using Pinveria.Api.Categories;
 using Pinveria.Api.Games;
+using Pinveria.Api.Hosting;
 using Pinveria.Api.Http;
 using Pinveria.Api.Maps;
 using Pinveria.Api.Maps.Events;
@@ -21,11 +23,13 @@ builder.Services
 	.AddApplication()
 	.AddInfrastructure(builder.Configuration)
 	.AddApi()
+	.AddHosting(builder.Configuration)
 	.AddAdminAuth(builder.Environment)
 	.AddMapsApi()
 	.AddMediaApi();
 
 var app = builder.Build();
+var hosting = app.Services.GetRequiredService<IOptions<HostingOptions>>().Value;
 
 app.Services.GetRequiredService<VideoInspector>().CheckCapabilities();
 
@@ -38,8 +42,11 @@ if (app.Environment.IsDevelopment())
 	app.MapScalarApiReference().AllowAnonymous();
 }
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto });
-app.UseHttpsRedirection();
+app.UseForwardedHeaders();
+
+if (hosting.UseHttpsRedirection)
+	app.UseHttpsRedirection();
+
 app.UseMapTiles();
 app.UseMediaFiles();
 app.UseRouting();
@@ -49,6 +56,10 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.Use(AuthExtensions.ValidateUnsafeRequest);
 app.UseMapHubOriginValidation();
+
+app.MapGet("/healthz", () => TypedResults.Ok(new { status = "ok" }))
+	.AllowAnonymous()
+	.ExcludeFromDescription();
 
 var api = app.MapGroup("").WithOutcomeResults().WithCaseInsensitiveEnumQueryParameters();
 

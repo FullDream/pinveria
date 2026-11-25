@@ -145,8 +145,31 @@ public class AdminAuthTests
 		using var client = factory.CreateGuestClient();
 
 		Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/public/games")).StatusCode);
+		Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/healthz")).StatusCode);
 		Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/games")).StatusCode);
 		Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsync("/hubs/map/negotiate?negotiateVersion=1", null)).StatusCode);
 		Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsync("/media/assets", new MultipartFormDataContent())).StatusCode);
+	}
+
+	[Fact]
+	public void HostingOptionsValidatorRejectsInvalidProxiesAndNetworks()
+	{
+		var validator = new Pinveria.Api.Hosting.HostingOptionsValidation();
+
+		Assert.True(validator.Validate(null, new Pinveria.Api.Hosting.HostingOptions
+		{
+			DataProtectionKeysPath = "/var/lib/pinveria/dpkeys",
+			KnownProxies = ["127.0.0.1"],
+			KnownNetworks = ["172.28.0.0/16"]
+		}).Succeeded);
+
+		var invalid = validator.Validate(null, new Pinveria.Api.Hosting.HostingOptions
+		{
+			DataProtectionKeysPath = "   ",
+			KnownProxies = ["not-an-ip"],
+			KnownNetworks = ["172.28.0.0/99"]
+		});
+
+		Assert.True(invalid.Failed);
 	}
 }

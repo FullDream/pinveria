@@ -1,0 +1,55 @@
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Strip /api prefix before forwarding REST and SignalR (/api/hubs/map) to Pinveria.Api
+	handle_path /api/* {
+		reverse_proxy api:8080
+	}
+
+	# Forward immutable map tiles and media files without stripping their path prefix
+	@public_assets path /map-tiles/* /media/files/*
+	handle @public_assets {
+		reverse_proxy api:8080
+	}
+
+	# Redirect /admin to /admin/ so relative asset URLs resolve against baseHref "/admin/"
+	@admin_bare path /admin
+	redir @admin_bare /admin/ permanent
+
+	# Serve admin SPA at /admin/* with fallback to index.html and real 404s for missing asset files
+	handle_path /admin/* {
+		root * /srv/admin
+
+		@hashed_admin_assets path_regexp \-[A-Za-z0-9_-]{8}\.(js|css|woff2?|ttf|svg|png|jpg|jpeg|webp|ico)$
+		header @hashed_admin_assets Cache-Control "public, max-age=31536000, immutable"
+
+		@admin_asset_ext path *.js *.mjs *.css *.map *.json *.webmanifest *.woff *.woff2 *.ttf *.otf *.svg *.png *.jpg *.jpeg *.gif *.webp *.avif *.ico
+		handle @admin_asset_ext {
+			try_files {path} =404
+			file_server
+		}
+
+		handle {
+			header Cache-Control "no-cache"
+			try_files {path} /index.html
+			file_server
+		}
+	}
+
+	# Everything else (public SSR routes, /robots.txt, /sitemap.xml, /og/*) goes to Hono SSR server
+	handle {
+		reverse_proxy web:4000
+	}
+}
