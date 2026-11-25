@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Pinveria.Infrastructure.Persistence.Migrations;
 
 /// <inheritdoc />
-public partial class _20261119190553_Initial : Migration
+public partial class _20261125175433_Initial : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -213,6 +213,7 @@ public partial class _20261119190553_Initial : Migration
                 Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                 Slug = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                 NormalizedName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                Description = table.Column<string>(type: "text", nullable: true),
                 Width = table.Column<int>(type: "integer", nullable: true),
                 Height = table.Column<int>(type: "integer", nullable: true),
                 LastCreationSequence = table.Column<long>(type: "bigint", nullable: false),
