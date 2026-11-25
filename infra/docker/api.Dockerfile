@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM mcr.microsoft.com/dotnet/sdk:11.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /src
 
 COPY dotnet-tools.json ./
@@ -28,11 +28,11 @@ RUN ConnectionStrings__Pinveria="Host=localhost;Database=pinveria;Username=pinve
 	-r linux-x64 \
 	-o /app/efbundle
 
-FROM mcr.microsoft.com/dotnet/aspnet:11.0-preview AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS runtime
 WORKDIR /app
 
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends curl libglib2.0-0 libexpat1 \
+	&& apt-get install -y --no-install-recommends curl libmediainfo0v5 \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& install -d -m 0750 -o app -g app /var/lib/pinveria/maps /var/lib/pinveria/media /var/lib/pinveria/dpkeys
 
