@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Buffers.Binary;
 using System.Text;
@@ -128,13 +128,13 @@ public sealed class VideoInspectionTests
 		{
 			await File.WriteAllBytesAsync(path, bytes);
 			await using var stream = File.OpenRead(path);
+			using var inspector = new VideoInspector(Options.Create(new MediaLimits()));
 
 			var analysis = await MediaInfoAnalyzer.CreateDefault().AnalyzeAsync(
 				new StreamMediaSource(stream, leaveOpen: true, name: "audio-only"), CancellationToken.None);
 
 			Assert.True(analysis.HasAudio);
 			Assert.False(analysis.HasVideo);
-			using var inspector = new VideoInspector(Options.Create(new MediaLimits()));
 			var audioOnly = await inspector.InspectAsync(path, CancellationToken.None);
 
 			Assert.True(audioOnly.IsFailure);

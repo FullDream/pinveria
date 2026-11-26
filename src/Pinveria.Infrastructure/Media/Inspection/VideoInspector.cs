@@ -12,6 +12,8 @@ namespace Pinveria.Infrastructure.Media.Inspection;
 
 public sealed class VideoInspector(IOptions<MediaLimits> options) : IDisposable
 {
+	static VideoInspector() => MediaInfoNativeResolver.EnsureRegistered();
+
 	private readonly SemaphoreSlim concurrency = new(options.Value.ConcurrentVideoInspections);
 	private readonly IMediaInfoAnalyzer analyzer = MediaInfoAnalyzer.CreateDefault();
 
@@ -77,7 +79,11 @@ public sealed class VideoInspector(IOptions<MediaLimits> options) : IDisposable
 		using var handle = MediaInfoLibFactory.Instance.Create();
 
 		if (!handle.IsAvailable)
-			throw new InvalidOperationException("Media inspection requires the packaged MediaInfo native library.");
+		{
+			throw new InvalidOperationException(
+				"Media inspection requires the packaged MediaInfo native library.",
+				MediaInfoNativeResolver.LastFailure);
+		}
 	}
 
 	private static string? InspectContainer(string path)
