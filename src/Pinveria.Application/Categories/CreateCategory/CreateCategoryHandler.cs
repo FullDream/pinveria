@@ -14,6 +14,7 @@ public sealed class CreateCategoryHandler(IApplicationDbContext context) : IComm
 	public async ValueTask<Result<CategoryDto>> Handle(CreateCategory command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMapAsync(command.MapId, cancellationToken);
 
 		if (!await context.CategoryGroups.ForMap(context, command.GameId, command.MapId).AnyAsync(group => group.Id == command.GroupId, cancellationToken))
 			return CreateCategoryErrors.GroupNotFound;

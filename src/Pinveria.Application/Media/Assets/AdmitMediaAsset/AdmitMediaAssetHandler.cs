@@ -14,12 +14,17 @@ public sealed class AdmitMediaAssetHandler(IApplicationDbContext context, IMedia
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
 
-		if (command.FolderId is { } folderId &&
-			!await context.MediaFolders.AnyAsync(folder => folder.Id == folderId, cancellationToken))
-			return MediaOperationErrors.FolderNotFound;
+		if (command.FolderId is { } folderId)
+		{
+			await context.LockMediaFoldersAsync(cancellationToken);
+
+			if (!await context.MediaFolders.AnyAsync(folder => folder.Id == folderId, cancellationToken))
+				return MediaOperationErrors.FolderNotFound;
+		}
 
 		if (command.PreviewAssetId.IsSpecified && command.PreviewAssetId.Value is { } previewId)
 		{
+			await context.LockMediaAssetAsync(previewId, exclusive: false, cancellationToken);
 			var preview = await context.MediaAssets.SingleOrDefaultAsync(asset => asset.Id == previewId,
 				cancellationToken);
 

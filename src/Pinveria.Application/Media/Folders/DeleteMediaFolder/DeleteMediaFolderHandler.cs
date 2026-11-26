@@ -11,6 +11,7 @@ public sealed class DeleteMediaFolderHandler(IApplicationDbContext context)
 	public async ValueTask<Result> Handle(DeleteMediaFolder command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMediaFoldersAsync(cancellationToken);
 
 		if (!await context.MediaFolders.AnyAsync(folder => folder.Id == command.Id, cancellationToken))
 			return MediaOperationErrors.FolderNotFound;

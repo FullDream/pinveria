@@ -13,6 +13,7 @@ public sealed class CreateCategoryGroupHandler(IApplicationDbContext context) : 
 	public async ValueTask<Result<CategoryGroupDto>> Handle(CreateCategoryGroup command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMapAsync(command.MapId, cancellationToken);
 
 		if (!await context.Maps.AnyAsync(map => map.Id == command.MapId && map.GameId == command.GameId, cancellationToken))
 			return CreateCategoryGroupErrors.MapNotFound;

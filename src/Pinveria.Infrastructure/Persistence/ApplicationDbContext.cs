@@ -29,6 +29,33 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 		Database.ExecuteSqlAsync($"""SELECT 1 FROM "Maps" WHERE "Id" = {mapId} FOR UPDATE""",
 			cancellationToken);
 
+	public Task LockMarkerAsync(Guid markerId, CancellationToken cancellationToken = default) =>
+		Database.ExecuteSqlAsync($"""SELECT 1 FROM "Markers" WHERE "Id" = {markerId} FOR UPDATE""",
+			cancellationToken);
+
+	public Task LockMediaFoldersAsync(CancellationToken cancellationToken = default) =>
+		Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock(hashtext(current_schema()), 1)",
+			cancellationToken);
+
+	public Task LockMediaAssetAsync(Guid assetId, bool exclusive = false, CancellationToken cancellationToken = default) =>
+		exclusive
+			? Database.ExecuteSqlAsync($"""SELECT 1 FROM "MediaAssets" WHERE "Id" = {assetId} FOR UPDATE""",
+				cancellationToken)
+			: Database.ExecuteSqlAsync($"""SELECT 1 FROM "MediaAssets" WHERE "Id" = {assetId} FOR KEY SHARE""",
+				cancellationToken);
+
+	public Task LockMediaAssetsAsync(IReadOnlyCollection<Guid> assetIds, CancellationToken cancellationToken = default)
+	{
+		if (assetIds.Count == 0)
+			return Task.CompletedTask;
+
+		var ordered = assetIds.Distinct().Order().ToArray();
+
+		return Database.ExecuteSqlAsync(
+			$"""SELECT 1 FROM "MediaAssets" WHERE "Id" = ANY({ordered}) ORDER BY "Id" FOR KEY SHARE""",
+			cancellationToken);
+	}
+
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);

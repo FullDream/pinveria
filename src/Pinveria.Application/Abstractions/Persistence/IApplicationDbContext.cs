@@ -22,5 +22,13 @@ public interface IApplicationDbContext
 
 	Task LockMapAsync(Guid mapId, CancellationToken cancellationToken = default);
 
+	Task LockMarkerAsync(Guid markerId, CancellationToken cancellationToken = default);
+
+	Task LockMediaFoldersAsync(CancellationToken cancellationToken = default);
+
+	Task LockMediaAssetAsync(Guid assetId, bool exclusive = false, CancellationToken cancellationToken = default);
+
+	Task LockMediaAssetsAsync(IReadOnlyCollection<Guid> assetIds, CancellationToken cancellationToken = default);
+
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

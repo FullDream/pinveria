@@ -22,6 +22,9 @@ public sealed class AddMapStyleHandler(IApplicationDbContext context, IMapProgre
 		if (map is null)
 			return MapOperationErrors.NotFound;
 
+		if (command.SourceAssetId is { } sourceAssetId)
+			await context.LockMediaAssetAsync(sourceAssetId, exclusive: false, cancellationToken);
+
 		var asset = await context.MediaAssets.AsTracking()
 			.SingleOrDefaultAsync(asset => asset.Id == command.SourceAssetId, cancellationToken);
 

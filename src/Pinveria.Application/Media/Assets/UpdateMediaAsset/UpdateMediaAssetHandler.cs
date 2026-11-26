@@ -12,6 +12,10 @@ public sealed class UpdateMediaAssetHandler(IApplicationDbContext context)
 	public async ValueTask<Result<MediaAssetDto>> Handle(UpdateMediaAsset command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+
+		if (command.FolderId.IsSpecified && command.FolderId.Value is not null)
+			await context.LockMediaFoldersAsync(cancellationToken);
+
 		var asset = await context.MediaAssets.AsTracking().SingleOrDefaultAsync(item => item.Id == command.Id,
 			cancellationToken);
 
@@ -24,6 +28,7 @@ public sealed class UpdateMediaAssetHandler(IApplicationDbContext context)
 
 		if (command.PreviewAssetId.IsSpecified && command.PreviewAssetId.Value is { } previewId)
 		{
+			await context.LockMediaAssetAsync(previewId, exclusive: false, cancellationToken);
 			var preview = await context.MediaAssets.SingleOrDefaultAsync(item => item.Id == previewId,
 				cancellationToken);
 

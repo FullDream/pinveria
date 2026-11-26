@@ -13,6 +13,7 @@ public sealed class UpdateCategoryHandler(IApplicationDbContext context) : IComm
 	public async ValueTask<Result<CategoryDto>> Handle(UpdateCategory command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMapAsync(command.MapId, cancellationToken);
 
 		var category = await context.Categories.AsTracking().SingleOrDefaultAsync(category => category.Id == command.Id &&
 			category.CategoryGroupId == command.GroupId && context.CategoryGroups.ForMap(context, command.GameId, command.MapId)

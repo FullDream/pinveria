@@ -14,6 +14,7 @@ public sealed class DeleteMapHandler(IApplicationDbContext context, IMapCleanup 
 	public async ValueTask<Result> Handle(DeleteMap command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMapAsync(command.MapId, cancellationToken);
 		var mapId = await context.Maps.ForMap(command.GameId, command.MapId).Select(map => (Guid?)map.Id)
 			.SingleOrDefaultAsync(cancellationToken);
 

@@ -11,6 +11,7 @@ public sealed class DeleteCategoryHandler(IApplicationDbContext context) : IComm
 	public async ValueTask<Result> Handle(DeleteCategory command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMapAsync(command.MapId, cancellationToken);
 
 		var category = await context.Categories.AsTracking().SingleOrDefaultAsync(
 			category => category.Id == command.Id && category.CategoryGroupId == command.GroupId &&

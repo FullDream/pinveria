@@ -26,7 +26,7 @@ public sealed class CreateMarkerHandler(IApplicationDbContext context)
 		if (position.IsFailure)
 			return position.Errors;
 
-		var media = await context.ResolveAssetsAsync(command.Media, cancellationToken);
+		var media = await context.ResolveAssetsAsync(command.Media, cancellationToken, lockForShare: true);
 
 		if (media.IsFailure)
 			return media.Errors;

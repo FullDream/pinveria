@@ -12,6 +12,7 @@ public sealed class UpdateCategoryGroupHandler(IApplicationDbContext context) : 
 	public async ValueTask<Result<CategoryGroupDto>> Handle(UpdateCategoryGroup command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMapAsync(command.MapId, cancellationToken);
 
 		var siblings = await context.CategoryGroups.AsTracking().ForMap(context, command.GameId, command.MapId)
 			.OrderBy(group => group.Order).ThenBy(group => group.CreatedAt).ThenBy(group => group.Id).ToListAsync(cancellationToken);

@@ -12,6 +12,7 @@ public sealed class CreateMediaFolderHandler(IApplicationDbContext context)
 	public async ValueTask<Result<MediaFolderDto>> Handle(CreateMediaFolder command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMediaFoldersAsync(cancellationToken);
 
 		if (command.ParentId is { } parent &&
 			!await context.MediaFolders.AnyAsync(folder => folder.Id == parent, cancellationToken))

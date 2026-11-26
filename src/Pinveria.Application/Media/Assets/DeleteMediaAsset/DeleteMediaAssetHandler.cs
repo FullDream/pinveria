@@ -14,6 +14,8 @@ public sealed class DeleteMediaAssetHandler(IApplicationDbContext context, IMedi
 	{
 		await using (var transaction = await context.BeginTransactionAsync(cancellationToken))
 		{
+			await context.LockMediaAssetAsync(command.Id, exclusive: true, cancellationToken);
+
 			if (!await context.MediaAssets.AnyAsync(asset => asset.Id == command.Id, cancellationToken))
 				return MediaOperationErrors.AssetNotFound;
 
@@ -26,10 +28,11 @@ public sealed class DeleteMediaAssetHandler(IApplicationDbContext context, IMedi
 					.AnyAsync(video => video.PreviewAssetId == command.Id, cancellationToken))
 				return MediaOperationErrors.AssetInUse;
 
-			storage.DeleteAsset(command.Id);
 			await context.MediaAssets.Where(asset => asset.Id == command.Id).ExecuteDeleteAsync(cancellationToken);
 			await transaction.CommitAsync(cancellationToken);
 		}
+
+		storage.DeleteAsset(command.Id);
 
 		return Result.Success();
 	}

@@ -9,7 +9,8 @@ namespace Pinveria.Application.Markers;
 internal static class MarkerAssetQueries
 {
 	internal static async Task<Result<IReadOnlyDictionary<Guid, MediaAssetDto>>> ResolveAssetsAsync(
-		this IApplicationDbContext context, IEnumerable<Guid?>? ids, CancellationToken cancellationToken)
+		this IApplicationDbContext context, IEnumerable<Guid?>? ids, CancellationToken cancellationToken,
+		bool lockForShare = false)
 	{
 		var requested = ids?.ToArray();
 
@@ -20,6 +21,9 @@ internal static class MarkerAssetQueries
 
 		if (keys.Length == 0)
 			return Result<IReadOnlyDictionary<Guid, MediaAssetDto>>.Success(new Dictionary<Guid, MediaAssetDto>());
+
+		if (lockForShare)
+			await context.LockMediaAssetsAsync(keys, cancellationToken);
 
 		var assets = await context.MediaAssets.Where(asset => keys.Contains(asset.Id)).WithPreview()
 			.ToArrayAsync(cancellationToken);

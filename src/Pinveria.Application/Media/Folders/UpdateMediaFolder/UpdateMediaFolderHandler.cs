@@ -12,6 +12,7 @@ public sealed class UpdateMediaFolderHandler(IApplicationDbContext context)
 	public async ValueTask<Result<MediaFolderDto>> Handle(UpdateMediaFolder command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMediaFoldersAsync(cancellationToken);
 		var folder = await context.MediaFolders.AsTracking().SingleOrDefaultAsync(item => item.Id == command.Id,
 			cancellationToken);
 

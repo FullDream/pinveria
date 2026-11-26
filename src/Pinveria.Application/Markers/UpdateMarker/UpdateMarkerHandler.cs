@@ -14,6 +14,7 @@ public sealed class UpdateMarkerHandler(IApplicationDbContext context)
 	public async ValueTask<Result<MarkerDto>> Handle(UpdateMarker command, CancellationToken cancellationToken)
 	{
 		await using var transaction = await context.BeginTransactionAsync(cancellationToken);
+		await context.LockMarkerAsync(command.Id, cancellationToken);
 		var marker = await context.Markers.AsTracking().ForMap(context, command.GameId, command.MapId)
 			.Include(item => item.Media).SingleOrDefaultAsync(item => item.Id == command.Id, cancellationToken);
 
@@ -37,7 +38,7 @@ public sealed class UpdateMarkerHandler(IApplicationDbContext context)
 			return position.Errors;
 
 		var ids = command.Media.GetValueOrDefault(marker.Media.Select(item => (Guid?)item.AssetId).ToArray());
-		var assets = await context.ResolveAssetsAsync(ids, cancellationToken);
+		var assets = await context.ResolveAssetsAsync(ids, cancellationToken, lockForShare: true);
 
 		if (assets.IsFailure)
 			return assets.Errors;
