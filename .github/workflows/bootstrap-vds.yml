@@ -72,4 +72,5 @@ jobs:
             -i inventory.example.yml \
             playbooks/bootstrap.yml \
             --user "${BOOTSTRAP_USER}" \
+            -e "ansible_user=${BOOTSTRAP_USER}" \
             --private-key ~/.ssh/id_bootstrap
