@@ -13,6 +13,8 @@ import {
 import { BrnField, BrnFieldA11yService } from '@spartan-ng/brain/field'
 import { classes } from '@spartan-ng/helm/utils'
 
+let nextId = 0
+
 @Component({
 	selector: 'hlm-field-error',
 	exportAs: 'hlmFieldError',
@@ -21,26 +23,24 @@ import { classes } from '@spartan-ng/helm/utils'
 		role: 'alert',
 		'data-slot': 'field-error',
 		'[attr.id]': 'id()',
-		'[hidden]': '!_display()',
+		'[hidden]': '!display()',
 	},
 	template: `
-		@if (_display()) {
+		@if (display()) {
 			<ng-content />
 		}
 	`,
 })
 export class HlmFieldError implements OnDestroy {
-	private static _id = 0
+	readonly #field = inject(BrnField, { optional: true })
+	readonly #a11y = inject(BrnFieldA11yService, { optional: true, host: true })
 
-	private readonly _field = inject(BrnField, { optional: true })
-	private readonly _a11y = inject(BrnFieldA11yService, { optional: true, host: true })
+	#registeredId?: string | undefined
 
-	private _registeredId?: string | undefined
-
-	private readonly _hasParentField = !!this._field
+	readonly #hasParentField = !!this.#field
 
 	/** The unique ID for the field error. If none is supplied, it will be auto-generated. */
-	public readonly id = input<string>(`hlm-field-error-${HlmFieldError._id++}`)
+	public readonly id = input<string>(`hlm-field-error-${nextId++}`)
 
 	/**
 	 * The name of the specific validator error key to match (e.g. 'required').
@@ -51,36 +51,38 @@ export class HlmFieldError implements OnDestroy {
 	/** Forces the error message to be visible regardless of the control's validation state. */
 	public readonly forceShow = input<boolean, BooleanInput>(false, { transform: booleanAttribute })
 
-	protected readonly _display = computed(() => !this._hasParentField || this.forceShow() || this._hasError())
+	protected readonly display = computed(() => !this.#hasParentField || this.forceShow() || this.hasError())
 
-	protected readonly _hasError = computed(() => {
-		const errors = this._field?.errors()
+	protected readonly hasError = computed(() => {
+		const errors = this.#field?.errors()
+
 		if (!errors) return false
 
 		const validator = this.validator()
-		const spartanInvalid = this._field?.controlState()?.spartanInvalid
+		const spartanInvalid = this.#field?.controlState()?.spartanInvalid
 
 		if (!spartanInvalid) return false
 
 		return validator ? validator in errors : Object.keys(errors).length > 0
 	})
 
-	private readonly _cleanup: EffectRef | null = this._a11y
+	readonly #cleanup: EffectRef | null = this.#a11y
 		? effect(() => {
-				const a11y = this._a11y
+				const a11y = this.#a11y
+
 				if (!a11y) return
 
 				const id = this.id()
-				const hasError = this._hasError()
+				const hasError = this.hasError()
 
-				if (this._registeredId && (this._registeredId !== id || !hasError)) {
-					a11y.unregisterError(this._registeredId)
-					this._registeredId = undefined
+				if (this.#registeredId && (this.#registeredId !== id || !hasError)) {
+					a11y.unregisterError(this.#registeredId)
+					this.#registeredId = undefined
 				}
 
-				if (hasError && this._registeredId !== id) {
+				if (hasError && this.#registeredId !== id) {
 					a11y.registerError(id)
-					this._registeredId = id
+					this.#registeredId = id
 				}
 			})
 		: null
@@ -89,11 +91,11 @@ export class HlmFieldError implements OnDestroy {
 		classes(() => 'text-destructive text-sm font-normal')
 	}
 
-	ngOnDestroy() {
-		this._cleanup?.destroy()
+	ngOnDestroy(): void {
+		this.#cleanup?.destroy()
 
-		if (this._registeredId) {
-			this._a11y?.unregisterError(this._registeredId)
+		if (this.#registeredId) {
+			this.#a11y?.unregisterError(this.#registeredId)
 		}
 	}
 }

@@ -2,6 +2,8 @@ import { Directive, effect, EffectRef, inject, input, OnDestroy } from '@angular
 import { BrnFieldA11yService } from '@spartan-ng/brain/field'
 import { classes } from '@spartan-ng/helm/utils'
 
+let nextId = 0
+
 @Directive({
 	selector: '[hlmFieldDescription],hlm-field-description',
 	exportAs: 'hlmFieldDescription',
@@ -11,27 +13,27 @@ import { classes } from '@spartan-ng/helm/utils'
 	},
 })
 export class HlmFieldDescription implements OnDestroy {
-	private static _id = 0
+	readonly #a11y = inject(BrnFieldA11yService, { optional: true, host: true })
 
-	private readonly _a11y = inject(BrnFieldA11yService, { optional: true, host: true })
+	public readonly id = input<string>(`hlm-field-description-${nextId++}`)
 
-	public readonly id = input<string>(`hlm-field-description-${HlmFieldDescription._id++}`)
+	#registeredId?: string
 
-	private _registeredId?: string
-
-	private readonly _cleanup: EffectRef | null = this._a11y
+	readonly #cleanup: EffectRef | null = this.#a11y
 		? effect(() => {
-				const a11y = this._a11y
+				const a11y = this.#a11y
+
 				if (!a11y) return
 
 				const id = this.id()
-				if (this._registeredId && this._registeredId !== id) {
-					a11y.unregisterDescription(this._registeredId)
+
+				if (this.#registeredId && this.#registeredId !== id) {
+					a11y.unregisterDescription(this.#registeredId)
 				}
 
-				if (this._registeredId !== id) {
+				if (this.#registeredId !== id) {
 					a11y.registerDescription(id)
-					this._registeredId = id
+					this.#registeredId = id
 				}
 			})
 		: null
@@ -44,11 +46,11 @@ export class HlmFieldDescription implements OnDestroy {
 		])
 	}
 
-	ngOnDestroy() {
-		this._cleanup?.destroy()
+	ngOnDestroy(): void {
+		this.#cleanup?.destroy()
 
-		if (this._registeredId) {
-			this._a11y?.unregisterDescription(this._registeredId)
+		if (this.#registeredId) {
+			this.#a11y?.unregisterDescription(this.#registeredId)
 		}
 	}
 }

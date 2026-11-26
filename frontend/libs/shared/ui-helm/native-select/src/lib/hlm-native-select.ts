@@ -24,6 +24,8 @@ export const HLM_NATIVE_SELECT_VALUE_ACCESSOR = {
 	multi: true,
 }
 
+let nextId = 0
+
 @Component({
 	selector: 'hlm-native-select',
 	exportAs: 'hlmNativeSelect',
@@ -43,39 +45,37 @@ export const HLM_NATIVE_SELECT_VALUE_ACCESSOR = {
 		<select
 			data-slot="native-select"
 			[id]="selectId()"
-			[class]="_computedSelectClass()"
+			[class]="computedSelectClass()"
 			[attr.data-size]="size()"
-			[attr.aria-invalid]="_ariaInvalid() ? 'true' : null"
-			[attr.data-invalid]="_ariaInvalid() ? 'true' : null"
-			[attr.data-dirty]="_dirty?.() ? 'true' : null"
-			[attr.data-touched]="_touched?.() ? 'true' : null"
-			[attr.data-matches-spartan-invalid]="_spartanInvalid() ? 'true' : null"
+			[attr.aria-invalid]="ariaInvalid() ? 'true' : null"
+			[attr.data-invalid]="ariaInvalid() ? 'true' : null"
+			[attr.data-dirty]="dirty?.() ? 'true' : null"
+			[attr.data-touched]="touched?.() ? 'true' : null"
+			[attr.data-matches-spartan-invalid]="spartanInvalid() ? 'true' : null"
 			[value]="value()"
-			[disabled]="_disabled()"
-			(change)="_valueChanged($event)"
-			(blur)="_blur()"
+			[disabled]="internalDisabled()"
+			(change)="valueChanged($event)"
+			(blur)="blur()"
 		>
 			<ng-content />
 		</select>
 
 		<ng-icon
 			name="lucideChevronDown"
-			[class]="_computedSelectIconClass()"
+			[class]="computedSelectIconClass()"
 			aria-hidden="true"
 			data-slot="native-select-icon"
 		/>
 	`,
 })
 export class HlmNativeSelect implements ControlValueAccessor {
-	private readonly _fieldControl = inject(BrnFieldControl, { optional: true })
+	readonly #fieldControl = inject(BrnFieldControl, { optional: true })
 
-	private static _id = 0
-
-	public readonly selectId = input<string>(`hlm-native-select-${HlmNativeSelect._id++}`)
+	public readonly selectId = input<string>(`hlm-native-select-${nextId++}`)
 
 	public readonly selectClass = input<ClassValue>('')
 
-	protected readonly _computedSelectClass = computed(() =>
+	protected readonly computedSelectClass = computed(() =>
 		hlm(
 			'border-input bg-input/30 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 data-[matches-spartan-invalid=true]:ring-destructive/20 dark:data-[matches-spartan-invalid=true]:ring-destructive/40 data-[matches-spartan-invalid=true]:border-destructive dark:data-[matches-spartan-invalid=true]:border-destructive/50 h-9 min-w-0 rounded-4xl py-1 ps-3 pe-8 text-sm data-[size=sm]:h-8 w-full appearance-none border transition-colors outline-none select-none focus-visible:ring-3 disabled:pointer-events-none disabled:cursor-not-allowed data-[matches-spartan-invalid=true]:ring-3',
 			this.selectClass(),
@@ -84,7 +84,7 @@ export class HlmNativeSelect implements ControlValueAccessor {
 
 	public readonly selectIconClass = input<ClassValue>('')
 
-	protected readonly _computedSelectIconClass = computed(() =>
+	protected readonly computedSelectIconClass = computed(() =>
 		hlm(
 			'text-muted-foreground end-3.5 text-[length:--spacing(4)] pointer-events-none absolute top-1/2 -translate-y-1/2 select-none',
 			this.selectIconClass(),
@@ -95,7 +95,7 @@ export class HlmNativeSelect implements ControlValueAccessor {
 
 	public readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute })
 
-	protected readonly _disabled = linkedSignal(this.disabled)
+	protected readonly internalDisabled = linkedSignal(this.disabled)
 
 	/** Whether to force the input into an invalid state. */
 	public readonly forceInvalid = input<boolean, BooleanInput>(false, { transform: booleanAttribute })
@@ -106,37 +106,38 @@ export class HlmNativeSelect implements ControlValueAccessor {
 		alias: 'aria-invalid',
 	})
 
-	protected readonly _ariaInvalid = computed(() => this.ariaInvalidInput() ?? this._invalid?.())
+	protected readonly ariaInvalid = computed(() => this.ariaInvalidInput() ?? this.invalid?.())
 
 	public readonly valueInput = input<string | undefined | null>('', { alias: 'value' })
 	public readonly value = linkedSignal(this.valueInput)
 
 	public readonly valueChange = output<string | undefined | null>()
 
-	protected _onChange?: ChangeFn<string | undefined | null>
-	protected _onTouched?: TouchFn
+	protected onChange?: ChangeFn<string | undefined | null>
+	protected onTouched?: TouchFn
 
 	public readonly labelableId = this.selectId
 
-	protected readonly _invalid = this._fieldControl?.invalid
-	protected readonly _touched = this._fieldControl?.touched
-	protected readonly _dirty = this._fieldControl?.dirty
-	protected readonly _spartanInvalid = computed(() => this.forceInvalid() || this._fieldControl?.spartanInvalid())
+	protected readonly invalid = this.#fieldControl?.invalid
+	protected readonly touched = this.#fieldControl?.touched
+	protected readonly dirty = this.#fieldControl?.dirty
+	protected readonly spartanInvalid = computed(() => this.forceInvalid() || this.#fieldControl?.spartanInvalid())
 
 	constructor() {
 		classes(() => 'group/native-select relative w-fit has-[select:disabled]:opacity-50')
 	}
 
-	protected _valueChanged(event: Event): void {
+	protected valueChanged(event: Event): void {
 		const value = (event.target as HTMLSelectElement).value
+
 		this.value.set(value)
 		this.valueChange.emit(value)
-		this._onChange?.(value)
-		this._onTouched?.()
+		this.onChange?.(value)
+		this.onTouched?.()
 	}
 
-	protected _blur(): void {
-		this._onTouched?.()
+	protected blur(): void {
+		this.onTouched?.()
 	}
 
 	/** CONTROL VALUE ACCESSOR */
@@ -145,14 +146,14 @@ export class HlmNativeSelect implements ControlValueAccessor {
 	}
 
 	public registerOnChange(fn: ChangeFn<string | undefined | null>): void {
-		this._onChange = fn
+		this.onChange = fn
 	}
 
 	public registerOnTouched(fn: TouchFn): void {
-		this._onTouched = fn
+		this.onTouched = fn
 	}
 
 	public setDisabledState(isDisabled: boolean): void {
-		this._disabled.set(isDisabled)
+		this.internalDisabled.set(isDisabled)
 	}
 }
