@@ -80,6 +80,9 @@ jobs:
   frontend:
     name: Frontend Lint & Production Build
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'nx-cache-main' || 'nx-cache-pr' }}
+    env:
+      NX_CLOUD_ACCESS_TOKEN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.NX_CLOUD_WRITE_TOKEN || secrets.NX_CLOUD_READ_TOKEN }}
     defaults:
       run:
         working-directory: frontend
@@ -101,6 +104,4 @@ jobs:
         run: npm exec nx -- run-many -t lint
 
       - name: Build web and admin production bundles
-        run: |
-          npm exec nx -- build web --configuration=production
-          npm exec nx -- build admin --configuration=production
+        run: npm exec nx -- run-many -t build -p web admin --configuration=production
