@@ -12,12 +12,12 @@
 			data-marker-inspector
 			#content
 			*hlmDrawerPortal
-			class="data-[vaul-drawer-direction=right]:top-32 data-[vaul-drawer-direction=right]:w-96 overflow-hidden data-[vaul-drawer-direction=bottom]:h-[50dvh] data-[vaul-drawer-direction=right]:max-w-[85vw] data-[vaul-drawer-direction=right]:[&>div:first-child]:hidden"
+			class="data-[vaul-drawer-direction=right]:top-32 data-[vaul-drawer-direction=right]:w-96 overflow-hidden data-[vaul-drawer-direction=bottom]:max-h-[50dvh] data-[vaul-drawer-direction=right]:max-w-[85vw] data-[vaul-drawer-direction=right]:[&>div:first-child]:hidden"
 		>
 			@if (mode() === 'mobile-bottom') {
 				<h2 hlmDrawerTitle class="sr-only">{{ m.name }}</h2>
 				<maps-marker-popup
-					class="min-h-0 block flex-1"
+					class="min-h-0 flex-1"
 					[mobile]="true"
 					[panel]="true"
 					[marker]="m"
@@ -60,7 +60,11 @@
 						></button>
 					</div>
 				</header>
-				<maps-marker-popup class="min-h-0 block flex-1" [contentOnly]="true" [panel]="true" [marker]="m" />
+
+				@if (hasContent()) {
+					<maps-marker-popup class="min-h-0 flex-1" [contentOnly]="true" [panel]="true" [marker]="m" />
+				}
+
 				<footer hlmDrawerFooter class="shrink-0 border-t">
 					<label
 						hlmLabel

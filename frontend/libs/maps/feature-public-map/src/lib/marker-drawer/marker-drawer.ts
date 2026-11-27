@@ -1,4 +1,4 @@
-import { afterRenderEffect, Component, ElementRef, input, output, viewChild } from '@angular/core'
+import { afterRenderEffect, Component, computed, ElementRef, input, output, viewChild } from '@angular/core'
 import type { PublicCategory, PublicMarker } from '@pinveria/maps/data-access'
 import { CategoryIcon } from '@pinveria/maps/ui'
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer'
@@ -31,6 +31,12 @@ export class MarkerDrawer {
 	readonly widthChanged = output<number>()
 
 	protected readonly content = viewChild('content', { read: ElementRef<HTMLElement> })
+
+	protected readonly hasContent = computed(() => {
+		const marker = this.marker()
+
+		return !!marker && (marker.media.length > 0 || !!marker.description?.trim())
+	})
 
 	constructor() {
 		afterRenderEffect(onCleanup => {
