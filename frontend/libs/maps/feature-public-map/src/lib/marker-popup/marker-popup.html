@@ -2,8 +2,8 @@
 	<section class="min-h-0 flex flex-col" [class.h-full]="panel()" [class.max-h-[65dvh]]="!panel()">
 		@if (!contentOnly()) {
 			<header class="gap-2 pb-3 flex shrink-0 items-center border-b">
-				@if (category()?.icon?.url) {
-					<img [src]="category()?.icon?.url" alt="" class="size-5 shrink-0 object-contain" />
+				@if (category(); as currentCategory) {
+					<maps-category-icon [iconUrl]="currentCategory.icon?.url" [color]="currentCategory.color" />
 				}
 				<div class="min-w-0 flex-1">
 					<p class="text-xs text-muted-foreground truncate">{{ category()?.name ?? 'Marker' }}</p>

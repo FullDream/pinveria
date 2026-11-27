@@ -1,5 +1,6 @@
 import { afterRenderEffect, Component, ElementRef, input, output, viewChild } from '@angular/core'
 import type { PublicCategory, PublicMarker } from '@pinveria/maps/data-access'
+import { CategoryIcon } from '@pinveria/maps/ui'
 import { HlmDrawerImports } from '@spartan-ng/helm/drawer'
 import { MarkerPopup } from '../marker-popup/marker-popup'
 import { Button } from '@pinveria/shared/ui'
@@ -13,7 +14,7 @@ export type MarkerDrawerMode = 'desktop-right' | 'mobile-bottom'
 
 @Component({
 	selector: 'maps-marker-drawer',
-	imports: [HlmDrawerImports, MarkerPopup, Button, HlmCheckbox, HlmLabel, HlmTooltip],
+	imports: [CategoryIcon, HlmDrawerImports, MarkerPopup, Button, HlmCheckbox, HlmLabel, HlmTooltip],
 	templateUrl: './marker-drawer.html',
 	providers: [provideIcons({ matCloseRound, matOpenInNewOffRound })],
 })

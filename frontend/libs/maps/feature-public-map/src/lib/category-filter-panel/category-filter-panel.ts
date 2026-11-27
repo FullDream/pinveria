@@ -20,6 +20,7 @@ import {
 	matKeyboardArrowDownRound,
 	matMapRound,
 } from '@ng-icons/material-symbols/round'
+import { CategoryIcon } from '@pinveria/maps/ui'
 import { Button, MediaThumbnail } from '@pinveria/shared/ui'
 import { HlmAccordionImports } from '@spartan-ng/helm/accordion'
 import { HlmBreadcrumbImports } from '@spartan-ng/helm/breadcrumb'
@@ -40,6 +41,7 @@ export type PublicMapChoice = {
 	selector: 'maps-category-filter-panel',
 	imports: [
 		Button,
+		CategoryIcon,
 		MediaThumbnail,
 		HlmAccordionImports,
 		HlmBreadcrumbImports,

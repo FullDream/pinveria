@@ -51,7 +51,7 @@ export function createPublicMapMarkers({
 			id: marker.id,
 			name: marker.name,
 			position,
-			color: category?.color ?? group?.color ?? '#71717a',
+			color: category ? category.color : '#71717a',
 			icon: category?.icon?.url ?? group?.icon?.url ?? null,
 			selected: marker.id === selectedId,
 			opacity: isCompleted ? 0.35 : 1,

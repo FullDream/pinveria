@@ -7,12 +7,22 @@ import { Button } from '@pinveria/shared/ui'
 import { HlmTooltip } from '@spartan-ng/helm/tooltip'
 import { Component, input, output } from '@angular/core'
 import type { PublicCategory, PublicMarker } from '@pinveria/maps/data-access'
+import { CategoryIcon } from '@pinveria/maps/ui'
 import { provideIcons } from '@ng-icons/core'
 import { matCloseRound, matOpenInNewRound } from '@ng-icons/material-symbols/round'
 
 @Component({
 	selector: 'maps-marker-popup',
-	imports: [Button, HlmTooltip, HlmCheckbox, HlmLabel, NgTemplateOutlet, HlmCarouselImports, HlmAspectRatioImports],
+	imports: [
+		Button,
+		CategoryIcon,
+		HlmTooltip,
+		HlmCheckbox,
+		HlmLabel,
+		NgTemplateOutlet,
+		HlmCarouselImports,
+		HlmAspectRatioImports,
+	],
 	providers: [
 		provideIcons({
 			matCloseRound,

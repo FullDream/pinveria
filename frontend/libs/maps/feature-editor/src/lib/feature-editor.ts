@@ -149,6 +149,12 @@ export class FeatureEditor {
 		return current.status === 'draft' || this.hasDraftContent()
 	})
 
+	protected readonly loading = computed(
+		() =>
+			this.map.isLoading() ||
+			(!this.map.data() && (this.live.isLoading() || this.live.value().status === 'synchronizing')),
+	)
+
 	protected readonly missing = computed(
 		() => this.map.error()?.status === HttpStatusCode.NotFound || this.live.value().status === 'deleted',
 	)

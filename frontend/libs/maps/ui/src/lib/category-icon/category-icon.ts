@@ -10,12 +10,12 @@ const fallbackIcon = `data:image/svg+xml,${encodeURIComponent(matLocationOnFillR
 		class: 'inline-block size-5 shrink-0',
 		'aria-hidden': 'true',
 		'[style.color]': 'color()',
-		'[style.background-color]': 'color() ? "currentColor" : null',
-		'[style.background-image]': 'color() ? null : imageUrl()',
+		'[style.background-color]': 'masked() ? "currentColor" : null',
+		'[style.background-image]': 'masked() ? null : imageUrl()',
 		'[style.background-size]': '"contain"',
 		'[style.background-position]': '"center"',
 		'[style.background-repeat]': '"no-repeat"',
-		'[style.mask-image]': 'color() ? imageUrl() : null',
+		'[style.mask-image]': 'masked() ? imageUrl() : null',
 		'[style.mask-mode]': '"alpha"',
 		'[style.mask-size]': '"contain"',
 		'[style.mask-position]': '"center"',
@@ -26,5 +26,6 @@ export class CategoryIcon {
 	readonly iconUrl = input<string | null | undefined>(null)
 	readonly color = input<string | null>(null)
 
+	protected readonly masked = computed(() => !!this.color() || !this.iconUrl())
 	protected readonly imageUrl = computed(() => `url(${JSON.stringify(this.iconUrl() || fallbackIcon)})`)
 }

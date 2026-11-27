@@ -1,4 +1,4 @@
-<ng-template uiPageHeaderPortal [breadcrumbs]="breadcrumbs()" [loading]="map.isFetching()">
+<ng-template uiPageHeaderPortal [breadcrumbs]="breadcrumbs()" [loading]="loading() || map.isFetching()">
 	<button
 		ui-button
 		type="button"
@@ -11,7 +11,7 @@
 	</button>
 </ng-template>
 
-@if (map.isLoading()) {
+@if (loading()) {
 	<div class="min-h-0 gap-4 p-4 flex flex-1" role="status" aria-label="Loading map" aria-busy="true">
 		<hlm-skeleton class="w-76 md:block hidden shrink-0" />
 		<hlm-skeleton class="flex-1" />
