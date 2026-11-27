@@ -75,7 +75,11 @@ public class MapOpenApiTests
 		var map = Resolve(root, responses.GetProperty("200").GetProperty("content").GetProperty("application/json")
 			.GetProperty("schema"));
 
-		Assert.Equal(18, map.GetProperty("properties").EnumerateObject().Count());
+		Assert.Equal(new[]
+		{
+			"createdAt", "defaultStyleId", "description", "gameId", "id",
+			"name", "slug", "status", "styles", "updatedAt"
+		}, map.GetProperty("properties").EnumerateObject().Select(property => property.Name).Order());
 		Assert.Contains(map.GetProperty("required").EnumerateArray(), field => field.GetString() == "slug");
 		Assert.Contains(map.GetProperty("required").EnumerateArray(), field => field.GetString() == "status");
 		Assert.Equal("string", map.GetProperty("properties").GetProperty("slug").GetProperty("type").GetString());

@@ -46,7 +46,7 @@
 			class="min-h-72 flex-1"
 			[class.hidden]="contentPanel.open() && contentPanel.narrow()"
 			[class.md:block]="true"
-			[geometry]="current"
+			[mapId]="current.id"
 			[fullscreenTarget]="workspace"
 			[markers]="viewMarkers()"
 			[tool]="tool()"

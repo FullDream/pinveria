@@ -201,7 +201,7 @@ public class MapFaultTests
 
 		await images.GenerateAsync(factory.Services.GetRequiredService<IMediaStorage>().AssetPath(dto.Source.Id),
 			storage.WorkPath(map.Id, dto.Id, attempt),
-			MapGeometry.Create(map.Width!.Value, map.Height!.Value).Value!,
+			MapGeometry.Create((int)dto.Source.Width!.Value, (int)dto.Source.Height!.Value).Value!,
 			new Progress<int>(), CancellationToken.None);
 
 		storage.Publish(map.Id, dto.Id, attempt);

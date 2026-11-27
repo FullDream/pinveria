@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Pinveria.Application.Games;
@@ -128,7 +128,6 @@ public class PublicReadTests(ITestOutputHelper output)
 		Assert.Equal(0, result.CategoryGroups.Last().MarkersCount);
 		Assert.Empty(result.Styles);
 		Assert.Null(result.DefaultStyleId);
-		Assert.Null(result.Width);
 		var handler = new GetPublicMapHandler(db);
 		var preview = await handler.Handle(new GetPublicMap("visible", "world", ContentVisibility.IncludeDrafts), default);
 

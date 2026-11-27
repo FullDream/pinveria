@@ -41,7 +41,7 @@ public class MapLifecycleTests
 
 		Assert.Equal(HttpStatusCode.NoContent, deleted.StatusCode);
 		Assert.NotEqual(map.Id, next.Id);
-		Assert.Equal(17, next.Width);
+		Assert.Equal(17, next.Styles.Single().Source.Width);
 		Assert.Equal(0, markers.GetArrayLength());
 		Assert.Equal(HttpStatusCode.OK, categoriesAfter.StatusCode);
 		Assert.Equal(0, groupsAfter.GetArrayLength());

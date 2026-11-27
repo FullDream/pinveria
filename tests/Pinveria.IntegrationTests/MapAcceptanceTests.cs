@@ -110,7 +110,6 @@ public class MapAcceptanceTests
 		Assert.Equal(sibling.Id, surviving.Id);
 		Assert.Equal(sibling.CreatedAt, surviving.CreatedAt);
 		Assert.Equal(sibling.UpdatedAt, surviving.UpdatedAt);
-		Assert.Equal(sibling.Extent, surviving.Extent);
 		Assert.Empty(surviving.Styles);
 		await processor.CleanupAsync(timeout.Token);
 	}

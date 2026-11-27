@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Pinveria.Application.Media.Storage;
 using Pinveria.Domain.Maps;
 using Pinveria.Infrastructure.Maps.Processing;
@@ -67,7 +67,6 @@ public class MapAdmissionTests
 
 		var stored = await MapTestData.ReadAsync(missing);
 
-		Assert.Equal(map.Width, stored.Width);
 		Assert.Equal(map.Styles.Single(), stored.Styles.First());
 		Assert.Equal(differentDimensions ? 2 : 1, stored.Styles.Count);
 	}

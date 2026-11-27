@@ -19,7 +19,7 @@ There is no pagination, separate style GET, public source history, or PUT operat
 
 ## Creation and listing
 
-POST accepts application/json with required name and slug and optional status (`draft` | `published`, defaulting to `draft`), for example `{"name":"World","slug":"world"}`. Names are trimmed, 1..200 characters and unique per game after invariant case normalization. Success returns 200 with null dimensions/geometry, styles=[], and defaultStyleId=null. The first successful style attachment atomically fixes logical dimensions from its source (1..16384); failed attachment leaves geometry absent. Processing failure does not undo geometry, and removing all styles does not reset it. No files, leases, or processing work are created. Groups/categories/markers can be added immediately.
+POST accepts application/json with required name and slug and optional status (`draft` | `published`, defaulting to `draft`), for example `{"name":"World","slug":"world"}`. Names are trimmed, 1..200 characters and unique per game after invariant case normalization. Success returns 200 with styles=[] and defaultStyleId=null. Every map immediately uses the universal fixed centered `[-100, 100]` logical coordinate space (`span = 200`, center `(0, 0)`, X right, Y up) without storing per-map dimensions. No files, leases, or processing work are created. Groups/categories/markers can be added immediately.
 
 GET returns every complete map ordered by createdAt then id ascending, including [] for an existing game without maps. There are no pagination/filter/order parameters. Missing games return 404. Every item route requires both the owning game ID and map ID; a sibling or foreign map/style returns 404. Legacy singular-map and game-wide content routes are absent.
 
@@ -31,7 +31,7 @@ The MapStylePresentation migration preserves existing dimensions, order, ready d
 
 ## Shared style sources
 
-Upload the original once through `POST /media/assets`, then add a style with JSON: `{"name":"Atlas","backgroundColor":"#fff","sourceAssetId":"<image UUID>"}`. Multipart style requests return 415. Sources must be existing raster JPEG, PNG, WebP, or AVIF images; SVG, videos, and folders return 422, unknown IDs return 404. Sources can have any dimensions admitted by the library. Every source stretches over the full logical extent, using independent X/Y scales when aspect ratios differ. Originals remain unchanged; native source-resolution pyramids retain the detail of larger later styles.
+Upload the original once through `POST /media/assets`, then add a style with JSON: `{"name":"Atlas","backgroundColor":"#fff","sourceAssetId":"<image UUID>"}`. Multipart style requests return 415. Sources must be existing raster JPEG, PNG, WebP, or AVIF images; SVG, videos, and folders return 422, unknown IDs return 404. Sources can have any dimensions admitted by the library. Each style centers at `(0, 0)` in the fixed `[-100, 100]` logical space with uniform max-side scaling (`scale = 200 / max(sourceWidth, sourceHeight)`), preserving native aspect ratio without stretching or cropping. Originals remain unchanged; native source-resolution pyramids retain the full detail of every style.
 
 Names are trimmed, 1..200 characters, and unique within the map ignoring case. Colors use #RGB/#RRGGBB and return uppercase six-digit notation; they only affect the viewer background. Success returns the complete map with the new style queued. The relationship is committed atomically without copying the original. Multiple styles and maps can share one asset.
 
@@ -41,7 +41,7 @@ Shared name/alt/folder changes appear in subsequent HTTP style responses without
 
 ## Responses and updates
 
-Map fields: `id`, `gameId`, `name`, `slug`, `width`, `height`, `extent`, `tileOrigin`, `tileSize`, `minZoom`, `maxZoom`, `resolutions`, `defaultStyleId`, `styles`, `createdAt`, `updatedAt`. Styles are returned in persisted display order. The persisted ready default is independent of order; it is null until any style is ready. Queued, processing, and failed styles are skipped when choosing the default, but remain in the style array.
+Map fields: `id`, `gameId`, `name`, `slug`, `description`, `defaultStyleId`, `styles`, `createdAt`, `updatedAt`, `status`. Map responses do not expose map-level width, height, or geometry fields because every map shares the universal `[-100, 100]` logical coordinate space. Styles are returned in persisted display order. The persisted ready default is independent of order; it is null until any style is ready. Queued, processing, and failed styles are skipped when choosing the default, but remain in the style array.
 
 Style fields: `id`, `name`, `backgroundColor`, `source`, `tileGeometry`, `status`, `progress`, `error`, `tilesUrlTemplate`, `createdAt`, `updatedAt`. Status is `queued`, `processing`, `ready`, or `failed`. Progress is approximate, nondecreasing within an attempt, 0..99 until full publication, and 100 only when ready. Percentages live only in server memory and do not change persisted timestamps; absent transient progress is 0, ready is always 100. Failed percentages are not retained across restart. Error is null or a safe `{code,message}`; no paths or native diagnostics are exposed. The tile template is null until ready. IDs use UUID v7; dates use UTC.
 
@@ -51,9 +51,9 @@ Errors use ProblemDetails: malformed JSON 400; missing/foreign owners 404; dupli
 
 ## OpenLayers geometry and tiles
 
-The first attached image establishes logical units. Its center is (0,0), X right, Y up. Extent is `[-width/2,-height/2,width/2,height/2]` and tileOrigin is its top-left `[-width/2,height/2]`. Odd dimensions preserve fractional halves. Existing markers are unchanged; finite coordinates outside the image remain valid.
+Every map uses a universal fixed Cartesian logical space centered at `(0, 0)`, X right, Y up, with reference span `200` (`[-100, -100, 100, 100]`). Existing markers are unchanged; finite coordinates outside `[-100, 100]` remain valid.
 
-Each style exposes tileGeometry with its native source extent, origin, tileSize=512, resolutions and min/max zoom. Use a source-pixel projection and native TileGrid, then transform source coordinates to logical coordinates by xLogical=xSource*mapWidth/sourceWidth and yLogical=ySource*mapHeight/sourceHeight. Keep the camera in logical units; switching styles must not reset center/resolution. Configure the XYZ source with `tilesUrlTemplate` and `wrapX:false`. Rows increase downward from the origin and columns rightward. Adjacent zooms differ by two; the final resolution is 1. Small images are not upscaled. Partial/blank tiles are transparent 512x512 lossless WebP with no overlap.
+Each style exposes `tileGeometry` with its native source extent, origin, `tileSize=512`, resolutions and min/max zoom. Use a source-pixel projection and native TileGrid, then transform source coordinates to logical coordinates uniformly by `scale = 200 / max(sourceWidth, sourceHeight)`, `xLogical = xSource * scale`, `yLogical = ySource * scale`, clipping the tile layer to `[-sourceWidth * scale / 2, -sourceHeight * scale / 2, sourceWidth * scale / 2, sourceHeight * scale / 2]`. Keep the camera in logical units; switching styles must not reset center/resolution. Configure the XYZ source with `tilesUrlTemplate` and `wrapX:false`. Rows increase downward from the origin and columns rightward. Adjacent zooms differ by two; the final resolution is 1. Small images are not upscaled. Partial/blank tiles are transparent 512x512 lossless WebP with no overlap.
 
 Use the returned `tilesUrlTemplate`: `/map-tiles/{mapId:N}/{styleId:N}/{z}/{x}/{y}.webp`. Static-file middleware serves GET/HEAD directly from the dedicated public tile root without Mediator or database queries. Each style's files are immutable, use `Cache-Control: public,max-age=31536000,immutable`, and carry native ETag/Last-Modified validators; conditional requests can return 304. Missing files, malformed paths, and nonexistent coordinates return 404.
 
@@ -98,7 +98,7 @@ Allow negotiation and WebSocket upgrades through the reverse proxy, retain Signa
 
 ## Deletion
 
-Delete any style, including the last in any state, with empty 204. Deleting the default selects the next ready style or null. Removing every style retains the map's geometry, groups, categories, markers, positions, and referenced media.
+Delete any style, including the last in any state, with empty 204. Deleting the default selects the next ready style or null. Removing every style retains the map's fixed coordinate space, groups, categories, markers, positions, and referenced media.
 
 Deleting the whole map returns 204 and physically cascades to its styles, groups, categories, markers, and attachment rows. Sibling maps and the owning game's fields/timestamps remain unchanged. Repeated deletion returns 404. A new map starts with empty content; it does not relocate or recover deleted markers.
 
@@ -106,7 +106,7 @@ Deletion commits durable cleanup scheduling before 204; disk deletion may follow
 
 ## Rename a map
 
-PATCH /games/{gameId}/maps/{mapId} accepts optional name, slug, defaultStyleId and styleOrder using the shared JSON Merge Patch contract. Nonempty valid patches return the complete map; dimensions and geometry are immutable. Names are trimmed, 1..200 characters and unique per game excluding the current map. Null/blank/overlength names and empty patches return 422; conflicts return 409; unknown or read-only fields return 400; unsupported media return 415. A trimmed identical name preserves updatedAt; a real rename updates only the map timestamp, without changing game timestamps or processing styles.
+PATCH /games/{gameId}/maps/{mapId} accepts optional name, slug, defaultStyleId and styleOrder using the shared JSON Merge Patch contract. Nonempty valid patches return the complete map; unknown or dimension fields return 400. Names are trimmed, 1..200 characters and unique per game excluding the current map. Null/blank/overlength names and empty patches return 422; conflicts return 409; unknown or read-only fields return 400; unsupported media return 415. A trimmed identical name preserves updatedAt; a real rename updates only the map timestamp, without changing game timestamps or processing styles.
 
 ## Slugs
 

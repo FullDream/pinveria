@@ -18,17 +18,17 @@ Unauthenticated GET /public/games/{gameSlug}/maps/{mapSlug} SHALL resolve the ma
 
 ### Requirement: Return complete public map data
 
-Map details SHALL include id, gameId, name, slug, nullable description, nullable width/height and logical geometry, nullable defaultStyleId, styles, categoryGroups and markers. Groups SHALL contain nested categories; markers SHALL be a flat array referencing categoryId. Empty collections SHALL be arrays. The response SHALL omit publication statuses, operational processing details and administrative timestamps.
+Map details SHALL include id, gameId, name, slug, nullable description, nullable defaultStyleId, styles, categoryGroups and markers. Map details SHALL NOT include map-level width, height, or logical geometry fields because all maps share the universal fixed `[-100, 100]` logical coordinate space. Groups SHALL contain nested categories; markers SHALL be a flat array referencing categoryId. Empty collections SHALL be arrays. The response SHALL omit publication statuses, operational processing details and administrative timestamps.
 
 #### Scenario: Load all map content in one response
 
 - **WHEN** a visible map contains 2000 visible markers
-- **THEN** one successful response includes all markers, categories, and the map's nullable description without pagination or viewport parameters
+- **THEN** one successful response includes all markers, categories, and the map's nullable description without pagination, viewport parameters, or map-level dimension/geometry fields
 - **AND** media and tiles are represented by URLs rather than embedded bytes
 
 ### Requirement: Expose only ready rendering styles
 
-Styles SHALL contain id, name, backgroundColor, tileGeometry and non-null tilesUrlTemplate, in persisted display order. Only ready styles SHALL appear in either visibility mode. defaultStyleId SHALL reference a returned ready style or be null. A map without ready styles SHALL remain readable with styles=[] and defaultStyleId=null, preserving nullable or previously initialized logical geometry.
+Styles SHALL contain id, name, backgroundColor, tileGeometry and non-null tilesUrlTemplate, in persisted display order. Only ready styles SHALL appear in either visibility mode. defaultStyleId SHALL reference a returned ready style or be null. A map without ready styles SHALL remain readable with styles=[] and defaultStyleId=null.
 
 #### Scenario: Mix processing states
 

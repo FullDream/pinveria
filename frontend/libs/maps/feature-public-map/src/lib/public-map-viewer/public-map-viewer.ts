@@ -22,7 +22,7 @@ import {
 	type PublicCategory,
 	type PublicMarker,
 } from '@pinveria/maps/data-access'
-import { MapViewport, type MapGeometry, type MapMarker, type MapViewStyle } from '@pinveria/maps/ui'
+import { MapViewport, type MapMarker, type MapViewStyle } from '@pinveria/maps/ui'
 import { provideIcons } from '@ng-icons/core'
 import { matMenuRound } from '@ng-icons/material-symbols/round'
 import { CategoryFilterPanel } from '../category-filter-panel/category-filter-panel'
@@ -139,22 +139,6 @@ export class PublicMapViewer {
 		return this.game()?.coverUrl ?? this.gameCover()
 	})
 
-	protected readonly mapGeometry = computed<MapGeometry | null>(() => {
-		const data = this.data()
-
-		if (!data.extent) return null
-
-		return {
-			id: data.id,
-			extent: data.extent,
-			tileOrigin: data.tileOrigin,
-			tileSize: data.tileSize,
-			resolutions: data.resolutions,
-			minZoom: data.minZoom,
-			maxZoom: data.maxZoom,
-		}
-	})
-
 	protected readonly mapStyles = computed<MapViewStyle[]>(() => {
 		const data = this.data()
 
@@ -169,8 +153,8 @@ export class PublicMapViewer {
 				tileOrigin: style.tileGeometry.tileOrigin,
 				tileSize: style.tileGeometry.tileSize,
 				resolutions: style.tileGeometry.resolutions,
-				minZoom: data.minZoom ?? 0,
-				maxZoom: data.maxZoom ?? 20,
+				minZoom: style.tileGeometry.minZoom,
+				maxZoom: style.tileGeometry.maxZoom,
 			},
 			source: style.preview,
 		}))

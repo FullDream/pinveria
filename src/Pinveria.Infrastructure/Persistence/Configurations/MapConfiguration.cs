@@ -22,7 +22,6 @@ public sealed class MapConfiguration : IEntityTypeConfiguration<Map>
 		builder.HasIndex(map => new { map.GameId, map.NormalizedName }).IsUnique();
 		builder.HasOne<Game>().WithMany().HasForeignKey(map => map.GameId).OnDelete(DeleteBehavior.Cascade);
 		builder.Property(map => map.Status).HasConversion<string>().HasMaxLength(32).IsRequired();
-		builder.Ignore(map => map.Geometry);
 
 		builder.HasMany(map => map.Styles).WithOne().HasForeignKey(style => style.MapId)
 			.OnDelete(DeleteBehavior.Cascade);

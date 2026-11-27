@@ -2,31 +2,29 @@
 
 <div class="bg-background relative h-[calc(100dvh-4rem)] w-full overflow-hidden">
 	<!-- Map fills the available space below the layout header. -->
-	@if (mapGeometry(); as geom) {
-		<maps-viewport
-			class="inset-0 absolute h-full w-full"
-			[geometry]="geom"
-			[styles]="mapStyles()"
-			[defaultStyleId]="map.defaultStyleId"
-			[markers]="mapMarkers()"
-			tool="pan"
-			(markerSelected)="onMarkerSelected($event)"
-			(emptyClicked)="closeMarkerInspection()"
-			(viewportChanged)="onViewportChanged()"
-		>
-			<button
-				mapLeadingToolbar
-				ui-button
-				variant="secondary"
-				size="icon"
-				icon="matMenuRound"
-				type="button"
-				aria-label="Map filters"
-				[attr.aria-expanded]="!isLeftPanelCollapsed()"
-				(click)="isLeftPanelCollapsed.set(!isLeftPanelCollapsed())"
-			></button>
-		</maps-viewport>
-	}
+	<maps-viewport
+		class="inset-0 absolute h-full w-full"
+		[mapId]="map.id"
+		[styles]="mapStyles()"
+		[defaultStyleId]="map.defaultStyleId"
+		[markers]="mapMarkers()"
+		tool="pan"
+		(markerSelected)="onMarkerSelected($event)"
+		(emptyClicked)="closeMarkerInspection()"
+		(viewportChanged)="onViewportChanged()"
+	>
+		<button
+			mapLeadingToolbar
+			ui-button
+			variant="secondary"
+			size="icon"
+			icon="matMenuRound"
+			type="button"
+			aria-label="Map filters"
+			[attr.aria-expanded]="!isLeftPanelCollapsed()"
+			(click)="isLeftPanelCollapsed.set(!isLeftPanelCollapsed())"
+		></button>
+	</maps-viewport>
 
 	<hlm-drawer
 		[direction]="isMobile() ? 'bottom' : 'left'"

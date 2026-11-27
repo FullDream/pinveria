@@ -25,9 +25,6 @@ public class UpdateMapTests
 
 		Assert.Equal("Renamed", after.Name);
 		Assert.Equal(before.CreatedAt, after.CreatedAt);
-		Assert.Equal(before.Extent, after.Extent);
-		Assert.Equal(before.Width, after.Width);
-		Assert.Equal(before.Height, after.Height);
 		Assert.Equal(before.Styles, after.Styles);
 		Assert.True(after.UpdatedAt >= before.UpdatedAt);
 		using var descPatch = await client.PatchAsJsonAsync(MapTestData.PathFor(game.Id), new { description = "Overworld map" });

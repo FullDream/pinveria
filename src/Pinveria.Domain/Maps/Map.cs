@@ -8,8 +8,6 @@ public sealed class Map
 	public const int NameMaxLength = 200;
 	private readonly List<MapStyle> styles = [];
 
-	private MapGeometry? geometry;
-
 	private Map(Guid id) => Id = id;
 
 	public Guid Id { get; }
@@ -19,16 +17,10 @@ public sealed class Map
 	public Slug Slug { get; private set; } = null!;
 	public string NormalizedName { get; private set; } = string.Empty;
 	public string? Description { get; private set; }
-	public int? Width { get; private set; }
-	public int? Height { get; private set; }
 	public long LastCreationSequence { get; private set; }
 	public DateTimeOffset CreatedAt { get; private set; }
 	public DateTimeOffset UpdatedAt { get; private set; }
 	public IReadOnlyCollection<MapStyle> Styles => styles.AsReadOnly();
-
-	public MapGeometry? Geometry =>
-		geometry ??= Width is { } width && Height is { } height ? new MapGeometry(width, height) : null;
-
 	public Guid? DefaultStyleId { get; private set; }
 	public PublicationStatus Status { get; private set; }
 
@@ -126,8 +118,6 @@ public sealed class Map
 
 		style.AssignCreationSequence(++LastCreationSequence);
 		style.AssignDisplayOrder(styles.Count == 0 ? 0 : styles.Max(item => item.DisplayOrder) + 1);
-		Width ??= style.Width;
-		Height ??= style.Height;
 		styles.Add(style);
 		UpdatedAt = DateTimeOffset.UtcNow;
 

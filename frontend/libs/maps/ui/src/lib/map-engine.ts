@@ -9,13 +9,14 @@ import TileLayer from 'ol/layer/Tile.js'
 import XYZ from 'ol/source/XYZ.js'
 import { defaults as defaultInteractions } from 'ol/interaction/defaults.js'
 import { MapMarkers } from './map-markers'
-import type {
-	MapGeometry,
-	MapViewStyle,
-	MapMarker,
-	MapTool,
-	MarkerInteractions,
-	VisibleMapRegion,
+import {
+	LOGICAL_EXTENT,
+	LOGICAL_SPAN,
+	type MapViewStyle,
+	type MapMarker,
+	type MapTool,
+	type MarkerInteractions,
+	type VisibleMapRegion,
 } from './map-viewport-types'
 
 export class MapEngine {
@@ -23,21 +24,17 @@ export class MapEngine {
 	readonly #layer = new TileLayer<XYZ>()
 	readonly #map: Map
 	readonly #observer: ResizeObserver
-	readonly #extent: number[]
 
+	#fitExtent: [number, number, number, number] = [...LOGICAL_EXTENT]
 	#url: string | null = null
 	#fitted = false
 	#sourceProjection: Projection | undefined
 
-	constructor(target: HTMLElement, geometry: MapGeometry, interactions: MarkerInteractions) {
-		if (!geometry.extent) throw new Error('Logical map geometry is required.')
-
-		this.#extent = geometry.extent
-
+	constructor(target: HTMLElement, mapId: string, interactions: MarkerInteractions) {
 		const projection = new Projection({
-			code: `game-map:${geometry.id}:${crypto.randomUUID()}`,
+			code: `game-map:${mapId}:${crypto.randomUUID()}`,
 			units: 'pixels',
-			extent: geometry.extent,
+			extent: [...LOGICAL_EXTENT],
 			metersPerUnit: 1,
 			getPointResolution: resolution => resolution,
 		})
@@ -45,13 +42,14 @@ export class MapEngine {
 		const view = new View({
 			projection,
 			center: [0, 0],
-			maxResolution: geometry.resolutions?.[0] ?? 1,
-			minResolution:
-				Math.min(geometry.extent[2] - geometry.extent[0], geometry.extent[3] - geometry.extent[1]) / 16384 / 4,
+			maxResolution: LOGICAL_SPAN / 256,
+			minResolution: LOGICAL_SPAN / (16384 * 4),
 			zoom: 0,
 			enableRotation: false,
 			constrainResolution: false,
 		})
+
+		this.#layer.setExtent([...LOGICAL_EXTENT])
 
 		this.#map = new Map({
 			target,
@@ -83,7 +81,6 @@ export class MapEngine {
 
 		this.#url = url
 
-		const logical = this.#extent
 		const geometry = style?.tileGeometry
 		const previousSource = this.#layer.getSource()
 		const targetProjection = this.#map.getView().getProjection()
@@ -91,46 +88,52 @@ export class MapEngine {
 		this.#layer.setSource(null)
 		previousSource?.dispose()
 		this.#releaseTransforms()
-		this.#layer.setExtent(logical)
+		this.#fitExtent = [...LOGICAL_EXTENT]
+		this.#layer.setExtent([...LOGICAL_EXTENT])
 
 		if (!url || !geometry || !style) return
 
-		const scaleX = (logical[2] - logical[0]) / (geometry.extent[2] - geometry.extent[0])
-		const scaleY = (logical[3] - logical[1]) / (geometry.extent[3] - geometry.extent[1])
+		const srcWidth = geometry.extent[2] - geometry.extent[0]
+		const srcHeight = geometry.extent[3] - geometry.extent[1]
+		const scale = LOGICAL_SPAN / Math.max(srcWidth, srcHeight)
+		const halfWidth = (srcWidth * scale) / 2
+		const halfHeight = (srcHeight * scale) / 2
+		const styleExtent: [number, number, number, number] = [-halfWidth, -halfHeight, halfWidth, halfHeight]
+
+		this.#fitExtent = styleExtent
+		this.#layer.setExtent(styleExtent)
 
 		const sourceProjection = new Projection({
 			code: `${targetProjection.getCode()}:style:${style.id}`,
 			units: 'pixels',
 			extent: geometry.extent,
-			metersPerUnit: Math.min(scaleX, scaleY),
+			metersPerUnit: scale,
 			getPointResolution: resolution => resolution,
 		})
 
 		addCoordinateTransforms(
 			sourceProjection,
 			targetProjection,
-			coordinate => [coordinate[0] * scaleX, coordinate[1] * scaleY],
-			coordinate => [coordinate[0] / scaleX, coordinate[1] / scaleY],
+			coordinate => [coordinate[0] * scale, coordinate[1] * scale],
+			coordinate => [coordinate[0] / scale, coordinate[1] / scale],
 		)
 
 		this.#sourceProjection = sourceProjection
 
 		this.#layer.setSource(
-			url
-				? new XYZ({
-						url,
-						projection: sourceProjection,
-						wrapX: false,
-						maxZoom: geometry.maxZoom,
-						tileGrid: new TileGrid({
-							extent: geometry.extent,
-							origin: geometry.tileOrigin,
-							tileSize: geometry.tileSize,
-							resolutions: geometry.resolutions,
-							minZoom: geometry.minZoom,
-						}),
-					})
-				: null,
+			new XYZ({
+				url,
+				projection: sourceProjection,
+				wrapX: false,
+				maxZoom: geometry.maxZoom,
+				tileGrid: new TileGrid({
+					extent: geometry.extent,
+					origin: geometry.tileOrigin,
+					tileSize: geometry.tileSize,
+					resolutions: geometry.resolutions,
+					minZoom: geometry.minZoom,
+				}),
+			}),
 		)
 	}
 
@@ -148,7 +151,7 @@ export class MapEngine {
 	}
 
 	fit(): void {
-		this.#map.getView().fit(this.#extent, { size: this.#map.getSize(), padding: [24, 24, 24, 24] })
+		this.#map.getView().fit(this.#fitExtent, { size: this.#map.getSize(), padding: [24, 24, 24, 24] })
 	}
 
 	getPixel(coordinate: [number, number]): [number, number] | null {

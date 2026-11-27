@@ -15,22 +15,6 @@ export type Map = {
 	/** @nullable */
 	description: string | null
 	/** @nullable */
-	width: number | null
-	/** @nullable */
-	height: number | null
-	/** @nullable */
-	extent: number[] | null
-	/** @nullable */
-	tileOrigin: number[] | null
-	/** @nullable */
-	tileSize: number | null
-	/** @nullable */
-	minZoom: number | null
-	/** @nullable */
-	maxZoom: number | null
-	/** @nullable */
-	resolutions: number[] | null
-	/** @nullable */
 	defaultStyleId: string | null
 	styles: MapStyle[]
 	createdAt: string

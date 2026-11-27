@@ -17,7 +17,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261125175433_Initial";
+    public override string LastMigrationId => "20261127205738_RemoveMapLogicalDimensions";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -332,9 +332,6 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("GameId")
                     .HasColumnType("uuid");
 
-                b.Property<int?>("Height")
-                    .HasColumnType("integer");
-
                 b.Property<long>("LastCreationSequence")
                     .HasColumnType("bigint");
 
@@ -360,9 +357,6 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
 
                 b.Property<DateTimeOffset>("UpdatedAt")
                     .HasColumnType("timestamp with time zone");
-
-                b.Property<int?>("Width")
-                    .HasColumnType("integer");
 
                 b.HasKey("Id");
 

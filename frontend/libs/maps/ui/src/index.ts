@@ -1,5 +1,6 @@
 export { MapViewport } from './lib/map-viewport'
-export type { MapGeometry, MapViewStyle, MapStyleSource } from './lib/map-viewport-types'
+export { LOGICAL_SPAN, LOGICAL_EXTENT } from './lib/map-viewport-types'
+export type { MapViewStyle, MapStyleSource } from './lib/map-viewport-types'
 export type {
 	MapPoint,
 	MapTool,

@@ -28,7 +28,6 @@ import {
 } from '@ng-icons/material-symbols/round'
 import type { MapEngine } from './map-engine'
 import type {
-	MapGeometry,
 	MapViewStyle,
 	MapMarker,
 	MapTool,
@@ -53,7 +52,7 @@ import { HlmButtonGroup } from '@spartan-ng/helm/button-group'
 	},
 })
 export class MapViewport {
-	readonly geometry = input.required<MapGeometry>()
+	readonly mapId = input.required<string>()
 	readonly styles = input.required<MapViewStyle[]>()
 	readonly defaultStyleId = input<string | null>(null)
 	readonly markers = input<MapMarker[]>([])
@@ -102,29 +101,18 @@ export class MapViewport {
 
 	constructor() {
 		afterRenderEffect(() => {
-			const geometry = this.geometry()
+			const mapId = this.mapId()
 			const style = this.activeStyle()
 			const markers = this.markers()
 			const tool = this.tool()
 
-			if (!geometry.extent) {
-				this.ready.set(false)
-				this.#initialization++
-				this.#engine?.dispose()
-				this.#engine = undefined
-				this.#loadedId = ''
-				this.#initializing = ''
-
-				return
-			}
-
-			if (this.#loadedId === geometry.id) {
+			if (this.#loadedId === mapId) {
 				this.#engine?.setStyle(style)
 				this.#engine?.setMarkers(markers, tool)
-			} else if (this.#initializing !== geometry.id) {
+			} else if (this.#initializing !== mapId) {
 				const initialization = ++this.#initialization
 
-				this.#initializing = geometry.id
+				this.#initializing = mapId
 				this.#loadedId = ''
 				this.ready.set(false)
 				this.#engine?.dispose()
@@ -134,14 +122,14 @@ export class MapViewport {
 					.then(({ MapEngine }) => {
 						if (this.#destroy.destroyed || initialization !== this.#initialization) return
 
-						this.#engine = new MapEngine(this.canvas().nativeElement, geometry, {
+						this.#engine = new MapEngine(this.canvas().nativeElement, mapId, {
 							select: id => this.markerSelected.emit(id),
 							emptyClick: () => this.emptyClicked.emit(),
 							viewportChanged: () => this.viewportChanged.emit(),
 							place: position => this.markerPlaced.emit(position),
 							move: movement => this.markerMoved.emit(movement),
 						})
-						this.#loadedId = geometry.id
+						this.#loadedId = mapId
 						this.#engine.setStyle(this.activeStyle())
 						this.#engine.setMarkers(this.markers(), this.tool())
 						this.ready.set(true)

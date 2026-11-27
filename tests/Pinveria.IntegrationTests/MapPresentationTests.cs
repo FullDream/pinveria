@@ -34,9 +34,8 @@ public class MapPresentationTests
 		var ready = (await client.GetFromJsonAsync<MapDto>(MapTestData.PathFor(game.Id), MapTestData.JsonOptions))!;
 		var style = ready.Styles.Last();
 
-		Assert.Equal(first, ready.Width);
-		Assert.Equal(17, ready.Height);
-		Assert.Equal(map.Extent, ready.Extent);
+		Assert.Equal(first, ready.Styles.First().Source.Width);
+		Assert.Equal(17, ready.Styles.First().Source.Height);
 		Assert.Equal(second, style.Source.Width);
 		Assert.Equal(second / 2d, style.TileGeometry.Extent.ElementAt(2));
 		Assert.Equal(Math.Ceiling(Math.Log2(second / 512d)), style.TileGeometry.MaxZoom);
@@ -118,7 +117,7 @@ public class MapPresentationTests
 	}
 
 	[Fact]
-	public async Task ConcurrentFirstAttachmentsInitializeOnceAndFailuresLeaveNoGeometry()
+	public async Task ConcurrentFirstAttachmentsSucceedAndFailuresLeaveMapEmpty()
 	{
 		await using var factory = new GameApiFactory();
 
@@ -138,7 +137,7 @@ public class MapPresentationTests
 
 		var unchanged = (await client.GetFromJsonAsync<MapDto>(path, MapTestData.JsonOptions))!;
 
-		Assert.Null(unchanged.Width);
+		Assert.Empty(unchanged.Styles);
 		using var first = MapTestData.Style(MapTestData.ImageBytes(1025, 513), "First");
 		using var second = MapTestData.Style(MapTestData.ImageBytes(513, 1025), "Second");
 		var replies = await Task.WhenAll(MapTestData.AddStyleAsync(client, path, first), MapTestData.AddStyleAsync(client, path, second));
@@ -149,8 +148,6 @@ public class MapPresentationTests
 			var initialized = (await client.GetFromJsonAsync<MapDto>(path, MapTestData.JsonOptions))!;
 
 			Assert.Equal(2, initialized.Styles.Count);
-			Assert.Equal(initialized.Styles.First().Source.Width, initialized.Width);
-			Assert.Equal(initialized.Styles.First().Source.Height, initialized.Height);
 		}
 		finally
 		{

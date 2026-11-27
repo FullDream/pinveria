@@ -229,16 +229,10 @@ export class FeatureEditor {
 	)
 
 	protected readonly placementAvailable = computed(
-		() =>
-			!!this.viewport()?.ready() &&
-			!!this.map.data()?.extent &&
-			this.categories().length > 0 &&
-			!!this.markers.data(),
+		() => !!this.viewport()?.ready() && this.categories().length > 0 && !!this.markers.data(),
 	)
 
 	protected readonly placementHint = computed(() => {
-		if (!this.map.data()?.extent) return 'Attach the first style to initialize map coordinates.'
-
 		if (this.markers.isError()) return 'Retry loading markers before placing new ones.'
 
 		if (this.categoryGroups.isLoading()) return 'Loading categories…'

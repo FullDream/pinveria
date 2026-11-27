@@ -21,14 +21,6 @@
 		<hlm-switch inputId="map-editor-published" [formField]="fields.published" />
 	</div>
 
-	<p class="text-sm text-muted-foreground">
-		@if (context.map?.width) {
-			Logical size: {{ context.map.width }} × {{ context.map.height }}.
-		} @else {
-			Logical dimensions will be set by the first style.
-		}
-	</p>
-
 	@if (error()) {
 		<hlm-field-error forceShow>{{ error() }}</hlm-field-error>
 	}

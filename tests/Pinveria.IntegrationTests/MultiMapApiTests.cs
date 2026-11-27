@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -121,9 +121,6 @@ public class MultiMapApiTests
 		Assert.Equal(HttpStatusCode.NotFound, foreign.StatusCode);
 		Assert.Equal(new[] { world.Id, dungeon.Id }, maps.Select(map => map.Id));
 		Assert.Equal("World", world.Name);
-		Assert.Null(world.Extent);
-		Assert.Null(world.Width);
-		Assert.Null(world.Height);
 		Assert.All(maps, map => Assert.Empty(map.Styles));
 		Assert.All(maps, map => Assert.Null(map.DefaultStyleId));
 		await using var scope = factory.Services.CreateAsyncScope();
@@ -166,7 +163,7 @@ public class MultiMapApiTests
 	}
 
 	[Fact]
-	public async Task FirstStyleInitializesGeometryAndLastStyleCanBeRemovedWithoutRemovingContent()
+	public async Task StylesCanBeAttachedAndAllRemovedWithoutRemovingContent()
 	{
 		await using var factory = new GameApiFactory();
 
@@ -186,10 +183,9 @@ public class MultiMapApiTests
 		var blank = await MapTestData.ReadAsync(read);
 
 		Assert.Equal(HttpStatusCode.OK, first.StatusCode);
-		Assert.Equal(24, map.Width);
+		Assert.Equal(24, map.Styles.First().Source.Width);
 		Assert.Equal(HttpStatusCode.NoContent, deleted.StatusCode);
 		Assert.Equal(map.Id, blank.Id);
-		Assert.Equal(map.Extent, blank.Extent);
 		Assert.Empty(blank.Styles);
 		Assert.Null(blank.DefaultStyleId);
 		using var markers = await client.GetAsync(MarkerTestData.Path(game.Id));

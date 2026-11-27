@@ -38,12 +38,13 @@ A game SHALL own zero or more independent maps. Map operations SHALL use /games/
 
 ### Requirement: Create a named coordinate space without an image
 
-POST /games/{gameId}/maps SHALL accept application/json with required name and slug, optional nullable description (defaulting to null when omitted or empty), and optional status (`draft` or `published`, defaulting to `draft` when omitted) and return 200 with a persisted map, UUID v7, UTC timestamps, string status, nullable description, styles=[] and defaultStyleId=null. Logical dimensions and geometry SHALL remain null until first successful style attachment. No file or processing work SHALL be created.
+POST /games/{gameId}/maps SHALL accept application/json with required name and slug, optional nullable description (defaulting to null when omitted or empty), and optional status (`draft` or `published`, defaulting to `draft` when omitted) and return 200 with a persisted map, UUID v7, UTC timestamps, string status, nullable description, styles=[] and defaultStyleId=null. Every map SHALL immediately use the fixed centered `[-100, 100]` logical coordinate space without storing map-level dimensions or waiting for a first style. No file or processing work SHALL be created.
 
 #### Scenario: Create a blank map
 
 - **WHEN** valid JSON contains name=World and slug=world and omits description and status
-- **THEN** the map is persisted and returned with description=null and status `draft` and survives restart with no geometry, styles, files or processing work
+- **THEN** the map is persisted and returned with description=null, status `draft`, styles=[], and defaultStyleId=null without map-level dimension or geometry fields
+- **AND** it survives restart with no styles, files, or processing work
 
 #### Scenario: Create a map with explicit status
 
@@ -62,8 +63,8 @@ POST /games/{gameId}/maps SHALL accept application/json with required name and s
 
 #### Scenario: Create content before the first style
 
-- **WHEN** groups, categories or finite-coordinate markers are added before a style
-- **THEN** content persists normally without invented map geometry; subsequent initialization preserves every marker coordinate
+- **WHEN** groups, categories or finite-coordinate markers are added before any style is attached
+- **THEN** content persists directly in the fixed `[-100, 100]` logical coordinate space and later style attachment preserves every marker coordinate
 
 ### Requirement: Publish a map and all owned draft content atomically
 
@@ -160,34 +161,25 @@ Style sources SHALL reference verified static JPEG, PNG, WebP, or AVIF library i
 - **THEN** they generate the same geometry and transparent lossless WebP tile contract as JPEG/PNG
 - **AND** animation or an unavailable decoder cannot be silently treated as a supported static original
 
-### Requirement: Keep all styles aligned in the map's immutable geometry
+### Requirement: Align all styles in the fixed centered coordinate space
 
-The first committed style attachment SHALL initialize previously absent logical dimensions from its source. Subsequent styles SHALL cover the same full extent with independent X/Y scaling regardless of resolution or aspect ratio. Adding, retrying, reordering, changing defaults or deleting styles SHALL preserve initialized geometry, original bytes and marker coordinates. No resizing endpoint SHALL exist.
+Maps SHALL NOT store or initialize per-map logical dimensions from styles. Every committed style attachment SHALL validate its raster source within library bounds (`1..16384`) and produce its own native tile pyramid (`tileGeometry`). In the fixed `[-100, 100]` logical space, each style SHALL center at `(0, 0)` with uniform scale `200 / max(sourceWidth, sourceHeight)`, preserving native aspect ratio. Style mutations—including deleting all styles—SHALL preserve original bytes and marker coordinates. No resizing endpoint SHALL exist.
 
-#### Scenario: Validate the first and later styles
+#### Scenario: Attach styles at different resolutions and aspect ratios
 
-- **WHEN** 8000x8000 then 1000x1000 images are attached, or the reverse
-- **THEN** the first establishes logical geometry and both cover its complete extent without moving markers
+- **WHEN** `8000x8000`, `4000x2000`, and `8000x4000` styles are attached to the same map in any order
+- **THEN** all attachments succeed without mutating map-level dimensions or moving markers
+- **AND** `8000x8000` maps to `[-100, -100, 100, 100]`, while both `4000x2000` and `8000x4000` map to `[-100, -50, 100, 50]` with zero aspect distortion
 
-#### Scenario: Keep geometry after removing all images
+#### Scenario: Remove every style and attach a new one
 
-- **WHEN** the last style is removed and any eligible image is attached later
-- **THEN** existing logical dimensions and content remain intact and source assets remain in the library
+- **WHEN** all styles are deleted from a map and a new eligible style of any aspect ratio is later attached
+- **THEN** no stale dimensions from deleted styles affect the new style, map content remains intact, and source assets remain in the library
 
-#### Scenario: Stretch a different aspect ratio
+#### Scenario: Preserve alignment when a style fails processing
 
-- **WHEN** a 1000x1000 source is attached to an 8000x4000 map
-- **THEN** its full width and height map to the logical width and height without cropping or letterboxing
-
-#### Scenario: Initialize atomically
-
-- **WHEN** competing first-style attachments run or one fails validation/save
-- **THEN** only a committed winning attachment initializes geometry; failed operations leave no partial geometry and later attachments use the established space
-
-#### Scenario: Keep geometry after processing failure
-
-- **WHEN** the first attached style fails tile generation
-- **THEN** geometry remains initialized and retries or another style do not redefine it
+- **WHEN** an attached style fails tile generation
+- **THEN** the map's fixed coordinate space and existing markers remain unaffected and retrying or attaching another style requires no geometry reset
 
 ### Requirement: Validate unique user-defined style names
 
@@ -221,17 +213,17 @@ Each style SHALL require backgroundColor in #RGB or #RRGGBB notation with ASCII 
 
 ### Requirement: Return complete map metadata
 
-GET /games/{gameId}/maps/{mapId} SHALL include the required string slug, nullable string description, and string status (`draft` or `published`), retain other map metadata fields and return styles in persisted display order. Width, height, extent, tileOrigin, tileSize, minZoom, maxZoom and resolutions SHALL be null before initialization and populated afterward. Style representations SHALL additionally expose their own tile geometry. defaultStyleId SHALL identify the effective ready default or be null. IDs SHALL use UUID v7; internal paths SHALL remain private.
+GET /games/{gameId}/maps/{mapId} SHALL include id, gameId, required string name, required string slug, nullable string description, string status (`draft` or `published`), nullable defaultStyleId, styles in persisted display order, createdAt, and updatedAt. Map representations SHALL NOT expose map-level width, height, extent, tileOrigin, tileSize, minZoom, maxZoom, or resolutions fields. Style representations SHALL expose their own source-based `tileGeometry`. defaultStyleId SHALL identify the effective ready default or be null. IDs SHALL use UUID v7; internal paths SHALL remain private.
 
 #### Scenario: Read a blank or styled map
 
-- **WHEN** a client reads a map before or after initialization
-- **THEN** the complete representation includes its nullable description and current status (`draft` or `published`) and distinguishes absent geometry from initialized geometry, including after all styles are deleted
+- **WHEN** a client reads a map before attaching styles, with active styles, or after deleting all styles
+- **THEN** the representation includes its metadata, nullable description, status, defaultStyleId, and ordered styles without map-level dimension or geometry fields
 
 #### Scenario: Read ordered styles
 
 - **WHEN** styles have been reordered
-- **THEN** GET and mutation map responses return the same persisted order and each style's source-based tile geometry
+- **THEN** GET and mutation map responses return the same persisted order and each style's source-based `tileGeometry`
 
 ### Requirement: Expose processing state directly on each style
 
@@ -256,19 +248,19 @@ Style representations SHALL retain id, name, backgroundColor, source, status, pr
 - **THEN** subsequent HTTP map/style representations resolve that metadata without changing style timestamps, attempts, pixels, or tile URLs
 - **AND** processing notifications do not synchronize source metadata
 
-### Requirement: Use centered original-pixel coordinates
+### Requirement: Use centered normalized logical coordinates
 
-Logical coordinates SHALL use the first attached image center as (0,0), X right and Y up, with extent [-width/2,-height/2,width/2,height/2] and tileOrigin [-width/2,height/2]. Each style SHALL map its source center and boundaries to the logical center and boundaries. Existing finite marker coordinates, including positions outside the extent, SHALL remain valid.
+Logical coordinates SHALL use a universal fixed Cartesian coordinate space centered at `(0, 0)`, with X increasing right, Y increasing up, and reference span `200` (`[-100, -100, 100, 100]`). Each style SHALL map its source center `(0, 0)` to logical `(0, 0)` with uniform scale `200 / max(sourceWidth, sourceHeight)` so its logical footprint is `[-sourceWidth * scale / 2, -sourceHeight * scale / 2, sourceWidth * scale / 2, sourceHeight * scale / 2]`. Existing finite marker coordinates, including negative, fractional, or out-of-extent positions, SHALL remain valid without rounding or bounds rejection.
 
 #### Scenario: Place the same marker on all styles
 
-- **WHEN** a 10000x8000 map contains a marker at (0,0) and styles at different resolutions
-- **THEN** the marker remains at every style's center and extent remains [-5000,-4000,5000,4000]
+- **WHEN** a map contains a marker at `(0, 0)` and a marker at `(50, 25)` across `4096x4096` and `4096x2048` styles (or styles at different resolutions of the same aspect ratio)
+- **THEN** `(0, 0)` remains at every style's center and `(50, 25)` remains at the same world position without distorting either image
 
 #### Scenario: Preserve fractional geometry and existing markers
 
-- **WHEN** dimensions are odd or markers have negative/fractional positions
-- **THEN** half-unit boundaries and marker coordinates are preserved without rounding or bounds validation
+- **WHEN** style dimensions are odd or markers have negative, fractional, or beyond-`[-100, 100]` finite positions
+- **THEN** half-unit style tile boundaries and marker coordinates are preserved without rounding or bounds validation
 
 ### Requirement: Generate a transparent power-of-two tile pyramid
 
@@ -565,12 +557,12 @@ HTTP failures SHALL retain ProblemDetails and safe unexpected HTTP 500 responses
 
 ### Requirement: Document maps content ownership and rendering metadata
 
-OpenAPI SHALL describe the ten map REST operations, including CreateMap with optional status, the map metadata PATCH with name, slug, status, defaultStyleId and styleOrder, PublishMap at POST /games/{gameId}/maps/{mapId}/publish, explicit map scope, complete map/style representations with map status, nullable logical geometry, independent style tile geometry, default/order updates, retry, and static WebP delivery, without the removed SSE operation. Separate documentation SHALL define SignalR methods, events, lifecycle, and proxy requirements. AddMapStyle SHALL retain JSON name/backgroundColor/sourceAssetId. Documentation SHALL explain transient progress, interruption failure, and shared-original preservation.
+OpenAPI SHALL describe the ten map REST operations, including CreateMap with optional status, the map metadata PATCH with name, slug, status, defaultStyleId and styleOrder, PublishMap at POST /games/{gameId}/maps/{mapId}/publish, explicit map scope, complete map/style representations with map status and independent per-style `tileGeometry` (without map-level dimension/geometry fields), default/order updates, retry, and static WebP delivery, without the removed SSE operation. Separate documentation SHALL define SignalR methods, events, lifecycle, and proxy requirements. AddMapStyle SHALL retain JSON name/backgroundColor/sourceAssetId. Documentation SHALL explain the fixed `[-100, 100]` logical space, uniform max-side style scaling, transient progress, interruption failure, and shared-original preservation.
 
 #### Scenario: Discover independent map and style creation
 
 - **WHEN** a client reads OpenAPI and map transport documentation
-- **THEN** CreateMap accepts name, slug, and optional status JSON, UpdateMap includes optional status, PublishMap is exposed under the Maps tag at POST /games/{gameId}/maps/{mapId}/publish returning Map, and AddMapStyle remains name/backgroundColor/sourceAssetId JSON with no file picker
+- **THEN** CreateMap accepts name, slug, and optional status JSON, UpdateMap includes optional status, PublishMap is exposed under the Maps tag at POST /games/{gameId}/maps/{mapId}/publish returning Map without map-level geometry fields, and AddMapStyle remains name/backgroundColor/sourceAssetId JSON with no file picker
 - **AND** maps remain complete arrays/DTOs while file uploads occur only through the library and legacy routes remain absent
 - **AND** the old events route returns 404 and SignalR negotiation is not presented as a generated REST streaming operation
 
@@ -591,18 +583,18 @@ GET /games/{gameId}/maps SHALL return HTTP 200 with a plain array of complete ma
 #### Scenario: Complete deterministic isolated list
 
 - **WHEN** a game owns blank and styled maps, including equal creation timestamps
-- **THEN** each map appears once with full geometry and styles, ordered by createdAt then id
+- **THEN** each map appears once with its metadata and styles (without map-level geometry fields), ordered by createdAt then id
 - **AND** maps of other games never appear
 
 ### Requirement: Patch map name without resizing
 
-PATCH /games/{gameId}/maps/{mapId} SHALL accept optional name, slug, nullable description, status, defaultStyleId and styleOrder with shared merge-patch semantics and return 200 with the complete map. Name SHALL be non-null when supplied, trimmed, 1..200 characters and unique within the game excluding the current map. Description omission SHALL preserve the existing value, while explicit null or empty string SHALL clear it to null. Status SHALL be non-null (`draft` or `published`) when supplied and SHALL update only the map itself without cascading to owned category groups, categories, or markers. Dimensions and geometry SHALL remain immutable. No PUT route SHALL be introduced.
+PATCH /games/{gameId}/maps/{mapId} SHALL accept optional name, slug, nullable description, status, defaultStyleId and styleOrder with shared merge-patch semantics and return 200 with the complete map. Name SHALL be non-null when supplied, trimmed, 1..200 characters and unique within the game excluding the current map. Description omission SHALL preserve the existing value, while explicit null or empty string SHALL clear it to null. Status SHALL be non-null (`draft` or `published`) when supplied and SHALL update only the map itself without cascading to owned category groups, categories, or markers. Map-level width, height, and geometry properties SHALL NOT exist, and supplied dimension or geometry fields SHALL be rejected. No PUT route SHALL be introduced.
 
 #### Scenario: Rename a scoped map
 
 - **WHEN** a valid patch changes the name of a map belonging to the route game
 - **THEN** the name and normalized name are persisted with a new updatedAt
-- **AND** createdAt, game timestamps, dimensions, geometry, styles, description, status, and owned content remain unchanged; default and order remain unchanged when omitted
+- **AND** createdAt, game timestamps, styles, description, status, and owned content remain unchanged; default and order remain unchanged when omitted
 
 #### Scenario: Update and clear map description
 
@@ -741,3 +733,18 @@ An explicit EF Core migration SHALL add a nullable `Description` column to `Maps
 
 - **WHEN** the map description migration is applied to a database with existing maps
 - **THEN** preexisting maps receive `description: null` and retain all existing metadata, styles, content, and timestamps
+
+### Requirement: Migrate existing marker coordinates to the fixed logical space
+
+An explicit EF Core migration SHALL rescale preexisting persisted marker coordinates (`PositionX`, `PositionY`) on maps with non-null positive `Width` and `Height` by multiplying both coordinates by `200.0 / GREATEST(Width, Height)` in IEEE-754 double precision, and then drop the `Maps.Width` and `Maps.Height` columns. Markers belonging to maps whose `Width` or `Height` was null SHALL remain unchanged. Already applied migrations SHALL NOT be rewritten or run automatically at startup.
+
+#### Scenario: Upgrade a populated store with square and rectangular maps
+
+- **WHEN** the migration is applied to a database containing markers on a `4096x4096` map at `(1024, -512)` and on a `4000x2000` map at `(1000, 500)`
+- **THEN** the first marker migrates to `(50, -25)` and the second marker migrates to `(50, 25)`
+- **AND** `Maps.Width` and `Maps.Height` columns are dropped without altering map, style, category, or marker identities
+
+#### Scenario: Preserve markers on a previously uninitialized blank map
+
+- **WHEN** the migration is applied to a database containing markers on a map whose `Width` or `Height` is null
+- **THEN** those marker coordinates are preserved unchanged and the migration completes without division-by-zero errors

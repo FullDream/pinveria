@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -77,11 +77,11 @@ public class MapApiTests
 		var storage = factory.Services.GetRequiredService<IMediaStorage>();
 
 		Assert.Equal(HttpStatusCode.OK, created.StatusCode);
-		Assert.Equal(23, map.Width);
-		Assert.Equal(17, map.Height);
-		Assert.Equal([-11.5, -8.5, 11.5, 8.5], map.Extent);
-		Assert.Equal([-11.5, 8.5], map.TileOrigin);
-		Assert.Equal([1d], map.Resolutions);
+		Assert.Equal(23, style.Source.Width);
+		Assert.Equal(17, style.Source.Height);
+		Assert.Equal([-11.5, -8.5, 11.5, 8.5], style.TileGeometry.Extent);
+		Assert.Equal([-11.5, 8.5], style.TileGeometry.TileOrigin);
+		Assert.Equal([1d], style.TileGeometry.Resolutions);
 		Assert.Null(map.DefaultStyleId);
 		Assert.Null(style.TilesUrlTemplate);
 		Assert.Equal(MapProcessingStatus.Queued, style.Status);

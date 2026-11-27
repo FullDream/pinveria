@@ -8,12 +8,12 @@ Let administrators manage game-owned maps through an independent feature embedde
 
 ### Requirement: Browse game maps
 
-The Maps page SHALL display every map of the routed game in server order, showing name, publication status badge (`Published` or `Draft`), initialized logical dimensions or a pending-first-style label, preview, style count and previews, createdAt and updatedAt. Missing previews SHALL have neutral fallbacks. No Main badge or fabricated category/marker counts SHALL appear.
+The Maps page SHALL display every map of the routed game in server order, showing name, publication status badge (`Published` or `Draft`), preview, style count and previews, createdAt and updatedAt. Missing previews SHALL have neutral fallbacks. No Main badge, pending-first-style dimension label, logical dimension readout, or fabricated category/marker counts SHALL appear.
 
 #### Scenario: Open and reload the list
 
 - **WHEN** an operator opens or reloads /games/{gameId}/maps
-- **THEN** that game's full list loads with each map's `Published` or `Draft` status badge, dates and available style previews
+- **THEN** that game's full list loads with each map's `Published` or `Draft` status badge, dates and available style previews without map-level logical dimension labels
 - **AND** empty, loading and request-failure states are distinct, with creation and error retry actions as applicable
 
 ### Requirement: Create maps in a modal
@@ -33,7 +33,7 @@ The page SHALL offer Add map in the workspace header. Its modal SHALL require a 
 
 ### Requirement: Rename maps in a modal
 
-Each map SHALL offer editing in a modal with editable name, slug, and `Published` switch (`hlm-switch`) fields and read-only logical dimensions or a pending-first-style label. Saving SHALL send only changed mutable values (including `status` when toggled) and display authoritative returned data. An unchanged form SHALL NOT send an empty PATCH.
+Each map SHALL offer editing in a modal with editable name, slug, and `Published` switch (`hlm-switch`) fields, without read-only logical dimension or pending-first-style labels. Saving SHALL send only changed mutable values (including `status` when toggled) and display authoritative returned data. An unchanged form SHALL NOT send an empty PATCH.
 
 #### Scenario: Save and reject renames
 
@@ -145,12 +145,12 @@ The editor styles panel SHALL show server order, source preview, name, dimension
 
 ### Requirement: Create styles from library images
 
-Add style SHALL collect a name, background color and one committed library image and submit the existing style creation contract. Names SHALL be trimmed to 1..200 characters; colors SHALL accept #RGB or #RRGGBB. Sources SHALL be supported raster images of any dimensions admitted by the library. Aspect ratio differences SHALL produce a non-blocking warning before submission, explaining that the image will stretch to fill the logical extent. The server SHALL remain authoritative for compatibility and conflicts.
+Add style SHALL collect a name, background color and one committed library image and submit the existing style creation contract. Names SHALL be trimmed to 1..200 characters; colors SHALL accept #RGB or #RRGGBB. Sources SHALL be supported raster images of any dimensions or aspect ratio admitted by the library, rendered centered at `(0, 0)` with uniform scaling and no distortion. The server SHALL remain authoritative for compatibility and conflicts.
 
 #### Scenario: Attach and await processing
 
-- **WHEN** a valid style is created
-- **THEN** the returned map updates the list and the creation dialog closes
+- **WHEN** a valid square or rectangular style is created
+- **THEN** the returned map updates the list and the creation dialog closes without any stretch-distortion warning
 - **AND** the new style follows live server processing updates without fabricated progress
 - **AND** the existing displayed style remains selected while it is available
 
@@ -196,20 +196,6 @@ Style deletion SHALL require confirmation naming the style and explaining that l
 - **THEN** no DELETE is sent
 - **WHEN** deletion fails
 - **THEN** the style remains available and an error is shown
-
-### Requirement: Warn about aspect ratio differences without blocking attachment
-
-The style creation dialog SHALL compare source and initialized logical aspect ratios. Different ratios SHALL show an accessible warning explaining full-area stretching and possible distortion while allowing submission. Equal ratios at different resolutions SHALL show no warning. Before first initialization there SHALL be no ratio warning.
-
-#### Scenario: Attach square imagery to a rectangular map
-
-- **WHEN** a 1000x1000 source is chosen for an 8000x4000 map
-- **THEN** the warning appears and a valid form remains submittable
-
-#### Scenario: Replace the selected source
-
-- **WHEN** a mismatched source is replaced by one with the map's ratio
-- **THEN** the warning disappears; changing dimensions alone at equal ratio causes no warning
 
 ### Requirement: Choose a default style explicitly
 

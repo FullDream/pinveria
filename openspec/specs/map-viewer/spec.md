@@ -6,24 +6,21 @@ Provide a reusable game-map viewport that renders aligned imagery in the map's o
 
 ## Requirements
 
-### Requirement: Render authoritative pixel geometry
+### Requirement: Render fixed logical space with uniform style scaling
 
-The viewer SHALL use the initialized logical extent for its camera and content coordinates and each ready style's own tile geometry for imagery. The entire source extent SHALL map onto the entire logical extent with independent X/Y scaling, without cropping, letterboxing, geographic conversion, wrapping or geometry rounding. Background SHALL show through transparency.
+The viewer SHALL use the fixed logical extent `[-100, -100, 100, 100]` (span `200`, centered at `(0, 0)`, X right, Y up) for camera and content coordinates, and each ready style's `tileGeometry` for imagery. Each style SHALL project with uniform scale `200 / max(sourceWidth, sourceHeight)` centered at `(0, 0)` onto its aspect-preserving footprint without stretching, cropping, wrapping, or rounding. Camera zoom bounds SHALL derive from the fixed span, and background SHALL show through transparency and outside rectangular styles.
 
-#### Scenario: Render a rectangular map with odd dimensions
+#### Scenario: Render a rectangular style with odd dimensions
 
-- **WHEN** logical or source dimensions are odd with transparent edge tiles
-- **THEN** fractional boundaries remain aligned and padding does not enlarge or shift the image footprint
+- **WHEN** a ready style has odd rectangular source dimensions with transparent edge tiles
+- **THEN** uniform max-side scaling preserves its exact aspect ratio centered at `(0, 0)` and edge padding does not enlarge or shift the image footprint
 
-#### Scenario: Stretch both ways
+#### Scenario: Preserve alignment across resolutions and aspect ratios
 
-- **WHEN** 8000x8000 and 1000x1000 styles share a map initialized from either one
-- **THEN** both fill the same logical extent and a fixed logical point remains fixed
-
-#### Scenario: Stretch unequal aspect ratios
-
-- **WHEN** a 1000x1000 style is selected on an 8000x4000 logical map
-- **THEN** the full square image stretches to the full rectangle with center and all four corners aligned
+- **WHEN** `8000x8000` and `1000x1000` styles are switched on the same map
+- **THEN** both map to `[-100, -100, 100, 100]` and every fixed logical point remains fixed
+- **WHEN** a `4000x2000` rectangular style is selected on the same map
+- **THEN** it maps to `[-100, -50, 100, 50]` centered at `(0, 0)` without stretching into a square
 
 ### Requirement: Select aligned styles without moving the viewport
 
@@ -38,14 +35,16 @@ The viewer SHALL initially select the supplied displayable default style. Only r
 
 ### Requirement: Control the viewport
 
-The viewer SHALL support pan, zoom in/out, fit-to-map and fullscreen controls with accessible names and keyboard operation. Initial load and explicit fit SHALL show the complete map. Resizing SHALL update the rendered viewport. Fullscreen SHALL expand a consumer-supplied containing region when provided, otherwise the viewer itself; its active state SHALL follow that region. Unsupported fullscreen SHALL be unavailable.
+The viewer SHALL support pan, zoom in/out, fit-to-map and fullscreen controls with accessible names and keyboard operation. Initial load and explicit fit SHALL fit the active ready style's logical footprint when a ready style is displayed, or the full `[-100, -100, 100, 100]` logical extent when no ready style is active. Resizing SHALL update the rendered viewport. Fullscreen SHALL expand a consumer-supplied containing region when provided, otherwise the viewer itself; its active state SHALL follow that region. Unsupported fullscreen SHALL be unavailable.
 
 #### Scenario: Resize and fit
 
 - **WHEN** the viewport changes size or enters fullscreen
 - **THEN** the map fills the available region without a stale canvas size
-- **WHEN** the user invokes fit
-- **THEN** the complete extent is visible
+- **WHEN** the user invokes fit on a rectangular style
+- **THEN** the active style's complete logical footprint is visible with padding without excessive empty margin
+- **WHEN** the user invokes fit with no ready style
+- **THEN** the full `[-100, -100, 100, 100]` logical space is visible
 
 #### Scenario: Expand a consumer workspace
 
@@ -55,32 +54,32 @@ The viewer SHALL support pan, zoom in/out, fit-to-map and fullscreen controls wi
 
 ### Requirement: Render without a displayable style
 
-Before logical geometry exists, the viewer SHALL show an awaiting-first-style state without creating fabricated geometry or requesting tiles. After initialization, absent or non-ready styles SHALL retain the usable logical coordinate space with a no-ready-style state. Source previews SHALL NOT substitute for completed tiles.
+The viewer SHALL initialize its interactive logical coordinate space immediately from the map identity even when the map has no styles or no ready styles. Absent or non-ready styles SHALL display a no-ready-style state without requesting unavailable tiles while keeping the logical coordinate space usable. Source previews SHALL NOT substitute for completed tiles.
 
 #### Scenario: Open a processing-only map
 
-- **WHEN** geometry exists but every style is queued, processing or failed
-- **THEN** the viewer retains logical geometry and requests no unavailable tiles
+- **WHEN** every style on a map is queued, processing, or failed
+- **THEN** the viewer retains the `[-100, -100, 100, 100]` coordinate space, shows the no-ready-style state, and requests no unavailable tiles
 
 #### Scenario: Initialize an empty map
 
-- **WHEN** a newly created map receives its first style attachment
-- **THEN** the viewer can initialize from returned geometry while showing no-ready-style until a ready snapshot is loaded
+- **WHEN** a newly created map with no styles is opened
+- **THEN** the viewer initializes the `[-100, -100, 100, 100]` logical space immediately and shows the no-ready-style state until a ready style is loaded
 
 #### Scenario: Remove every style
 
-- **WHEN** an initialized map loses its final style
-- **THEN** its coordinate space persists and the camera does not reset
+- **WHEN** a map loses its final style
+- **THEN** its coordinate space persists, the no-ready-style state is shown, and the camera does not reset
 
 ### Requirement: Support independent browser consumers
 
-The viewer SHALL accept map geometry and style presentation data independently of administration routes and API clients. It SHALL initialize browser resources only in the browser and release them on removal so navigation and repeated mounting do not retain obsolete maps.
+The viewer SHALL accept map identity and style presentation data independently of administration routes, per-map pixel geometry payloads, and API clients. It SHALL initialize browser resources only in the browser and release them on removal so navigation and repeated mounting do not retain obsolete maps.
 
 #### Scenario: Mount after server rendering
 
 - **WHEN** a consumer renders the viewer before browser initialization
 - **THEN** rendering does not access unavailable browser APIs
-- **AND** the interactive viewport initializes in the browser without requiring administration code
+- **AND** the interactive viewport initializes in the browser from map identity alone without requiring administration code
 
 ### Requirement: Render category-styled markers
 
@@ -88,7 +87,7 @@ The viewer SHALL accept transport-independent marker presentation data with stab
 
 #### Scenario: Render and update markers
 
-- **WHEN** markers or category appearance change on an initialized map
+- **WHEN** markers or category appearance change on a map
 - **THEN** marker presentation updates without resetting the camera or tile selection
 - **AND** missing images show a usable fallback
 
@@ -101,9 +100,8 @@ The viewer SHALL accept transport-independent marker presentation data with stab
 
 #### Scenario: Retain markers without ready tiles
 
-- **WHEN** map geometry exists but no ready style exists
-- **THEN** marker rendering and interactions remain available in logical coordinate space
-- **AND** before geometry exists placement is unavailable without fabricated coordinates
+- **WHEN** a map has no styles or no ready style
+- **THEN** marker rendering, placement, and movement interactions remain available in the `[-100, -100, 100, 100]` logical coordinate space
 
 #### Scenario: Rendering marker with custom opacity
 

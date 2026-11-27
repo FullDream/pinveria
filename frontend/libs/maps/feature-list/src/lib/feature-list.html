@@ -54,13 +54,6 @@
 								{{ map.status === 'published' ? 'Published' : 'Draft' }}
 							</span>
 						</div>
-						<p class="mt-1 text-sm text-muted-foreground">
-							@if (map.width) {
-								{{ map.width }} × {{ map.height }} logical units
-							} @else {
-								Awaiting first style
-							}
-						</p>
 						<dl class="mt-2 text-xs text-muted-foreground">
 							<div class="gap-1 flex flex-wrap">
 								<dt>Created</dt>
@@ -128,7 +121,7 @@
 				<div hlmEmptyMedia variant="icon"><ng-icon name="matMapRound" aria-hidden="true" /></div>
 				<div hlmEmptyHeader>
 					<h3 hlmEmptyTitle>No maps yet</h3>
-					<p hlmEmptyDescription>Create your first map to define its coordinate space.</p>
+					<p hlmEmptyDescription>Create your first map to start adding styles and markers.</p>
 				</div>
 				<button ui-button icon="matAddRound" (click)="edit()">Add map</button>
 			</div>

@@ -1,12 +1,5 @@
-export type MapGeometry = {
-	id: string
-	extent: number[] | null
-	tileOrigin: number[] | null
-	tileSize: number | null
-	resolutions: number[] | null
-	minZoom: number | null
-	maxZoom: number | null
-}
+export const LOGICAL_SPAN = 200
+export const LOGICAL_EXTENT: readonly [number, number, number, number] = [-100, -100, 100, 100]
 
 export type MapPoint = { x: number; y: number }
 export type MapTool = 'pan' | 'move' | 'add'

@@ -7,10 +7,9 @@ namespace Pinveria.Domain.Tests;
 public class MapRenameTests
 {
 	[Fact]
-	public void RenameTrimsAndPreservesGeometryAndCreation()
+	public void RenameTrimsAndPreservesCreation()
 	{
 		var map = Map.Create(Guid.CreateVersion7(), "World", Slug.Create("map-" + Guid.NewGuid().ToString("N")).Value!).Value!;
-		var geometry = map.Geometry;
 		var createdAt = map.CreatedAt;
 		var result = map.Rename(" New World ");
 
@@ -18,7 +17,6 @@ public class MapRenameTests
 		Assert.True(result.Value);
 		Assert.Equal("New World", map.Name);
 		Assert.Equal("NEW WORLD", map.NormalizedName);
-		Assert.Same(geometry, map.Geometry);
 		Assert.Equal(createdAt, map.CreatedAt);
 		Assert.True(map.UpdatedAt >= createdAt);
 	}

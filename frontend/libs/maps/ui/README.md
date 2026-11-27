@@ -1,10 +1,10 @@
 # Maps UI
 
-Shared map presentation for administration and public consumers. Import `MapViewport`, `MapGeometry` and `MapViewStyle` from `@pinveria/maps/ui`. This non-buildable library has no HTTP, route or data-access dependencies.
+Shared map presentation for administration and public consumers. Import `MapViewport`, `LOGICAL_SPAN`, `LOGICAL_EXTENT`, and `MapViewStyle` from `@pinveria/maps/ui`. This non-buildable library has no HTTP, route or data-access dependencies.
 
-Bind authoritative pixel geometry to `geometry`, style presentation data to `styles`, and the selected ready style ID through `[(selectedStyleId)]`. The consumer initializes selection from `defaultStyleId` and reconciles it when styles disappear. Only ready styles with tile URLs appear in the selector. Switching source/background preserves the camera; a new map identity resets it. Geometry is absent before first attachment and immutable after initialization. The engine initializes only when geometry becomes available.
+Bind the map identifier to `mapId`, style presentation data to `styles`, and the selected ready style ID through `[(selectedStyleId)]`. The consumer initializes selection from `defaultStyleId` and reconciles it when styles disappear. Only ready styles with tile URLs appear in the selector. Switching source/background preserves the camera; a new `mapId` resets it. Every map uses the fixed centered `[-100, 100]` logical coordinate space (`LOGICAL_SPAN = 200`, center `(0, 0)`, X right, Y up), so the engine initializes immediately in the browser even when no styles exist yet.
 
-The viewport loads OpenLayers only after browser rendering, observes container size and disposes engine resources on destruction. It supports pan, keyboard navigation, zoom, fit and browser fullscreen. Uninitialized maps show Awaiting first style. Initialized empty and processing-only maps retain their coordinate space without requesting unavailable tiles. Unsupported fullscreen is disabled. Tile URLs are used unchanged; the host must serve their origin/path.
+The viewport loads OpenLayers only after browser rendering, observes container size and disposes engine resources on destruction. It supports pan, keyboard navigation, zoom, fit and browser fullscreen. Empty and processing-only maps retain their coordinate space without requesting unavailable tiles. Unsupported fullscreen is disabled. Tile URLs are used unchanged; the host must serve their origin/path.
 
 Pointer dragging and wheel zoom work immediately without a preliminary activation click (`onFocusOnly: false`). The map does not take focus automatically; keyboard controls remain available when the map receives focus through normal keyboard or pointer navigation.
 
@@ -14,7 +14,7 @@ The selector is displayed only when the map has more than one style. With zero o
 
 Verify with `npm exec nx -- run maps-ui:lint` and consuming application production builds. Frontend unit/E2E work remains deferred.
 
-Each style also supplies native tileGeometry. Source-pixel affine transforms independently scale X and Y into the logical extent, including unequal aspect ratios; native pyramids retain larger images' detail. Camera zoom constraints are independent of the selected source, so switching styles retains center/resolution. Transform registrations are scoped to the engine and removed when styles change or the engine is disposed.
+Each style supplies its native `tileGeometry`. Source-pixel transforms apply uniform max-side scaling (`scale = 200 / Math.max(srcWidth, srcHeight)`) centered at `(0, 0)` onto `styleExtent = [-srcWidth * scale / 2, -srcHeight * scale / 2, srcWidth * scale / 2, srcHeight * scale / 2]`, preserving exact native aspect ratio without stretching; native pyramids retain larger images' detail. The tile layer is clipped to `styleExtent` and explicit/initial `fit()` frames the active style footprint (or `[-100, -100, 100, 100]` when no ready style exists) without resetting the camera when styles switch. Camera zoom constraints (`maxResolution = 200 / 256`, `minResolution = 200 / (16384 * 4)`) are independent of the selected source, so switching styles retains center/resolution. Transform registrations are scoped to the engine and removed when styles change or the engine is disposed.
 
 ## Markers
 

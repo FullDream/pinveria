@@ -9,27 +9,22 @@ public class MapTests
 	[InlineData(1000, 8000)]
 	[InlineData(8000, 1000)]
 	[InlineData(1025, 513)]
-	public void FirstSourceFixesGeometryRegardlessOfLaterResolution(int first, int second)
+	public void StylesAttachAndDeleteRegardlessOfResolutionOrAspectRatio(int first, int second)
 	{
 		var map = Map.Create(Guid.NewGuid(), "World", Slug.Create("map-" + Guid.NewGuid().ToString("N")).Value!).Value!;
 
-		Assert.Null(map.Geometry);
 		Assert.True(map.AddStyle(Input("Invalid", "red", first, first)).IsFailure);
-		Assert.Null(map.Geometry);
+		Assert.Empty(map.Styles);
 		Assert.True(map.AddStyle(Input("First", width: first, height: first)).IsSuccess);
-		var geometry = map.Geometry;
-
 		Assert.True(map.AddStyle(Input("Second", width: second, height: second / 2)).IsSuccess);
-		Assert.Equal(first, map.Width);
-		Assert.Equal(first, map.Height);
-		Assert.Same(geometry, map.Geometry);
+		Assert.Equal(2, map.Styles.Count);
 
 		foreach (var style in map.Styles.ToArray())
 			Assert.True(map.DeleteStyle(style.Id).IsSuccess);
 
-		Assert.Same(geometry, map.Geometry);
+		Assert.Empty(map.Styles);
 		Assert.True(map.AddStyle(Input("Later", width: second)).IsSuccess);
-		Assert.Equal(first, map.Width);
+		Assert.Single(map.Styles);
 	}
 
 	[Fact]
@@ -67,7 +62,7 @@ public class MapTests
 	[Theory]
 	[InlineData(" World ")]
 	[InlineData("Карта")]
-	public void CreateWithoutStylesDefersGeometry(string name)
+	public void CreateWithoutStylesInitializesCleanMetadata(string name)
 	{
 		var created = Map.Create(Guid.CreateVersion7(), name, Slug.Create("map-" + Guid.NewGuid().ToString("N")).Value!);
 
@@ -77,9 +72,6 @@ public class MapTests
 		Assert.Empty(created.Value.Styles);
 		Assert.Null(created.Value.DefaultStyleId);
 		Assert.Equal(0, created.Value.LastCreationSequence);
-		Assert.Null(created.Value.Geometry);
-		Assert.Null(created.Value.Width);
-		Assert.Null(created.Value.Height);
 		Assert.Equal(created.Value.CreatedAt, created.Value.UpdatedAt);
 	}
 
@@ -94,11 +86,10 @@ public class MapTests
 	[InlineData(MapProcessingStatus.Processing)]
 	[InlineData(MapProcessingStatus.Ready)]
 	[InlineData(MapProcessingStatus.Failed)]
-	public void LastStyleCanBeDeletedInEveryStateWithoutLosingGeometry(MapProcessingStatus status)
+	public void LastStyleCanBeDeletedInEveryState(MapProcessingStatus status)
 	{
 		var map = Create(Input());
 		var style = map.Styles.Single();
-		var geometry = map.Geometry;
 
 		if (status != MapProcessingStatus.Queued)
 			Assert.True(style.Claim(style.AttemptId).IsSuccess);
@@ -113,7 +104,6 @@ public class MapTests
 		Assert.True(map.DeleteStyle(style.Id).IsSuccess);
 		Assert.Empty(map.Styles);
 		Assert.Null(map.DefaultStyleId);
-		Assert.Same(geometry, map.Geometry);
 		Assert.True(map.AddStyle(Input("Next")).IsSuccess);
 		Assert.Equal(2, map.Styles.Single().CreationSequence);
 	}
@@ -209,18 +199,6 @@ public class MapTests
 		Assert.Equal(timestamp, map.UpdatedAt);
 		Assert.Equal(1, existing.CreationSequence);
 		Assert.Equal(1, foreign.CreationSequence);
-	}
-
-	[Fact]
-	public void GeometryRemainsTheSameValueForTheLifetimeOfTheMap()
-	{
-		var map = Create(Input());
-		var geometry = map.Geometry;
-
-		Assert.True(map.AddStyle(Input("Roads")).IsSuccess);
-		Assert.Same(geometry, map.Geometry);
-		Assert.Equal(map.Width, geometry!.Width);
-		Assert.Equal(map.Height, geometry.Height);
 	}
 
 	[Theory]
