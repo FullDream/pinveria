@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22-bookworm-slim AS build
+FROM node:26-trixie-slim AS build
 WORKDIR /workspace
 
 COPY frontend/package.json frontend/package-lock.json ./
@@ -15,7 +15,7 @@ RUN --mount=type=secret,id=nx_cloud_token \
 	fi \
 	&& npm exec nx -- run-many -t build -p web admin --configuration=production
 
-FROM node:22-bookworm-slim AS runtime-deps
+FROM node:26-trixie-slim AS runtime-deps
 WORKDIR /runtime
 
 COPY frontend/package.json ./
@@ -35,7 +35,7 @@ const minPkg = { \
 fs.writeFileSync('package.json', JSON.stringify(minPkg, null, 2)); \
 " && npm install --omit=dev --no-audit --no-fund
 
-FROM node:22-bookworm-slim AS web
+FROM node:26-trixie-slim AS web
 WORKDIR /app
 
 ENV NODE_ENV=production \
