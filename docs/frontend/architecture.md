@@ -42,8 +42,12 @@ Admin's root component hosts routing and toasts; `layout/layout` composes naviga
 around child routes. Pages supply breadcrumbs, actions and request loading through `PageHeaderPortal`.
 Its mutation responses update query cache directly where list membership/order is known; complex
 filtered or paginated changes narrowly invalidate affected lists. Admin configures XHR to report file
-upload progress. Committed previews use NgOptimizedImage with API placeholders and the default loader;
-custom image transformations are deferred. See each Media library README for operation limitations.
+upload progress. Both `web` and `admin` register `provideMediaImageOptimization()` from `shared/ui`,
+configuring `IMAGE_CONFIG` breakpoints (`MEDIA_IMAGE_BREAKPOINTS = [160, 320, 480, 640, 960, 1280, 1600, 1920]`)
+and an `IMAGE_LOADER` (`buildOptimizedMediaUrl` in `shared/util`) that appends snapped `width` and `format=auto`
+(or an explicit `loaderParams.format` override) to `/media/files/...` URLs while passing static bundle assets and
+`data:` URIs through unchanged; `MediaThumbnail` and `ImagePreview` forward responsive `sizes` and `format` inputs,
+and `CategoryIcon` / OpenLayers `MapMarkers` request `/media/files/...` icons at `width=160&format=auto`. See each Media library README for operation limitations.
 
 The Games library test builder uses the admin development build as a compilation harness, not as a runtime dependency. Shared source cannot import app code.
 

@@ -10,6 +10,7 @@ import Overlay from 'ol/Overlay.js'
 import type OlMap from 'ol/Map.js'
 import { unByKey } from 'ol/Observable.js'
 import { matLocationOnFillRound } from '@ng-icons/material-symbols/round'
+import { buildOptimizedMediaUrl } from '@pinveria/shared/util'
 import { DEFAULT_TOOLTIP_CONTENT_CLASSES } from '@spartan-ng/helm/tooltip'
 import type { MapMarker, MapTool, MarkerDraftState, MarkerInteractions, VisibleMapRegion } from './map-viewport-types'
 
@@ -397,7 +398,8 @@ export class MapMarkers {
 	}
 
 	#maskedIcon(url: string, color: string | null, draftState?: MarkerDraftState): Promise<HTMLCanvasElement | null> {
-		const key = JSON.stringify([url, color, draftState ?? null])
+		const resolvedUrl = buildOptimizedMediaUrl(url, { width: 160, format: 'auto' })
+		const key = JSON.stringify([resolvedUrl, color, draftState ?? null])
 		const cached = this.#icons.get(key)
 
 		if (cached) return cached
@@ -483,7 +485,7 @@ export class MapMarkers {
 
 				resolve(outlined)
 			}
-			image.src = url
+			image.src = resolvedUrl
 		})
 
 		this.#icons.set(key, result)

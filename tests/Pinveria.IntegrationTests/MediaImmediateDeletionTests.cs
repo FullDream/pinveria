@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using System.Net;
 using Pinveria.Application.Media.Storage;
 using Pinveria.Infrastructure.Media.Storage;
@@ -24,7 +24,8 @@ public sealed class MediaImmediateDeletionTests
 
 		Assert.True(File.Exists(path));
 		Assert.DoesNotContain(factory.Services.GetServices<IHostedService>(), service =>
-			service.GetType().Namespace?.StartsWith("Pinveria.Infrastructure.Media", StringComparison.Ordinal) == true);
+			service.GetType().Namespace?.StartsWith("Pinveria.Infrastructure.Media", StringComparison.Ordinal) == true &&
+			service is not Pinveria.Infrastructure.Media.Optimization.ImageCacheSweepService);
 	}
 
 	[Fact]

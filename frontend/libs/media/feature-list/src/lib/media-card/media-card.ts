@@ -59,6 +59,7 @@ export class MediaCard {
 	readonly busy = input(false)
 	readonly dropAllowed = input(false)
 	readonly dropActive = input(false)
+	readonly priority = input(false, { transform: booleanAttribute })
 
 	readonly opened = output<MouseEvent>()
 	readonly renamed = output()

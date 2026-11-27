@@ -1,4 +1,5 @@
 using Pinveria.Application.Abstractions.Persistence;
+using Pinveria.Application.Media.Optimization.Caching;
 using Pinveria.Application.Media.Storage;
 using Pinveria.Domain.Media;
 using Pinveria.Domain.Result;
@@ -7,7 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Pinveria.Application.Media.Assets.DeleteMediaAsset;
 
-public sealed class DeleteMediaAssetHandler(IApplicationDbContext context, IMediaStorage storage)
+public sealed class DeleteMediaAssetHandler(
+	IApplicationDbContext context,
+	IMediaStorage storage,
+	IImageVariantCache? imageCache = null)
 	: ICommandHandler<DeleteMediaAsset, Result>
 {
 	public async ValueTask<Result> Handle(DeleteMediaAsset command, CancellationToken cancellationToken)
@@ -31,6 +35,15 @@ public sealed class DeleteMediaAssetHandler(IApplicationDbContext context, IMedi
 			storage.DeleteAsset(command.Id);
 			await context.MediaAssets.Where(asset => asset.Id == command.Id).ExecuteDeleteAsync(cancellationToken);
 			await transaction.CommitAsync(cancellationToken);
+		}
+
+		try
+		{
+			imageCache?.InvalidateAsset(command.Id);
+		}
+		catch
+		{
+			// Derived image cache invalidation is best-effort and must not fail a committed asset deletion.
 		}
 
 		return Result.Success();

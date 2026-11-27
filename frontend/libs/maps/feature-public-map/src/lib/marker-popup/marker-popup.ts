@@ -1,9 +1,10 @@
 import { HlmCarouselImports } from '@spartan-ng/helm/carousel'
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox'
 import { HlmLabel } from '@spartan-ng/helm/label'
-import { NgTemplateOutlet } from '@angular/common'
+import { NgOptimizedImage, NgTemplateOutlet } from '@angular/common'
 import { HlmAspectRatioImports } from '@spartan-ng/helm/aspect-ratio'
 import { Button } from '@pinveria/shared/ui'
+import { MEDIA_IMAGE_SRCSET } from '@pinveria/shared/util'
 import { HlmTooltip } from '@spartan-ng/helm/tooltip'
 import { Component, computed, input, output } from '@angular/core'
 import type { PublicCategory, PublicMarker } from '@pinveria/maps/data-access'
@@ -19,6 +20,7 @@ import { matCloseRound, matOpenInNewRound } from '@ng-icons/material-symbols/rou
 		HlmTooltip,
 		HlmCheckbox,
 		HlmLabel,
+		NgOptimizedImage,
 		NgTemplateOutlet,
 		HlmCarouselImports,
 		HlmAspectRatioImports,
@@ -45,6 +47,8 @@ export class MarkerPopup {
 	readonly closed = output<void>()
 	readonly expand = output<void>()
 	readonly toggleCompleted = output<void>()
+
+	protected readonly mediaSrcset = MEDIA_IMAGE_SRCSET
 
 	protected readonly hasContent = computed(() => {
 		const marker = this.marker()

@@ -137,7 +137,7 @@
 									(keydown)="$event.stopPropagation()"
 								></button>
 								@if (group.icon; as icon) {
-									<ui-media-thumbnail class="size-5 shrink-0" [image]="icon" />
+									<ui-media-thumbnail class="size-5 shrink-0" [image]="icon" sizes="20px" />
 								}
 								<span class="min-w-0 text-sm font-medium flex-1 truncate">{{ group.name }}</span>
 								@if (group.status === 'draft') {

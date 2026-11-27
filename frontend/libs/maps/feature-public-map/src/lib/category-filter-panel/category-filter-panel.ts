@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common'
 import { Component, computed, inject, input, output, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { FormsModule } from '@angular/forms'
@@ -22,6 +23,7 @@ import {
 } from '@ng-icons/material-symbols/round'
 import { CategoryIcon } from '@pinveria/maps/ui'
 import { Button, MediaThumbnail } from '@pinveria/shared/ui'
+import { MEDIA_IMAGE_SRCSET } from '@pinveria/shared/util'
 import { HlmAccordionImports } from '@spartan-ng/helm/accordion'
 import { HlmBreadcrumbImports } from '@spartan-ng/helm/breadcrumb'
 import { HlmInputGroupImports } from '@spartan-ng/helm/input-group'
@@ -43,6 +45,7 @@ export type PublicMapChoice = {
 		Button,
 		CategoryIcon,
 		MediaThumbnail,
+		NgOptimizedImage,
 		HlmAccordionImports,
 		HlmBreadcrumbImports,
 		HlmInputGroupImports,
@@ -54,6 +57,7 @@ export type PublicMapChoice = {
 		HlmSwitch,
 		HlmDropdownMenuImports,
 	],
+	templateUrl: './category-filter-panel.html',
 	providers: [
 		provideIcons({
 			matHomeRound,
@@ -65,7 +69,6 @@ export type PublicMapChoice = {
 			matMapRound,
 		}),
 	],
-	templateUrl: './category-filter-panel.html',
 	host: {
 		class: 'flex h-full w-full flex-col overflow-hidden',
 	},
@@ -86,6 +89,7 @@ export class CategoryFilterPanel {
 	readonly closed = output<void>()
 
 	readonly #db = inject(MapClientDb)
+	protected readonly mediaSrcset = MEDIA_IMAGE_SRCSET
 	readonly groups = computed(() => this.data().categoryGroups)
 
 	readonly completedCountByCategoryId = this.#db.liveQuerySignal({

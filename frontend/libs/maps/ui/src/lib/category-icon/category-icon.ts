@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core'
 import { matLocationOnFillRound } from '@ng-icons/material-symbols/round'
+import { buildOptimizedMediaUrl } from '@pinveria/shared/util'
 
 const fallbackIcon = `data:image/svg+xml,${encodeURIComponent(matLocationOnFillRound)}`
 
@@ -27,5 +28,11 @@ export class CategoryIcon {
 	readonly color = input<string | null>(null)
 
 	protected readonly masked = computed(() => !!this.color() || !this.iconUrl())
-	protected readonly imageUrl = computed(() => `url(${JSON.stringify(this.iconUrl() || fallbackIcon)})`)
+
+	protected readonly imageUrl = computed(() => {
+		const rawUrl = this.iconUrl()
+		const resolvedUrl = rawUrl ? buildOptimizedMediaUrl(rawUrl, { width: 160, format: 'auto' }) : fallbackIcon
+
+		return `url(${JSON.stringify(resolvedUrl)})`
+	})
 }

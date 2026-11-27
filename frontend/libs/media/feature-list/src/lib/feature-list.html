@@ -142,6 +142,7 @@
 				[item]="item"
 				[limit]="limit()"
 				[busy]="busy()"
+				[priority]="$index < 6"
 				[dropAllowed]="item.type === 'folder' && canDrop(item.id)"
 				(opened)="rememberOpener($event)"
 				(renamed)="item.type === 'folder' && openFolderEditor(item)"

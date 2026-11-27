@@ -20,7 +20,7 @@
 			<input type="hidden" [formField]="fields.sourceAssetId" />
 
 			@if (source(); as image) {
-				<ui-media-thumbnail class="h-32 rounded-md w-full border" [image]="image" />
+				<ui-media-thumbnail class="h-32 rounded-md w-full border" [image]="image" sizes="400px" />
 				<p class="text-sm truncate">{{ image.name }}</p>
 			}
 

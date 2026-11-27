@@ -1,3 +1,4 @@
+using Pinveria.Api.Media.Optimization;
 using Pinveria.Application.Media.Storage;
 using Microsoft.Extensions.FileProviders;
 
@@ -28,6 +29,7 @@ public static class MediaFileMiddlewareExtensions
 
 				var originalPath = context.Request.Path;
 
+				context.Items[ImageOptimizationMiddleware.AssetIdItemKey] = id;
 				context.Request.Path = $"/{id:N}";
 
 				try
@@ -40,18 +42,26 @@ public static class MediaFileMiddlewareExtensions
 				}
 			});
 
+			branch.UseMiddleware<ImageOptimizationMiddleware>();
+
 			branch.UseStaticFiles(new StaticFileOptions
 			{
 				FileProvider = files,
 				ContentTypeProvider = new MediaFileContentTypeProvider(storage),
 				OnPrepareResponse = context =>
 				{
-					var headers = context.Context.Response.Headers;
+					var httpContext = context.Context;
+					var headers = httpContext.Response.Headers;
 
 					headers.XContentTypeOptions = "nosniff";
-					headers.CacheControl = "public,max-age=31536000,immutable";
+					headers.CacheControl = httpContext.Items.ContainsKey(ImageOptimizationMiddleware.BusyFallbackItemKey)
+						? "no-store"
+						: "public,max-age=31536000,immutable";
 
-					if (context.Context.Response.ContentType == "image/svg+xml")
+					if (httpContext.Items.ContainsKey(ImageOptimizationMiddleware.VaryByAcceptItemKey))
+						headers.Vary = "Accept";
+
+					if (httpContext.Response.ContentType == "image/svg+xml")
 						headers.ContentSecurityPolicy =
 							"sandbox; default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 				}

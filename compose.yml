@@ -62,6 +62,7 @@ services:
       ConnectionStrings__Pinveria: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-pinveria};Username=${POSTGRES_USER:-pinveria};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}"
       Maps__StorageRoot: /var/lib/pinveria/maps
       Media__StorageRoot: /var/lib/pinveria/media
+      Media__ImageCache__CacheRoot: /var/lib/pinveria/media-cache
       Hosting__DataProtectionKeysPath: /var/lib/pinveria/dpkeys
       Hosting__UseHttpsRedirection: "false"
       Hosting__KnownNetworks__0: 172.28.0.0/24
@@ -70,6 +71,7 @@ services:
     volumes:
       - maps_storage:/var/lib/pinveria/maps
       - media_storage:/var/lib/pinveria/media
+      - media_cache:/var/lib/pinveria/media-cache
       - dpkeys_storage:/var/lib/pinveria/dpkeys
     networks:
       - pinveria_net
@@ -161,6 +163,7 @@ volumes:
   postgres_data:
   maps_storage:
   media_storage:
+  media_cache:
   dpkeys_storage:
   caddy_data:
   caddy_config:

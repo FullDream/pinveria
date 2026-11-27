@@ -28,9 +28,19 @@
 				<ng-icon [name]="folderIcon()" size="36" aria-hidden="true" />
 			</div>
 		} @else if (media.type === 'image') {
-			<ui-media-thumbnail class="aspect-[4/3]" [image]="media" />
+			<ui-media-thumbnail
+				class="aspect-[4/3]"
+				[image]="media"
+				sizes="(min-width: 1024px) 220px, (min-width: 640px) 33vw, 50vw"
+				[priority]="priority()"
+			/>
 		} @else if (media.preview) {
-			<ui-media-thumbnail class="aspect-[4/3]" [image]="media.preview" />
+			<ui-media-thumbnail
+				class="aspect-[4/3]"
+				[image]="media.preview"
+				sizes="(min-width: 1024px) 220px, (min-width: 640px) 33vw, 50vw"
+				[priority]="priority()"
+			/>
 		} @else {
 			<div class="bg-muted flex aspect-[4/3] items-center justify-center">
 				<ng-icon name="matVideoLibraryRound" size="36" aria-hidden="true" />

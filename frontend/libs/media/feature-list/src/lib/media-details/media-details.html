@@ -22,7 +22,7 @@
 
 			@if (selectedAsset(); as asset) {
 				@if (asset.type === 'image') {
-					<ui-media-thumbnail class="aspect-video rounded-lg border" [image]="asset" />
+					<ui-media-thumbnail class="aspect-video rounded-lg border" [image]="asset" sizes="400px" />
 				} @else {
 					<video
 						class="aspect-video rounded-lg bg-muted w-full"
@@ -54,7 +54,7 @@
 							<span class="text-sm font-medium">Video cover</span>
 
 							@if (preview(); as preview) {
-								<ui-media-thumbnail class="h-28 rounded-lg" [image]="preview" />
+								<ui-media-thumbnail class="h-28 rounded-lg" [image]="preview" sizes="200px" />
 							}
 
 							<div class="gap-2 flex">

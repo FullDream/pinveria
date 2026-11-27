@@ -9,7 +9,13 @@
 	@if (skeleton()) {
 		<hlm-skeleton class="inset-0 absolute rounded-none" />
 	} @else if (current?.banner; as banner) {
-		<ui-media-thumbnail class="size-full" [image]="banner" fit="cover" />
+		<ui-media-thumbnail
+			class="size-full"
+			[image]="banner"
+			fit="cover"
+			sizes="(min-width: 1024px) 480px, 100vw"
+			[priority]="priority()"
+		/>
 	} @else {
 		<ng-icon
 			name="matSportsEsportsRound"
@@ -31,7 +37,13 @@
 			@if (skeleton()) {
 				<hlm-skeleton class="size-full rounded-none" />
 			} @else if (current) {
-				<ui-media-thumbnail class="size-full" [image]="current.cover" fit="cover" />
+				<ui-media-thumbnail
+					class="size-full"
+					[image]="current.cover"
+					fit="cover"
+					sizes="76px"
+					[priority]="priority() && !current.banner"
+				/>
 			}
 		</a>
 		<div class="min-w-0 pb-1 flex-1">
@@ -154,6 +166,7 @@
 							<ui-media-thumbnail
 								class="rounded-lg aspect-33/20 w-full overflow-hidden"
 								[image]="image"
+								sizes="160px"
 							/>
 						} @else {
 							<div

@@ -34,7 +34,7 @@ WORKDIR /app
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends curl libmediainfo0v5 \
 	&& rm -rf /var/lib/apt/lists/* \
-	&& install -d -m 0750 -o app -g app /var/lib/pinveria/maps /var/lib/pinveria/media /var/lib/pinveria/dpkeys
+	&& install -d -m 0750 -o app -g app /var/lib/pinveria/maps /var/lib/pinveria/media /var/lib/pinveria/media-cache /var/lib/pinveria/dpkeys
 
 COPY --from=build /app/publish ./
 COPY --from=build --chmod=0755 /app/efbundle /app/efbundle

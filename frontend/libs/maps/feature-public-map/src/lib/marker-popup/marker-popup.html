@@ -56,8 +56,11 @@
 										<div [hlmAspectRatio]="16 / 9" class="rounded-lg overflow-hidden">
 											@if (media.type === 'image') {
 												<img
-													[src]="media.url"
+													[ngSrc]="media.url"
+													[ngSrcset]="mediaSrcset"
 													[alt]="media.alt || m.name"
+													fill
+													sizes="(min-width: 768px) 440px, 100vw"
 													class="inset-0 absolute size-full object-contain"
 												/>
 											} @else {

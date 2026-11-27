@@ -28,3 +28,11 @@ export {
 	buildMapOgImagePath,
 } from './lib/og-image'
 export type { HomeOgPayload, GameOgPayload, MapOgPayload } from './lib/og-image'
+export {
+	MEDIA_IMAGE_BREAKPOINTS,
+	MEDIA_IMAGE_SRCSET,
+	isMediaImageFormat,
+	snapMediaImageWidth,
+	buildOptimizedMediaUrl,
+} from './lib/media-image-url'
+export type { MediaImageFormat, MediaImageUrlOptions } from './lib/media-image-url'

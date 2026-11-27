@@ -117,7 +117,7 @@
 	} @else if (listing.data()) {
 		<div [class]="view() === 'grid' ? 'games-grid' : 'games-list'">
 			@for (game of listing.data()?.items ?? []; track game.id) {
-				<games-card [game]="game" [layout]="view()" />
+				<games-card [game]="game" [layout]="view()" [priority]="$index < 4" />
 			}
 		</div>
 	}

@@ -37,6 +37,7 @@
 											class="aspect-video rounded-md block overflow-hidden border"
 											[image]="asset"
 											fit="contain"
+											sizes="360px"
 										/>
 									} @else {
 										<div
@@ -47,6 +48,7 @@
 													class="h-24 w-40"
 													[image]="asset.preview"
 													fit="contain"
+													sizes="160px"
 												/>
 											}
 											<span>Video: {{ asset.name }}</span>

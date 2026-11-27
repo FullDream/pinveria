@@ -27,3 +27,8 @@ export { ConfirmationDialog, type Confirmation } from './lib/confirmation-dialog
 export { MediaThumbnail } from './lib/media-thumbnail/media-thumbnail'
 export { ImagePreview } from './lib/image-preview/image-preview'
 export { MediaPickerDialog } from './lib/media-picker-dialog/media-picker-dialog'
+export {
+	MEDIA_IMAGE_OPTIMIZATION_ENABLED,
+	mediaImageLoader,
+	provideMediaImageOptimization,
+} from './lib/media-image-loader/provide-media-image-optimization'

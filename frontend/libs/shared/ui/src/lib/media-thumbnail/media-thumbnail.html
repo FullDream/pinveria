@@ -3,11 +3,26 @@
 		<ng-icon name="matBrokenImageRound" size="30" aria-hidden="true" />
 		<span class="text-xs">Image unavailable</span>
 	</div>
+} @else if (optimizationEnabled) {
+	<img
+		[ngSrc]="image().url"
+		[ngSrcset]="srcset"
+		[alt]="image().alt"
+		fill
+		[priority]="initialPriority()"
+		[sizes]="sizes()"
+		[loaderParams]="loaderParams()"
+		[placeholder]="image().placeholder ?? false"
+		[style.object-fit]="fit()"
+		(error)="failedUrl.set(image().url)"
+	/>
 } @else {
 	<img
 		[ngSrc]="image().url"
 		[alt]="image().alt"
 		fill
+		[priority]="initialPriority()"
+		sizes="100vw"
 		[placeholder]="image().placeholder ?? false"
 		[style.object-fit]="fit()"
 		(error)="failedUrl.set(image().url)"

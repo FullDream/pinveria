@@ -21,6 +21,7 @@ public sealed class GameApiFactory(string environment = "Production", IIntercept
 	public string ConnectionString => $"{BaseConnectionString};Search Path={Schema}";
 	public string MapStoragePath { get; } = Path.Combine(Path.GetTempPath(), $"game-maps-{Guid.NewGuid():N}");
 	public string MediaStoragePath { get; } = Path.Combine(Path.GetTempPath(), $"game-media-{Guid.NewGuid():N}");
+	public string MediaCachePath { get; } = Path.Combine(Path.GetTempPath(), $"game-media-cache-{Guid.NewGuid():N}");
 
 	protected override void ConfigureWebHost(IWebHostBuilder builder)
 	{
@@ -49,6 +50,7 @@ public sealed class GameApiFactory(string environment = "Production", IIntercept
 		builder.UseSetting("Maps:WorkerEnabled", "false");
 		builder.UseSetting("Maps:StorageRoot", MapStoragePath);
 		builder.UseSetting("Media:StorageRoot", MediaStoragePath);
+		builder.UseSetting("Media:ImageCache:CacheRoot", MediaCachePath);
 		builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(
 			new Dictionary<string, string?>
 			{
@@ -57,6 +59,7 @@ public sealed class GameApiFactory(string environment = "Production", IIntercept
 				["Maps:WorkerEnabled"] = "false",
 				["Maps:StorageRoot"] = MapStoragePath,
 				["Media:StorageRoot"] = MediaStoragePath,
+				["Media:ImageCache:CacheRoot"] = MediaCachePath,
 			}));
 
 		builder.ConfigureServices(services =>
@@ -136,5 +139,8 @@ public sealed class GameApiFactory(string environment = "Production", IIntercept
 
 		if (Directory.Exists(MediaStoragePath))
 			Directory.Delete(MediaStoragePath, true);
+
+		if (Directory.Exists(MediaCachePath))
+			Directory.Delete(MediaCachePath, true);
 	}
 }

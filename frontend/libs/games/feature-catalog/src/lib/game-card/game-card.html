@@ -13,6 +13,7 @@
 			<ui-image-preview
 				class="size-full transform-gpu transition-transform duration-300 will-change-transform group-hover/catalog-card:scale-103"
 				[image]="current?.banner ?? null"
+				sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
 			/>
 		}
 	</a>
@@ -27,7 +28,7 @@
 			@if (skeleton()) {
 				<hlm-skeleton class="size-full rounded-none" />
 			} @else if (current) {
-				<ui-media-thumbnail class="size-full" [image]="current.cover" fit="cover" />
+				<ui-media-thumbnail class="size-full" [image]="current.cover" fit="cover" sizes="48px" />
 			}
 		</a>
 

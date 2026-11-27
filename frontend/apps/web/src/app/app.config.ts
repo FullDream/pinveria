@@ -4,7 +4,7 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { provideRouter, TitleStrategy, withComponentInputBinding, withRouterConfig } from '@angular/router'
 import { provideGamesBaseUrl } from '@pinveria/games/data-access'
 import { provideMapsBaseUrl } from '@pinveria/maps/data-access'
-import { PageTitleStrategy, providePageSeo } from '@pinveria/shared/ui'
+import { PageTitleStrategy, provideMediaImageOptimization, providePageSeo } from '@pinveria/shared/ui'
 import { buildHomeOgImagePath, GAME_CATALOG_DESCRIPTION } from '@pinveria/shared/util'
 import { provideSpartanHlm } from '@spartan-ng/helm/utils'
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query'
@@ -24,6 +24,7 @@ export const appConfig: ApplicationConfig = {
 	providers: [
 		provideClientHydration(withEventReplay()),
 		provideBrowserGlobalErrorListeners(),
+		provideMediaImageOptimization(),
 		provideRouter(
 			APP_ROUTES,
 			withComponentInputBinding(),

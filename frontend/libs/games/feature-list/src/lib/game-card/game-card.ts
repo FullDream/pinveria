@@ -58,6 +58,7 @@ export class GameCard {
 	readonly game = input<Game>()
 	readonly skeleton = input(false, { transform: booleanAttribute })
 	readonly layout = input<'grid' | 'list'>('grid')
+	readonly priority = input(false, { transform: booleanAttribute })
 
 	protected readonly mapPreviews = [0, 1, 2]
 

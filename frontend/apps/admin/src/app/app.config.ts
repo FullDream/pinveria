@@ -4,7 +4,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router'
 import { getGameQueryKey, gamesListKey, provideGamesBaseUrl } from '@pinveria/games/data-access'
 import { MEDIA_PICKER_SOURCE } from '@pinveria/shared/util'
-import { PageTitleStrategy } from '@pinveria/shared/ui'
+import { PageTitleStrategy, provideMediaImageOptimization } from '@pinveria/shared/ui'
 import { provideSignalR } from '@pinveria/shared/data-access'
 import { MediaPickerAdapter, provideMediaBaseUrl } from '@pinveria/media/data-access'
 import { provideBrnDialogDefaultOptions } from '@spartan-ng/brain/dialog'
@@ -46,6 +46,7 @@ const createQueryClient = (): QueryClient =>
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),
+		provideMediaImageOptimization(),
 		{ provide: MEDIA_PICKER_SOURCE, useExisting: MediaPickerAdapter },
 		provideRouter(APP_ROUTES, withComponentInputBinding()),
 		{ provide: PageTitleStrategy, useClass: AdminTitleStrategy },

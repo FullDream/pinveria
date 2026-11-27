@@ -38,6 +38,7 @@ coverage/
 # Local storage directories
 **/storage/maps/
 **/storage/media/
+**/storage/media-cache/
 
 # Repository documentation tooling
 scripts/node_modules/
