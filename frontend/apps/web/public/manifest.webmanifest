@@ -1,7 +1,7 @@
 {
 	"name": "Pinveria — Interactive Game Maps",
 	"short_name": "Pinveria",
-	"description": "Explore detailed game worlds with collectibles, quests, bosses, and hidden locations.",
+	"description": "Find collectibles, quest locations, bosses, and hidden spots as you explore each game.",
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",

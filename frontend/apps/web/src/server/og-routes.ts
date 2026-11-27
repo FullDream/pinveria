@@ -6,7 +6,10 @@ import {
 	computeHomeOgHash,
 	computeMapOgHash,
 	formatCount,
+	GAME_CATALOG_DESCRIPTION,
+	GAME_MAPS_LABEL,
 	isValidOgHash,
+	MARKER_COMPLETION_LABEL,
 } from '@pinveria/shared/util'
 import { Resvg } from '@resvg/resvg-js'
 import type { Context } from 'hono'
@@ -291,12 +294,12 @@ export async function handleHomeOgImage(context: Context, browserDistFolder: str
 						Interactive Game Maps
 					</div>
 					<div style="margin-top: 22px; color: #d4d4d8; font-size: 30px; font-weight: 400; line-height: 1.4;">
-						Explore detailed game worlds with collectibles, quests, bosses, and hidden locations.
+						${GAME_CATALOG_DESCRIPTION}
 					</div>
 				</div>
 				<div style="display: flex; align-items: center;">
-					${buildPillHtml('Unlimited markers')}
-					${buildPillHtml('Multiple maps')}
+					${buildPillHtml(MARKER_COMPLETION_LABEL)}
+					${buildPillHtml(GAME_MAPS_LABEL)}
 				</div>
 			</div>
 		</div>

@@ -14,6 +14,7 @@ export type {
 export { reorder } from './lib/reorder'
 export { DEFAULT_PAGE_SIZE, PAGE_SIZES } from './lib/pagination'
 export { formatCount } from './lib/format-count'
+export { GAME_CATALOG_DESCRIPTION, GAME_MAPS_LABEL, MARKER_COMPLETION_LABEL } from './lib/game-catalog-copy'
 export {
 	OG_TEMPLATE_VERSION,
 	OG_HASH_PATTERN,

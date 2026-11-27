@@ -1,3 +1,5 @@
+import { GAME_CATALOG_DESCRIPTION, GAME_MAPS_LABEL, MARKER_COMPLETION_LABEL } from './game-catalog-copy'
+
 export const OG_TEMPLATE_VERSION = 'v1'
 
 export const OG_HASH_PATTERN = /^[0-9a-f]{12}$/
@@ -50,7 +52,13 @@ export function isValidOgHash(value: string): boolean {
 }
 
 export function computeHomeOgHash(payload: HomeOgPayload = {}): string {
-	return hashOgPayload(['home', payload.title ?? 'Interactive Game Maps', payload.subtitle ?? ''])
+	return hashOgPayload([
+		'home',
+		payload.title ?? 'Interactive Game Maps',
+		payload.subtitle ?? GAME_CATALOG_DESCRIPTION,
+		MARKER_COMPLETION_LABEL,
+		GAME_MAPS_LABEL,
+	])
 }
 
 export function computeGameOgHash(payload: GameOgPayload): string {

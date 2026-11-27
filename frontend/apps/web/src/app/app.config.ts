@@ -5,7 +5,7 @@ import { provideRouter, TitleStrategy, withComponentInputBinding, withRouterConf
 import { provideGamesBaseUrl } from '@pinveria/games/data-access'
 import { provideMapsBaseUrl } from '@pinveria/maps/data-access'
 import { PageTitleStrategy, providePageSeo } from '@pinveria/shared/ui'
-import { buildHomeOgImagePath } from '@pinveria/shared/util'
+import { buildHomeOgImagePath, GAME_CATALOG_DESCRIPTION } from '@pinveria/shared/util'
 import { provideSpartanHlm } from '@spartan-ng/helm/utils'
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query'
 import { APP_ROUTES } from './app.routes'
@@ -33,7 +33,7 @@ export const appConfig: ApplicationConfig = {
 		{ provide: TitleStrategy, useExisting: PageTitleStrategy },
 		providePageSeo({
 			siteName: 'Pinveria',
-			defaultDescription: 'Explore detailed game worlds with collectibles, quests, bosses, and hidden locations.',
+			defaultDescription: GAME_CATALOG_DESCRIPTION,
 			defaultImage: buildHomeOgImagePath(),
 		}),
 		{ provide: OverlayContainer, useClass: FullscreenOverlayContainer },
