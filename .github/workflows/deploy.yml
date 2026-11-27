@@ -171,13 +171,17 @@ jobs:
             fi
           } | ssh ${SSH_OPTS} "${REMOTE}" "umask 077 && cat > /opt/pinveria/.env"
 
-          printf '%s' "${GHCR_TOKEN}" | ssh ${SSH_OPTS} "${REMOTE}" "docker login ghcr.io -u '${GHCR_USER}' --password-stdin"
+          GHCR_AUTH="$(printf '%s:%s' "${GHCR_USER}" "${GHCR_TOKEN}" | base64 -w 0)"
 
-          ssh ${SSH_OPTS} "${REMOTE}" "
+          printf '{"auths":{"ghcr.io":{"auth":"%s"}}}\n' "${GHCR_AUTH}" | ssh ${SSH_OPTS} "${REMOTE}" "
             set -euo pipefail
-            trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+            TMP_DOCKER_CONFIG=\$(mktemp -d)
+            trap 'rm -rf \"\${TMP_DOCKER_CONFIG}\"' EXIT
+            chmod 700 \"\${TMP_DOCKER_CONFIG}\"
+            (umask 077 && cat > \"\${TMP_DOCKER_CONFIG}/config.json\")
             cd /opt/pinveria
-            docker compose pull
+            DOCKER_CONFIG=\"\${TMP_DOCKER_CONFIG}\" docker compose pull
+            rm -rf \"\${TMP_DOCKER_CONFIG}\"
             docker compose up -d --remove-orphans
             if [ '${BOOTSTRAP_ADMIN}' = 'true' ]; then
               sed -i 's/^ADMIN_BOOTSTRAP_LOGIN=.*/ADMIN_BOOTSTRAP_LOGIN=/; s/^ADMIN_BOOTSTRAP_PASSWORD=.*/ADMIN_BOOTSTRAP_PASSWORD=/' /opt/pinveria/.env
