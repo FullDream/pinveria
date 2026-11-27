@@ -70,6 +70,7 @@ jobs:
       - name: Build production Docker images
         env:
           IMAGE_TAG: ${{ steps.meta.outputs.tag }}
+          NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_WRITE_TOKEN }}
         run: |
           docker buildx build \
             --load \
@@ -81,6 +82,7 @@ jobs:
 
           docker buildx build \
             --load \
+            --secret id=nx_cloud_token,env=NX_CLOUD_ACCESS_TOKEN \
             --cache-from type=gha,scope=frontend \
             --cache-to type=gha,mode=max,scope=frontend \
             --target web \
@@ -90,6 +92,7 @@ jobs:
 
           docker buildx build \
             --load \
+            --secret id=nx_cloud_token,env=NX_CLOUD_ACCESS_TOKEN \
             --cache-from type=gha,scope=frontend \
             --cache-to type=gha,mode=max,scope=frontend \
             --target caddy \

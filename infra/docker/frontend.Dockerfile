@@ -7,8 +7,13 @@ COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 
 COPY frontend/ ./
-RUN npm exec nx -- build web --configuration=production \
-	&& npm exec nx -- build admin --configuration=production
+RUN --mount=type=secret,id=nx_cloud_token \
+	if [ -s /run/secrets/nx_cloud_token ]; then \
+		export NX_CLOUD_ACCESS_TOKEN="$(cat /run/secrets/nx_cloud_token)"; \
+	else \
+		export NX_NO_CLOUD=true; \
+	fi \
+	&& npm exec nx -- run-many -t build -p web admin --configuration=production
 
 FROM node:22-bookworm-slim AS runtime-deps
 WORKDIR /runtime
