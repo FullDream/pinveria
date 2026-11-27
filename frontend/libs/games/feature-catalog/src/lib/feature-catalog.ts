@@ -12,7 +12,14 @@ import {
 	parseGameSort,
 } from '@pinveria/games/data-access'
 import { Button, ErrorState, PageLoadingSource, PageSeo, PageSeoDirective } from '@pinveria/shared/ui'
-import { buildHomeOgImagePath, DEFAULT_PAGE_SIZE, PAGE_SIZES } from '@pinveria/shared/util'
+import {
+	buildHomeOgImagePath,
+	DEFAULT_PAGE_SIZE,
+	GAME_CATALOG_DESCRIPTION,
+	GAME_MAPS_LABEL,
+	MARKER_COMPLETION_LABEL,
+	PAGE_SIZES,
+} from '@pinveria/shared/util'
 import { NgIcon, provideIcons } from '@ng-icons/core'
 import {
 	matCloseRound,
@@ -33,8 +40,6 @@ import { linkedQueryParam } from 'ngxtension/linked-query-param'
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs'
 import { GameCard } from './game-card/game-card'
 import { HERO_ATLAS_IMAGE_SRC, HERO_ATLAS_PLACEHOLDER } from './hero-atlas'
-
-const CATALOG_DESCRIPTION = 'Explore detailed game worlds with collectibles, quests, bosses, and hidden locations.'
 
 @Component({
 	selector: 'games-catalog',
@@ -120,12 +125,12 @@ export class FeatureCatalog {
 	protected readonly heroPlaceholder = HERO_ATLAS_PLACEHOLDER
 	protected readonly pageSizes = PAGE_SIZES
 	protected readonly sortOptions = GAME_SORT_OPTIONS
-	protected readonly seoDescription = CATALOG_DESCRIPTION
+	protected readonly description = GAME_CATALOG_DESCRIPTION
 	protected readonly seoImage = buildHomeOgImagePath()
 
 	protected readonly features = [
-		{ icon: 'matLocationOnRound', label: 'Unlimited markers' },
-		{ icon: 'matLayersRound', label: 'Multiple maps' },
+		{ icon: 'matLocationOnRound', label: MARKER_COMPLETION_LABEL },
+		{ icon: 'matLayersRound', label: GAME_MAPS_LABEL },
 	] as const
 
 	protected readonly sortLabel = (value: unknown): string => getGameSortLabel(value)
@@ -166,7 +171,7 @@ export class FeatureCatalog {
 				'@type': 'WebSite',
 				name: 'Pinveria',
 				url: siteUrl,
-				description: CATALOG_DESCRIPTION,
+				description: this.description,
 				potentialAction: {
 					'@type': 'SearchAction',
 					target: `${siteUrl}?search={search_term_string}`,

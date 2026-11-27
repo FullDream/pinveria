@@ -2,7 +2,7 @@
 <ng-container
 	uiPageSeo
 	[title]="seoTitle()"
-	[description]="seoDescription"
+	[description]="description"
 	[image]="seoImage"
 	[canonical]="seoCanonical()"
 	[noindex]="hasFilterOrCustomSort()"
@@ -33,7 +33,7 @@
 				Interactive Game Maps
 			</h1>
 			<p class="mt-3 text-base text-muted-foreground sm:text-lg">
-				Explore detailed game worlds with collectibles, quests, bosses, and hidden locations.
+				{{ description }}
 			</p>
 
 			<ul class="mt-6 gap-x-6 gap-y-2 text-sm font-medium text-foreground/90 flex flex-wrap items-center">
@@ -85,7 +85,7 @@
 	<div class="mb-6 gap-4 flex flex-wrap items-end justify-between">
 		<div class="min-w-0">
 			<h2 id="catalog-heading" class="text-2xl font-semibold tracking-tight">Games</h2>
-			<p class="mt-1 text-sm text-muted-foreground">Browse all available game atlases and interactive maps.</p>
+			<p class="mt-1 text-sm text-muted-foreground">Choose a game to see its interactive maps.</p>
 		</div>
 
 		<hlm-select [value]="sortSelection()" [itemToString]="sortLabel" (valueChange)="changeSort($event)">
@@ -139,12 +139,12 @@
 				<div hlmEmptyMedia variant="icon" class="size-16">
 					<ng-icon name="matSportsEsportsRound" class="text-[--spacing(10)]" aria-hidden="true" />
 				</div>
-				<h3 hlmEmptyTitle>{{ search() ? 'No matching games' : 'No games yet' }}</h3>
+				<h3 hlmEmptyTitle>{{ search() ? 'No matching games' : 'No games published yet' }}</h3>
 				<p hlmEmptyDescription>
 					{{
 						search()
-							? 'Try another name or clear your search.'
-							: 'Games added to the atlas will appear here.'
+							? 'Try a different game title or clear your search.'
+							: 'Games and their interactive maps will appear here as they’re published.'
 					}}
 				</p>
 			</div>
