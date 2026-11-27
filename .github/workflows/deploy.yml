@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 concurrency:
   group: production-deploy
@@ -61,43 +62,58 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Compute image tag
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute image metadata
         id: meta
         run: |
           SHORT_SHA="${GITHUB_SHA::12}"
+          OWNER_LOWER="${GITHUB_REPOSITORY_OWNER,,}"
           echo "tag=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "prefix=ghcr.io/${OWNER_LOWER}/" >> "$GITHUB_OUTPUT"
 
-      - name: Build production Docker images
+      - name: Build and push production Docker images
         env:
           IMAGE_TAG: ${{ steps.meta.outputs.tag }}
+          IMAGE_PREFIX: ${{ steps.meta.outputs.prefix }}
           NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_WRITE_TOKEN }}
         run: |
+          SOURCE_URL="https://github.com/${GITHUB_REPOSITORY}"
+
           docker buildx build \
-            --load \
+            --push \
             --cache-from type=gha,scope=api \
             --cache-to type=gha,mode=max,scope=api \
+            --label "org.opencontainers.image.source=${SOURCE_URL}" \
             -f infra/docker/api.Dockerfile \
-            -t "pinveria-api:${IMAGE_TAG}" \
+            -t "${IMAGE_PREFIX}pinveria-api:${IMAGE_TAG}" \
             .
 
           docker buildx build \
-            --load \
+            --push \
             --secret id=nx_cloud_token,env=NX_CLOUD_ACCESS_TOKEN \
             --cache-from type=gha,scope=frontend \
             --cache-to type=gha,mode=max,scope=frontend \
+            --label "org.opencontainers.image.source=${SOURCE_URL}" \
             --target web \
             -f infra/docker/frontend.Dockerfile \
-            -t "pinveria-web:${IMAGE_TAG}" \
+            -t "${IMAGE_PREFIX}pinveria-web:${IMAGE_TAG}" \
             .
 
           docker buildx build \
-            --load \
+            --push \
             --secret id=nx_cloud_token,env=NX_CLOUD_ACCESS_TOKEN \
             --cache-from type=gha,scope=frontend \
             --cache-to type=gha,mode=max,scope=frontend \
+            --label "org.opencontainers.image.source=${SOURCE_URL}" \
             --target caddy \
             -f infra/docker/frontend.Dockerfile \
-            -t "pinveria-caddy:${IMAGE_TAG}" \
+            -t "${IMAGE_PREFIX}pinveria-caddy:${IMAGE_TAG}" \
             .
 
       - name: Configure SSH client
@@ -111,9 +127,13 @@ jobs:
           printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
           chmod 0600 ~/.ssh/known_hosts
 
-      - name: Stream Docker images and compose configuration to VDS
+      - name: Deploy images and compose configuration to VDS
+        timeout-minutes: 15
         env:
           IMAGE_TAG: ${{ steps.meta.outputs.tag }}
+          IMAGE_PREFIX: ${{ steps.meta.outputs.prefix }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -125,23 +145,19 @@ jobs:
           ADMIN_BOOTSTRAP_LOGIN: ${{ secrets.ADMIN_BOOTSTRAP_LOGIN }}
           ADMIN_BOOTSTRAP_PASSWORD: ${{ secrets.ADMIN_BOOTSTRAP_PASSWORD }}
         run: |
+          set -euo pipefail
           PORT="${DEPLOY_PORT:-22}"
           USER_NAME="${DEPLOY_USER:-deploy}"
           REMOTE="${USER_NAME}@${DEPLOY_HOST}"
-          SSH_OPTS="-i ~/.ssh/id_deploy -p ${PORT} -o StrictHostKeyChecking=yes"
+          COMMON_SSH_OPTS="-i ~/.ssh/id_deploy -o StrictHostKeyChecking=yes -o BatchMode=yes -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=4"
+          SSH_OPTS="${COMMON_SSH_OPTS} -p ${PORT}"
+          SCP_OPTS="${COMMON_SSH_OPTS} -P ${PORT}"
 
-          docker save \
-            "pinveria-api:${IMAGE_TAG}" \
-            "pinveria-web:${IMAGE_TAG}" \
-            "pinveria-caddy:${IMAGE_TAG}" \
-            | zstd -T0 -3 \
-            | ssh ${SSH_OPTS} "${REMOTE}" "zstd -d | docker load"
-
-          scp -i ~/.ssh/id_deploy -P "${PORT}" -o StrictHostKeyChecking=yes \
-            compose.yml "${REMOTE}:/opt/pinveria/compose.yml"
+          scp ${SCP_OPTS} compose.yml "${REMOTE}:/opt/pinveria/compose.yml"
 
           {
             printf 'DOMAIN=%s\n' "${DOMAIN}"
+            printf 'IMAGE_PREFIX=%s\n' "${IMAGE_PREFIX}"
             printf 'IMAGE_TAG=%s\n' "${IMAGE_TAG}"
             printf 'POSTGRES_DB=%s\n' "${POSTGRES_DB}"
             printf 'POSTGRES_USER=%s\n' "${POSTGRES_USER}"
@@ -155,9 +171,13 @@ jobs:
             fi
           } | ssh ${SSH_OPTS} "${REMOTE}" "umask 077 && cat > /opt/pinveria/.env"
 
+          printf '%s' "${GHCR_TOKEN}" | ssh ${SSH_OPTS} "${REMOTE}" "docker login ghcr.io -u '${GHCR_USER}' --password-stdin"
+
           ssh ${SSH_OPTS} "${REMOTE}" "
             set -euo pipefail
+            trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
             cd /opt/pinveria
+            docker compose pull
             docker compose up -d --remove-orphans
             if [ '${BOOTSTRAP_ADMIN}' = 'true' ]; then
               sed -i 's/^ADMIN_BOOTSTRAP_LOGIN=.*/ADMIN_BOOTSTRAP_LOGIN=/; s/^ADMIN_BOOTSTRAP_PASSWORD=.*/ADMIN_BOOTSTRAP_PASSWORD=/' /opt/pinveria/.env

@@ -27,7 +27,7 @@ services:
         max-file: "3"
 
   migrator:
-    image: pinveria-api:${IMAGE_TAG:-latest}
+    image: ${IMAGE_PREFIX:-}pinveria-api:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: infra/docker/api.Dockerfile
@@ -45,7 +45,7 @@ services:
       - no-new-privileges:true
 
   api:
-    image: pinveria-api:${IMAGE_TAG:-latest}
+    image: ${IMAGE_PREFIX:-}pinveria-api:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: infra/docker/api.Dockerfile
@@ -90,7 +90,7 @@ services:
         max-file: "5"
 
   web:
-    image: pinveria-web:${IMAGE_TAG:-latest}
+    image: ${IMAGE_PREFIX:-}pinveria-web:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: infra/docker/frontend.Dockerfile
@@ -122,7 +122,7 @@ services:
         max-file: "5"
 
   caddy:
-    image: pinveria-caddy:${IMAGE_TAG:-latest}
+    image: ${IMAGE_PREFIX:-}pinveria-caddy:${IMAGE_TAG:-latest}
     build:
       context: .
       dockerfile: infra/docker/frontend.Dockerfile

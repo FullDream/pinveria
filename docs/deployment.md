@@ -23,7 +23,7 @@ Because the repository is public:
 
 - No server IP addresses, SSH ports, usernames, domains, or secrets are committed to tracked files. [`.env.example`](../.env.example) and [`inventory.example.yml`](../infra/ansible/inventory.example.yml) contain only safe placeholders and environment variable lookups.
 - Production secrets and environment variables live exclusively in the GitHub **`production` Environment** (`Settings → Environments → production`).
-- Docker images are built on GitHub-hosted runners and streamed directly to the VDS over SSH (`docker save | zstd | ssh ... docker load`) without publishing images to a public registry.
+- Docker images are built on GitHub-hosted runners and pushed to GitHub Container Registry (`ghcr.io`) using the workflow's short-lived `GITHUB_TOKEN`, with `linux-x64`-only .NET publishing. During deployment, the VDS pulls only changed layers via `docker compose pull` (authenticating with the job's short-lived token and logging out immediately afterward) without storing long-lived registry credentials on the server.
 - `/opt/pinveria/.env` is generated remotely during deployment with `umask 077` (`0600` permissions). One-time administrator bootstrap credentials (`ADMIN_BOOTSTRAP_LOGIN` / `ADMIN_BOOTSTRAP_PASSWORD`) are cleared from `/opt/pinveria/.env` immediately after the initial deployment starts.
 
 ## GitHub Environment configuration

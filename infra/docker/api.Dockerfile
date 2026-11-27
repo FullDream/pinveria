@@ -9,13 +9,16 @@ COPY src/Pinveria.Application/Pinveria.Application.csproj src/Pinveria.Applicati
 COPY src/Pinveria.Infrastructure/Pinveria.Infrastructure.csproj src/Pinveria.Infrastructure/
 COPY src/Pinveria.Api/Pinveria.Api.csproj src/Pinveria.Api/
 
-RUN dotnet restore src/Pinveria.Api/Pinveria.Api.csproj
+RUN dotnet restore -r linux-x64 src/Pinveria.Api/Pinveria.Api.csproj
 RUN dotnet tool restore
 
 COPY src/ src/
 
 RUN dotnet publish src/Pinveria.Api/Pinveria.Api.csproj \
 	-c Release \
+	-r linux-x64 \
+	--no-self-contained \
+	--no-restore \
 	-o /app/publish \
 	/p:UseAppHost=false
 
